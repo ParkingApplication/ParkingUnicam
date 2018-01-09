@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="left|center"
+    android:orientation="vertical"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    tools:context="com.example.stach.app_test.GPSActivity">
+<EditText
+    android:id="@+id/latitude"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:hint="@string/latitude"/>
+    <EditText
+        android:id="@+id/longitude"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="@string/longitude"/>
+
+    <!--button for gps user location-->
+    <Button
+        android:id="@+id/btn_userPosition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/blue"
+        android:onClick="getUserPosition"
+        android:text="@string/userPosition"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textStyle="normal" />
+    <!--Only for padding-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/text_or"
+        android:textColor="@color/black"
+        android:textSize="@dimen/title"
+        android:textAlignment="center"/>
+    <!--Only for padding-->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <!--button for gps current location-->
+    <Button
+        android:id="@+id/btn_currentPosition"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/blue"
+        android:onClick="getCurrentPosition"
+        android:text="@string/currentPosition"
+        android:textAllCaps="true"
+        android:textColor="@color/white"
+        android:textStyle="normal" />
+</LinearLayout>

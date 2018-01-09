@@ -1,0 +1,31 @@
+<resources>
+    <string name="app_name">Unicam Parking</string>
+    <string name="title_activity_login">Accedi</string>
+    <string name="title_activity_signUp">Registrati</string>
+    <string name="title_activity_gps">Gps Location</string>
+
+    <!-- Strings related to login -->
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="error_invalid_email">This email address is invalid</string>
+    <string name="error_invalid_password">This password is too short</string>
+    <string name="error_incorrect_password">This password is incorrect</string>
+    <string name="error_field_required">This field is required</string>
+    <string name="permission_rationale">"Contacts permissions are needed for providing email
+        completions."
+    </string>
+    <string name="btn_login">Effettua il login</string>
+    <string name="btn_credentials"> <u>Hai dimenticato la mail o la password?</u></string>
+    <string name="btn_to_signUp"> Registrati</string>
+    <string name="btn_to_gps"> GPS backdoor</string>
+    <!-- Strings related to signUp -->
+    <string name="prompt_pass_repeate_signUp">Ripeti password</string>
+    <string name="btn_signUp">Registrati</string>
+    <string name="text_or"> Oppure</string>
+    <!-- Strings related to GPS -->
+    <string name="latitude">Latitudine</string>
+    <string name="longitude">Longitudine</string>
+    <string name="currentPosition">Prendi la posizione corrente</string>
+    <string name="userPosition">Vai a coordinate scelte</string>
+
+</resources>

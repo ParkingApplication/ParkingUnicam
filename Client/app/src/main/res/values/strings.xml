@@ -3,7 +3,12 @@
     <string name="title_activity_login">Accedi</string>
     <string name="title_activity_signUp">Registrati</string>
     <string name="title_activity_gps">Gps Location</string>
-
+    <!-- Strings related to navigation bar-->
+    <string name="nav_account_title">Account</string>
+    <string name="nav_book_park_title">Prenota Parcheggio</string>
+    <string name="nav_assistance_title">Contatta Assistenza</string>
+    <string name="open">Apri</string>
+    <string name="close">Chiudi</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -18,6 +23,8 @@
     <string name="btn_credentials"> <u>Hai dimenticato la mail o la password?</u></string>
     <string name="btn_to_signUp"> Registrati</string>
     <string name="btn_to_gps"> GPS backdoor</string>
+    <string name="btn_to_map"> Google Maps backdoor</string>
+    <string name="btn_to_nav"> Navbar backdoor</string>
     <!-- Strings related to signUp -->
     <string name="prompt_pass_repeate_signUp">Ripeti password</string>
     <string name="btn_signUp">Registrati</string>
@@ -27,5 +34,13 @@
     <string name="longitude">Longitudine</string>
     <string name="currentPosition">Prendi la posizione corrente</string>
     <string name="userPosition">Vai a coordinate scelte</string>
+    <string name="title_activity_map">MapActivity</string>
+    <string name="title_activity_navitagiont_">Navitagiont_Activity</string>
+    <string name="title_activity_main">MainActivity</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="action_settings">Settings</string>
 
 </resources>

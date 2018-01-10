@@ -13,6 +13,7 @@
         android:layout_marginBottom="76dp"
         app:layout_constraintBottom_toTopOf="@+id/progressBar"
         app:srcCompat="@drawable/unicam_park"
+        tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp" />
 
 
@@ -23,6 +24,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="116dp"
         app:layout_constraintBottom_toBottomOf="parent"
+        tools:ignore="MissingConstraints"
         tools:layout_editor_absoluteX="0dp" />
 
 </android.support.constraint.ConstraintLayout>

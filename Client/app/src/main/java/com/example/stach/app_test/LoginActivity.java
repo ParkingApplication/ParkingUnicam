@@ -93,10 +93,16 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
-     * This method allow user to go gps activity
+     * This method allow user to go map google activity
      */
-    public void goToGps(View view) {
-        startActivity(new Intent(LoginActivity.this, GPSActivity.class));
+    public void goToMap(View view){
+        startActivity(new Intent(LoginActivity.this,MapActivity.class));
+    }
+    /**
+     * This method allow user to go map google activity
+     */
+    public void goToNav(View view){
+        startActivity(new Intent(LoginActivity.this,MainActivity.class));
     }
 
 }

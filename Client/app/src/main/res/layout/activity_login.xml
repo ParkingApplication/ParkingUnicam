@@ -88,17 +88,29 @@
                 android:textAllCaps="true"
                 android:textColor="@color/white"
                 android:textStyle="normal" />
-            <!--button for signup-->
+
+
+            <!--button for map-->
             <Button
-                android:id="@+id/btn_gps"
+                android:id="@+id/btn_map"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:background="@color/blue"
-                android:onClick="goToGps"
-                android:text="@string/btn_to_gps"
+                android:onClick="goToMap"
+                android:text="@string/btn_to_map"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
                 android:textStyle="normal" />
-
+            <!--button for map-->
+            <Button
+                android:id="@+id/btn_navigation"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/blue"
+                android:onClick="goToNav"
+                android:text="@string/btn_to_nav"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textStyle="normal" />
         </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

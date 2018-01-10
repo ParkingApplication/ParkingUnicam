@@ -9,6 +9,7 @@ import java.net.Socket;
 public class ThreadUtente implements Runnable {
 	//	La connessione corrente con il client
 	private Socket connessione = null;
+	private boolean isStopped = false;
 	
 	//	Stream e buffer di lettura
 	//private InputStreamReader in;
@@ -20,11 +21,44 @@ public class ThreadUtente implements Runnable {
 	
 	@Override
 	public void run() {
-		scriviSuSocket("Test invio.");
-		String str = leggiDaSocket();
+		String output = "";
+		InputStreamReader in = null;
+		BufferedReader reader = null;
 		
-		System.out.println(str);
+		try
+		{
+			//	Flusso in ingresso da socket
+			in = new InputStreamReader(connessione.getInputStream());
+			reader = new BufferedReader(in);
+			//reader.close(); // Richiudo
+		}
+		catch (IOException e) {
+			System.out.println(e);
+		}
+		
+		while (!isStopped()) {
+			try {
+				output = reader.readLine();
+				System.out.println(output);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
 	}
+	
+	public synchronized void stop(){
+        this.isStopped = true;
+        
+        try {
+            this.connessione.close();
+        } catch (IOException e) {
+            throw new RuntimeException("Error closing threadUtente socket.", e);
+        }
+    }
+	
+	private synchronized boolean isStopped() {
+        return this.isStopped;
+    }
 	
 	//	##### FUNZIONI DI TEST SOCKET #####
 
@@ -40,6 +74,7 @@ public class ThreadUtente implements Runnable {
 			//	Flusso in ingresso da socket
 			in = new InputStreamReader(connessione.getInputStream());
 			reader = new BufferedReader(in);
+			output = reader.readLine();
 			reader.close(); // Richiudo
 		}
 		catch (IOException e) {

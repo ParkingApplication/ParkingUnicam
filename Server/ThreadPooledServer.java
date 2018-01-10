@@ -1,18 +1,21 @@
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 //	Thread per la gestione delle richieste socket in ingresso
 public class ThreadPooledServer implements Runnable {
 
-    int serverPort = 5050;
-    ServerSocket serverSocket = null;
-    boolean isStopped = false;
-    Thread runningThread= null;
-    // Imposto quanti thread client possono essere eseguiti contemporaneamente
-    ExecutorService threadPool = Executors.newFixedThreadPool(8);
+	private int serverPort = 5050;
+	private ServerSocket serverSocket = null;
+	private boolean isStopped = false;
+	private Thread runningThread= null;	// Non ho ancora capito a cosa serve esattamente
+	private List<ThreadUtente> lUtenti;
+   
+	private ExecutorService threadPool = Executors.newFixedThreadPool(8); // Imposto quanti thread client possono essere eseguiti contemporaneamente
 
     public ThreadPooledServer(int port){
         this.serverPort = port;
@@ -25,9 +28,13 @@ public class ThreadPooledServer implements Runnable {
         }
         
         openServerSocket();
+        Socket clientSocket;
+        ThreadUtente curThread;
+        lUtenti = new ArrayList<ThreadUtente>();
         
         while (!isStopped()) {
-            Socket clientSocket = null;
+        	curThread = null;
+        	clientSocket = null;
             try {
                 clientSocket = this.serverSocket.accept();
             } catch (IOException e) {
@@ -37,8 +44,15 @@ public class ThreadPooledServer implements Runnable {
                 throw new RuntimeException("Error accepting client connection.", e);
             }
             //	Lancio il thread client con il socket associato (poi gli andranno passati altri oggetti)
-            this.threadPool.execute(new ThreadUtente(clientSocket));
+            curThread = new ThreadUtente(clientSocket);
+            this.threadPool.execute(curThread);
+            lUtenti.add(curThread);
+            System.out.println("\nUna nuova connessione e' stata accettata.\n");
         }
+        
+        //	Fermo tutti i thread utenti in esecuzione
+        for (ThreadUtente utente: lUtenti)
+        	utente.stop();
         
         this.threadPool.shutdown();
         System.out.println("Server Stopped.") ;

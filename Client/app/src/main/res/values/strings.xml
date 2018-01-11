@@ -7,8 +7,8 @@
     <string name="nav_account_title">Account</string>
     <string name="nav_book_park_title">Prenota Parcheggio</string>
     <string name="nav_assistance_title">Contatta Assistenza</string>
-    <string name="open">Apri</string>
-    <string name="close">Chiudi</string>
+    <string name="navigation_drawer_open">Apri</string>
+    <string name="navigation_drawer_close">Chiudi</string>
     <!-- Strings related to login -->
     <string name="prompt_email">Email</string>
     <string name="prompt_password">Password</string>
@@ -35,12 +35,13 @@
     <string name="currentPosition">Prendi la posizione corrente</string>
     <string name="userPosition">Vai a coordinate scelte</string>
     <string name="title_activity_map">MapActivity</string>
-    <string name="title_activity_navitagiont_">Navitagiont_Activity</string>
+    <string name="title_activity_navitagion">Navitagiont_Activity</string>
     <string name="title_activity_main">MainActivity</string>
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
-
     <string name="action_settings">Settings</string>
-
+    <!-- Strings related to image text -->
+    <string name="icon_profile">Profilo</string>
+    <string name="icon_find_park">Trova un parcheggio</string>
+    <string name="icon_your_book">Le tue prenotazioni</string>
+    <string name="icon_settings">Impostazioni</string>
+    <string name="icon_logout">Logout</string>
 </resources>

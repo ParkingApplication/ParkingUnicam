@@ -16,9 +16,15 @@ public class StartActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_start);
-
+        //the handler is to showing an activity presentation for two second and then pass to login
+        Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            public void run() {
+                startActivity(new Intent(StartActivity.this, LoginActivity.class));
+            }
+        }, 2000); // 2 seconds
     }
-
+/**
     @Override
     protected void onStart() {
         super.onStart();
@@ -42,7 +48,7 @@ public class StartActivity extends AppCompatActivity {
             e.printStackTrace();
             Toast.makeText(this, "Connessione non riuscita", Toast.LENGTH_SHORT).show();
         }
-    }
+    }*/
 
 
 

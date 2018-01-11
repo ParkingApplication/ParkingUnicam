@@ -2,6 +2,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -12,13 +13,15 @@ public class ThreadPooledServer implements Runnable {
 	private int serverPort = 5050;
 	private ServerSocket serverSocket = null;
 	private boolean isStopped = false;
-	private Thread runningThread= null;	// Non ho ancora capito a cosa serve esattamente
+	private Thread runningThread = null;	// Non ho ancora capito a cosa serve esattamente
 	private List<ThreadUtente> lUtenti;
+	private Date curData;	//	Data corrente
    
 	private ExecutorService threadPool = Executors.newFixedThreadPool(8); // Imposto quanti thread client possono essere eseguiti contemporaneamente
 
-    public ThreadPooledServer(int port){
+    public ThreadPooledServer(int port, Date data){
         this.serverPort = port;
+        curData = data;
     }
 
     @Override

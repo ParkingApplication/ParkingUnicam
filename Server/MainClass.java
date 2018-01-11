@@ -3,8 +3,11 @@ import java.util.*;
 public class MainClass {
 
 	public static void main(String[] args) {
-		ThreadPooledServer server = new ThreadPooledServer(5050); // In seguito potrebbero servire più porte
+		Date data = new Date();
+		ThreadPooledServer server = new ThreadPooledServer(5050, data); // In seguito potrebbero servire più porte
 		Scanner in = new Scanner(System.in);
+		
+		
 		
 		//	Avvio il server
 		new Thread(server).start();

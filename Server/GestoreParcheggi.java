@@ -1,11 +1,11 @@
-
+//	test git update da eclipse
 public class GestoreParcheggi {
 	private Parcheggio[] parcheggi;
 	private int[][] postiLiberi; //	Matrice dei posti liberi di ogni parcheggio divisi per tipologia
 
 	public GestoreParcheggi(Parcheggio[] parcheggi) {
 		this.parcheggi = parcheggi;
-		postiLiberi = new int[parcheggi.length][6];
+		postiLiberi = new int[parcheggi.length][5];
 		
 		for (int i = 0; i < parcheggi.length; i++)
 		{

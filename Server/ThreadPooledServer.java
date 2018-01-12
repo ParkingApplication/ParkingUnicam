@@ -15,6 +15,7 @@ public class ThreadPooledServer implements Runnable {
 	private boolean isStopped = false;
 	private Thread runningThread = null;	// Non ho ancora capito a cosa serve esattamente
 	private List<ThreadUtente> lUtenti;
+	private GestoreParcheggi gParcheggi;	//	Andra poi letto da db
 	private Date curData;	//	Data corrente
    
 	private ExecutorService threadPool = Executors.newFixedThreadPool(8); // Imposto quanti thread client possono essere eseguiti contemporaneamente
@@ -47,7 +48,7 @@ public class ThreadPooledServer implements Runnable {
                 throw new RuntimeException("Error accepting client connection.", e);
             }
             //	Lancio il thread client con il socket associato (poi gli andranno passati altri oggetti)
-            curThread = new ThreadUtente(clientSocket);
+            curThread = new ThreadUtente(clientSocket, gParcheggi);
             this.threadPool.execute(curThread);
             lUtenti.add(curThread);
             System.out.println("\nUna nuova connessione e' stata accettata.\n");

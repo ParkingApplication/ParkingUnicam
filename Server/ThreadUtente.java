@@ -4,19 +4,22 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.List;
 
 //	Thread per la gestione della connessione (via socket) con ogni singolo utente
 public class ThreadUtente implements Runnable {
 	//	La connessione corrente con il client
 	private Socket connessione = null;
 	private boolean isStopped = false;
+	private Utente curUser = null;
+	private List<Prenotazione> prenotazioni; //	Lista delle prenotazioni in corso
+	private GestoreParcheggi gParcheggi;
 	
-	//	Stream e buffer di lettura
-	//private InputStreamReader in;
-	//private BufferedReader reader;
-	
-	public ThreadUtente(Socket sock) {
+	public ThreadUtente(Socket sock, GestoreParcheggi gParcheggi) {
 		connessione = sock;
+		prenotazioni = new ArrayList<Prenotazione>();
+		this.gParcheggi = gParcheggi;
 	}
 	
 	@Override
@@ -46,6 +49,7 @@ public class ThreadUtente implements Runnable {
 		}
 	}
 	
+	//	Chiude la connessione ed arresta il thread
 	public synchronized void stop(){
         this.isStopped = true;
         
@@ -56,9 +60,16 @@ public class ThreadUtente implements Runnable {
         }
     }
 	
-	private synchronized boolean isStopped() {
+	public synchronized boolean isStopped() {
         return this.isStopped;
     }
+	
+	//	Identifica l'identità dell' utente e stabilisce gli algoritmi di sicurezza e le chiavi correlate per la comunicazione criptata
+	public boolean handshake() {
+		
+		return true;
+	}
+	
 	
 	//	##### FUNZIONI DI TEST SOCKET #####
 

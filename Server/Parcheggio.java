@@ -68,6 +68,7 @@ public class Parcheggio {
 		return ris;
 	}
 	
+	//	Prenota un posto per disabili e ritorna la posizione del posto indicato oppure -1 se non ci sono posti liberi
 	public int prenotaPostoDisabili() {
 		int ris = -1;
 		
@@ -84,5 +85,27 @@ public class Parcheggio {
 	//	Libera il posto indicato e ritorna true se era occupato, else se era già libero
 	public boolean liberaPosto(int nPosto) {
 		return posti[nPosto].libera();
+	}
+	
+	//	Ritorna il numero totale di posti per la tipologia di posto selezionata
+	public int countPostiPerTipo(TipoPosto tPosto) {
+		int count = 0;
+		
+		for(int i = 0; i < posti.length; i++)
+			if (posti[i].getTipoPosto().equals(tPosto))
+				count++;
+		
+		return count;
+	}
+	
+	//	Ritorna il numero totale di posti per disabili
+	public int countPostiDisabili() {
+		int count = 0;
+		
+		for(int i = 0; i < posti.length; i++)
+			if (posti[i].isDisabile())
+				count++;
+		
+		return count;
 	}
 }

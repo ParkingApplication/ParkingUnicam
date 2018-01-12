@@ -1,10 +1,10 @@
 
 public enum TipoPosto {
-	Macchina,	// 1
-	Camper,		// 2
-	Moto,		// 3
-	Camion,		// 4
-	Autobus;	// 5
+	Macchina,	// 0
+	Camper,		// 1
+	Moto,		// 2
+	Camion,		// 3
+	Autobus;	// 4
 	
 	//	Potrebbe servire o no, in caso non serva verrà eliminato a fine progetto.
 	public static int getValue(TipoPosto tp) {
@@ -12,19 +12,19 @@ public enum TipoPosto {
 		
 		switch (tp ) {
 		case Macchina:
-			ris = 1;
+			ris = 0;
 			break;
 		case Camper:
-			ris = 2;
+			ris = 1;
 			break;
 		case Moto:
-			ris = 3;
+			ris = 2;
 		break;
 		case Camion:
-			ris = 4;
+			ris = 3;
 			break;
 		case Autobus:
-			ris = 5;
+			ris = 4;
 			break;
 		}
 		return ris;

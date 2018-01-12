@@ -23,4 +23,11 @@ public class GestoreParcheggi {
 		
 		return parcheggi[idParcheggio].prenotaPosto(tPosto);
 	}
+	
+	public boolean liberaPosto(int idParcheggio, int nPosto) {
+		if (idParcheggio < 0 || idParcheggio >= parcheggi.length)
+			return false;
+		
+		return parcheggi[idParcheggio].liberaPosto(nPosto);
+	}
 }

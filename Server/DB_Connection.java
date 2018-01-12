@@ -42,7 +42,6 @@ public class DB_Connection {
 		return true;
 	}
 	
-	
 	public boolean Disconnect()
 	{
 		try { 

@@ -55,14 +55,6 @@
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".ProfileActivity"
-            android:label="@string/title_activity_profile"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".Your_Book"
-            android:label="@string/title_activity_your__book"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
     </application>
 
 </manifest>

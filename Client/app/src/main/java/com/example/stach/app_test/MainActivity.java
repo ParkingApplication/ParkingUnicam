@@ -1,6 +1,7 @@
 package com.example.stach.app_test;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
@@ -28,7 +29,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         //DEFAULT FRAGMENT
-        setTitle("Fragment Profile");
+        setTitle("Il tuo profilo");
+        //assign default fragment
         ProfileFragment fragment = new ProfileFragment();
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fram, fragment, "Fragment Profile");
@@ -72,25 +74,38 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
         int id = item.getItemId();
+        //choose fragment
         if (id == R.id.nav_profile) {
-            setTitle("Fragment Profile");
+            setTitle("Il tuo profilo");
             ProfileFragment fragment = new ProfileFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Profile");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_findPark) {
-
+            setTitle("Trova il parcheggio");
+            FindYourParkingFragment fragment = new FindYourParkingFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
+            fragmentTransaction.commit();
         } else if (id == R.id.nav_your_book) {
-            setTitle("Fragment Book");
+            setTitle("Le tue prenotazioni");
             FragmentYour_Book fragment = new FragmentYour_Book();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_settings) {
+            setTitle("Impostazioni");
+            SettingsFragment fragment = new SettingsFragment();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fram, fragment, "Fragment Settings");
+            fragmentTransaction.commit();
         } else if (id == R.id.nav_logout) {
+            //return to login page
+            Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_share) {
+            //TODO
         }
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

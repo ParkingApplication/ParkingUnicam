@@ -51,5 +51,15 @@
     <string name="profile_image">Immagine del profilo</string>
     <!-- String related to profile fragment-->
     <string name="your_book">Le tue prenotazioni</string>
+    <string name="provaPren">Parcheggio Copert Camerino tra le ore 15 e le 17</string>
+    <!-- String related to findyoutpark fragment-->
+    <string name="city">Cerca la città in cui vuoi parcheggio</string>
+    <string name="yourPosition">Cerca parcheggio dove ti trovi ora</string>
+    <!-- String related to settings fragment-->
+    <string name="changePassword">Cambia password</string>
+    <string name="changeMail">Cambia email</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

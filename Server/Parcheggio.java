@@ -1,36 +1,30 @@
 
 public class Parcheggio {
-	//nome del parcheggio
-	private String nomeParcheggio;
 	//indirizzo del parcheggio
 	private Indirizzo indirizzoParcheggio;
 	//coordinate del parcheggio
 	private String[] coordinate;
 	//posti del parcheggio
-	private Posto[] posti;
+	private boolean[][] posti;	//	Righe = TipoPosto Colonne = IdPosto / True = occupato False = libero
+	//tariffe orarie
+	private double tariffaLavorativi, tariffaFestivi;	//	Non sono sicuro sul DOUBLE andrebbe trovata un alternativa per i costi
 	
-	public Parcheggio(String nomeParcheggio, Indirizzo indirizzoParcheggio, String coordinataX, String coordinataY, Posto[] posti) {		
-		//conto il numero di posti che prende il parcheggio cosi creo un array con il numero di posti
-		int controlloLunghezza = posti.length;
-		//inizializzo i due array
-		this.posti = new Posto[controlloLunghezza];
+	public Parcheggio(Indirizzo indirizzoParcheggio, String coordinataX, String coordinataY, int[] postiPerTipo, double tariffaOrariaLavorativi, double tariffaOrariaFestivi) {	
 		this.coordinate = new String[2];
+		posti = new boolean[5][];	//	5 righe, una per tipo di parcheggio esistente
 		
-		this.nomeParcheggio = nomeParcheggio;
+		for (int i = 0; i < 5; i++)
+			posti[i] = new boolean[postiPerTipo[i]];
+		
 		this.indirizzoParcheggio = indirizzoParcheggio;
 		this.coordinate[0] = coordinataX;
 		this.coordinate[1] = coordinataY;
-		
-		
-		this.posti = posti;
+		tariffaLavorativi = tariffaOrariaLavorativi;
+		tariffaFestivi = tariffaOrariaFestivi;
 	}
-
 	
 //---------------------------------------------------GETTERS AND SETTERS-----------------------------------------------------------------
 
-	public String getNomeParcheggio() {
-		return nomeParcheggio;
-	}
 
 	public Indirizzo getIndirizzoParcheggio() {
 		return indirizzoParcheggio;
@@ -39,10 +33,13 @@ public class Parcheggio {
 	public String[] getCoordinate() {
 		return coordinate;
 	}
-
-	//	Non sono sicuro che serva realmente a qualcosa
-	public Posto[] getPosti() {
-		return posti;
+	
+	public double getTariffaLavorativi() {
+			return tariffaLavorativi;
+	}
+	
+	public double getTariffaFestivi() {
+		return tariffaFestivi;
 	}
 	
 //---------------------------------------------------------------------------------------------------------------------------------------
@@ -50,10 +47,11 @@ public class Parcheggio {
 	//	Prenota il posto del tipo specificato e ritorna la posizione del posto prenotato o -1 se non ci sono posti disponibili di quel tipo
 	public int prenotaPosto(TipoPosto tPosto) {
 		int ris = -1;
+		int tipo = TipoPosto.getValue(tPosto);
 		
-		for(int i = 0; i < posti.length; i++)
-			if (posti[i].isLibero() && posti[i].getTipoPosto().equals(tPosto)) {
-				posti[i].prenota();
+		for(int i = 0; i < posti[tipo].length; i++)
+			if (!posti[tipo][i]) {
+				posti[tipo][i] = true;
 				ris = i;
 				break;
 			}
@@ -62,19 +60,10 @@ public class Parcheggio {
 	}
 
 	//	Libera il posto indicato e ritorna true se era occupato, else se era già libero
-	public boolean liberaPosto(int nPosto) {
-		return posti[nPosto].libera();
-	}
-	
-	//	Ritorna il numero totale di posti per la tipologia di posto selezionata
-	public int countPostiPerTipo(TipoPosto tPosto) {
-		int count = 0;
+	public boolean liberaPosto(TipoPosto tPosto, int nPosto) {
+		if (nPosto < 0 || nPosto > posti[TipoPosto.getValue(tPosto)].length)
+			return false;
 		
-		for(int i = 0; i < posti.length; i++)
-			if (posti[i].getTipoPosto().equals(tPosto))
-				count++;
-		
-		return count;
+		return posti[TipoPosto.getValue(tPosto)][nPosto] = false;
 	}
-	
 }

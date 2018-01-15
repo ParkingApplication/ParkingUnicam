@@ -1,7 +1,7 @@
 
 public class Indirizzo {
 	//nome della città
-	private String città;
+	private String citta;
 	//via
 	private String via;
 	//numero civico
@@ -13,19 +13,23 @@ public class Indirizzo {
 	
 	
 	
-	public Indirizzo(String città, String via, int numeroCivico, String provincia, int cap) {
-		this.città = città;
+	public Indirizzo(String citta, String via, int numeroCivico, String provincia, int cap) {
+		this.citta = citta;
 		this.via = via;
 		this.numeroCivico = numeroCivico;
 		this.provincia = provincia;
 		this.cap = cap;
 	}
 	
+	public String toString() {
+		return via + " " + numeroCivico + " - " + cap + " " + citta + " (" + provincia + ")";
+	}
+	
 //----------------------------------------GETTERS AND SETTERS----------------------------------------------------------------
 	
 
-	public String getCittà() {
-		return città;
+	public String getCitta() {
+		return citta;
 	}
 
 

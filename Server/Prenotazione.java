@@ -2,39 +2,48 @@ import java.util.Date;
 
 public class Prenotazione {
 	
-	private int idPrenotazione;
 	//id dell'utente che ha fatto la prenotazione
 	private int idUtente;
 	//id del parcheggio su cui è stata fatta la prenotazione
 	private int idParcheggio;
 	//data in cui è stata fatta la prenotazione
 	private Date dataPrenotazione;
-	//id del posto a cui è riferita la prenotazione
+	//il tipo del parcheggio a cui è riferita la prenotazione
+	private TipoPosto tipoParcheggio;
 	private int idPosto;
-	//ammontare del costo
-	private float costoPrenotazione;
 	
-	public Prenotazione(int idPrenotazione, int idUtente, int idParcheggio, int idPosto, Date dataPrenotazione, float costoPrenotazione) {
+	private boolean pagata;	//	Indica se la prenotazione è stata pagata o è in corso
+	
+	//dati per le prenotazioni già pagate e salvate nel db
+	private int idPrenotazione;
+	private double incasso;
+	private int orePermanenza;
+	
+	public Prenotazione(int idUtente, int idParcheggio, TipoPosto tipoParcheggio, Date dataPrenotazione, int idPosto) {
+		this.idPrenotazione = -1;
+		this.idUtente = idUtente;
+		this.idParcheggio = idParcheggio;
+		this.tipoParcheggio = tipoParcheggio;
+		this.dataPrenotazione = dataPrenotazione;
+		this.orePermanenza = -1;
+		this.incasso = 0;
+		this.idPosto = idPosto;
+		this.pagata = false;
+	}
+	
+	public Prenotazione(int idPrenotazione, int idUtente, int idParcheggio, TipoPosto tipoParcheggio, Date dataPrenotazione, int orePermanenza, double incasso) {
 		this.idPrenotazione = idPrenotazione;
 		this.idUtente = idUtente;
 		this.idParcheggio = idParcheggio;
-		this.idPosto = idPosto;
+		this.tipoParcheggio = tipoParcheggio;
 		this.dataPrenotazione = dataPrenotazione;
-		this.costoPrenotazione = costoPrenotazione;
+		this.orePermanenza = orePermanenza;
+		this.incasso = incasso;
+		this.idPosto = -1;
+		this.pagata = true;
 	}
-	
 	
 //-------------------------------GETTERS AND SETTERS------------------------------------------------
-	
-
-
-	public float getCostoPrenotazione() {
-		return costoPrenotazione;
-	}
-
-	public void setCostoPrenotazione(float costoPrenotazione) {
-		this.costoPrenotazione = costoPrenotazione;
-	}
 
 	public int getIdUtente() {
 		return idUtente;
@@ -48,13 +57,16 @@ public class Prenotazione {
 		return dataPrenotazione;
 	}
 
-	public int getIdPosto() {
-		return idPosto;
-	}
-
-
 	public int getIdPrenotazione() {
 		return idPrenotazione;
+	}
+	
+	public TipoPosto getTipoParcheggio() {
+		return tipoParcheggio;
+	}
+	
+	public int getIdPosto() {
+		return idPosto;
 	}
 	
 //--------------------------------------------------------------------------------------

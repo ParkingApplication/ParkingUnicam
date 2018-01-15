@@ -5,6 +5,7 @@ import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 //	Thread per la gestione della connessione (via socket) con ogni singolo utente
@@ -12,7 +13,7 @@ public class ThreadUtente implements Runnable {
 	//	La connessione corrente con il client
 	private Socket connessione = null;
 	private boolean isStopped = false;
-	private Utente curUser = null;
+	private Autista curUser = null;	//	Verrà caricato appena ricevuti e convalidati i dati di login
 	private List<Prenotazione> prenotazioni; //	Lista delle prenotazioni in corso
 	private GestoreParcheggi gParcheggi;
 	
@@ -48,6 +49,35 @@ public class ThreadUtente implements Runnable {
 			}
 		}
 	}
+	
+	private boolean effettuaPrenotazione(int idParcheggio, TipoPosto tPosto) {
+		int pos = prenotaPostoParcheggio(idParcheggio, tPosto);
+		
+		if (pos >= 0) {
+			prenotazioni.add(new Prenotazione(curUser.getIdAutista(), idParcheggio, tPosto, new Date(), pos));
+			return true;
+		}
+		
+		return false;
+	}
+	
+	//	Effettua la prenotazione sul gestore dei parcheggi in modo sincrono (compete con altri processi utente per gli stessi parcheggi)
+	private synchronized int prenotaPostoParcheggio(int idParcheggio, TipoPosto tPosto) {
+        return gParcheggi.prenotaPosto(idParcheggio, tPosto);
+    }
+	
+	public boolean annullaPrenotaizone(int nPrenotazione) {
+		if (nPrenotazione < 0 || nPrenotazione >= prenotazioni.size())
+			return false;
+		
+		Prenotazione p = prenotazioni.remove(nPrenotazione);
+		
+		return liberaPostoParcheggio(p.getIdParcheggio(), p.getTipoParcheggio(), p.getIdPosto());
+	}
+	
+	private synchronized boolean liberaPostoParcheggio(int idParcheggio, TipoPosto tPosto, int nPosto) {
+        return gParcheggi.liberaPosto(idParcheggio, tPosto, nPosto);
+    }
 	
 	//	Chiude la connessione ed arresta il thread
 	public synchronized void stop(){

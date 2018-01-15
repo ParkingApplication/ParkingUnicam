@@ -4,7 +4,7 @@ import java.util.List;
 
 //	Classe per la gestione della connessione con un database MySql
 public class DB_Connection {
-	private String username, password;
+	private String username, password, nomedb;
 	//	Connessione con il database
 	private Connection dbcon;
 	
@@ -12,21 +12,22 @@ public class DB_Connection {
 	public DB_Connection()
 	{
 		username = "root";
-		password = "root";
+		password = "b21c4e08";	// devo toglierlo prima di caricare su git o sono stupido e lascio la password del mio db a tutti
 	}
 	
 	//	Costruttore con parametri
-	public DB_Connection(String user, String pass)
+	public DB_Connection(String user, String pass, String databaseName)
 	{
 		username = user;
 		pass = password;
+		nomedb = databaseName;
 	}
 	
 	public boolean Connect()
 	{
 		try {
 		      Class.forName("com.mysql.jdbc.Driver");	//	Carico i driver JDBC
-		      String url = "jdbc:mysql://localhost:3306/";
+		      String url = "jdbc:mysql://localhost:3306/" + nomedb;
 		      
 		      //	Tento la connessione
 		      dbcon = DriverManager.getConnection(url, username, password);
@@ -57,8 +58,54 @@ public class DB_Connection {
 		return true;
 	}
 	
-	
-	
+	//	Carica tutti i parcheggi presenti nel database e li restituisce come array
+	public Parcheggio[] caricaParcheggi(){
+		String query = "SELECT * FROM parcheggi;";
+		Parcheggio[] parcheggi;
+		
+		// create the java statement
+	     Statement st = null;
+	     
+		try {
+			st = this.dbcon.createStatement();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	      
+	    try {
+	    		ResultSet rs = st.executeQuery(query);
+	    		if(rs.getRow() == 0) //	Se non ci sono parcheggi l'applicazione non ha motivo di essere in funzione
+	    			return null;
+			
+	    		parcheggi = new Parcheggio[rs.getRow()];
+	    		int[] postiPerTipo = new int[5];
+	    		Indirizzo ind = null;
+	    		int i = 0;
+	    		
+	    		
+	    		while(rs.next()) {
+	    			ind = new Indirizzo(rs.getString("citta"), rs.getString("via"), rs.getInt("numero_civico"), 
+	    					rs.getString("provincia"), rs.getInt("cap"));
+	    			
+	    			postiPerTipo[TipoPosto.getValue(TipoPosto.Macchina)] = rs.getInt("nPostiMacchina");
+	    			postiPerTipo[TipoPosto.getValue(TipoPosto.Camper)] = rs.getInt("nPostiCamper");
+	    			postiPerTipo[TipoPosto.getValue(TipoPosto.Autobus)] = rs.getInt("nPostiAutobus");
+	    			postiPerTipo[TipoPosto.getValue(TipoPosto.Moto)] = rs.getInt("nPostiMoto");
+	    			postiPerTipo[TipoPosto.getValue(TipoPosto.Disabile)] = rs.getInt("nPostiDisabile");
+	    			
+	    			parcheggi[i] = new Parcheggio(ind, rs.getString("coordinataX"), rs.getString("coordinataY"), postiPerTipo, 
+	    					rs.getDouble("tariffaOrariaLavorativi"), rs.getDouble("tariffaOrariaFestivi"));
+		    	}
+				
+				st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	    
+	    return parcheggi;  
+	}
 	
 	/*FUNZIONE CHE SELEZIONA L'AUTISTA IN BASE AD USERNAME E PASSWORDO
 	*UNICO PROBLEMA è DA CONSIDERARE SE BISOGNA METTERE IL SALDO ALL'INTERNO DEL DATABASE PER L'UTENTE (DATO CHE SALDO NON è PRESENTE DA 
@@ -322,7 +369,7 @@ public class DB_Connection {
 	/*
 	 *FUNZIONE CHE INSERISCE UNA PRENOTAZIONE PAGATA NEL DATABASE
 	 */
-	public void insertPrenotazione(Prenotazione pren, int oraPermanenza, int idTipoParcheggio) {
+	/*public void insertPrenotazione(Prenotazione pren, int oraPermanenza, int idTipoParcheggio) {
 		
 		int idprenotazioniPagate = pren.getIdPrenotazione();
 		int idUtente = pren.getIdUtente();
@@ -344,7 +391,7 @@ public class DB_Connection {
 	      System.err.println(e.getMessage());
 	    }
 
-	}
+	}*/
 
 	/*
 	 *FUNZIONE CHE INSERISCE UN Parcheggio NEL DATABASE

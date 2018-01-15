@@ -1,19 +1,8 @@
 public class GestoreParcheggi {
 	private Parcheggio[] parcheggi;
-	private int[][] postiLiberi; //	Matrice dei posti liberi di ogni parcheggio divisi per tipologia
 
 	public GestoreParcheggi(Parcheggio[] parcheggi) {
 		this.parcheggi = parcheggi;
-		postiLiberi = new int[parcheggi.length][5];
-		
-		for (int i = 0; i < parcheggi.length; i++)
-		{
-			postiLiberi[i][TipoPosto.getValue(TipoPosto.Macchina)] = parcheggi[i].countPostiPerTipo(TipoPosto.Macchina);
-			postiLiberi[i][TipoPosto.getValue(TipoPosto.Autobus)] = parcheggi[i].countPostiPerTipo(TipoPosto.Autobus);
-			postiLiberi[i][TipoPosto.getValue(TipoPosto.Camper)] = parcheggi[i].countPostiPerTipo(TipoPosto.Camper);
-			postiLiberi[i][TipoPosto.getValue(TipoPosto.Moto)] = parcheggi[i].countPostiPerTipo(TipoPosto.Moto);
-			postiLiberi[i][TipoPosto.getValue(TipoPosto.Disabile)] = parcheggi[i].countPostiPerTipo(TipoPosto.Disabile);
-		}
 	}
 	
 	public int prenotaPosto(int idParcheggio, TipoPosto tPosto) {
@@ -23,10 +12,14 @@ public class GestoreParcheggi {
 		return parcheggi[idParcheggio].prenotaPosto(tPosto);
 	}
 	
-	public boolean liberaPosto(int idParcheggio, int nPosto) {
+	public boolean liberaPosto(int idParcheggio, TipoPosto tPosto, int nPosto) {
 		if (idParcheggio < 0 || idParcheggio >= parcheggi.length)
 			return false;
 		
-		return parcheggi[idParcheggio].liberaPosto(nPosto);
+		return parcheggi[idParcheggio].liberaPosto(tPosto, nPosto);
+	}
+	
+	public Parcheggio getParcheggio(int index) {
+		return parcheggi[index];
 	}
 }

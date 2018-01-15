@@ -2,6 +2,7 @@ import java.util.Date;
 
 public class Prenotazione {
 	
+	private int idPrenotazione;
 	//id dell'utente che ha fatto la prenotazione
 	private int idUtente;
 	//id del parcheggio su cui è stata fatta la prenotazione
@@ -13,7 +14,8 @@ public class Prenotazione {
 	//ammontare del costo
 	private float costoPrenotazione;
 	
-	public Prenotazione(int idUtente, int idParcheggio, int idPosto, Date dataPrenotazione, float costoPrenotazione) {
+	public Prenotazione(int idPrenotazione, int idUtente, int idParcheggio, int idPosto, Date dataPrenotazione, float costoPrenotazione) {
+		this.idPrenotazione = idPrenotazione;
 		this.idUtente = idUtente;
 		this.idParcheggio = idParcheggio;
 		this.idPosto = idPosto;
@@ -49,5 +51,12 @@ public class Prenotazione {
 	public int getIdPosto() {
 		return idPosto;
 	}
+
+
+	public int getIdPrenotazione() {
+		return idPrenotazione;
+	}
+	
+//--------------------------------------------------------------------------------------
 	
 }

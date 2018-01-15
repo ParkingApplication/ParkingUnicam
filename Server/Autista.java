@@ -1,3 +1,4 @@
+import java.util.Date;
 
 public class Autista {
 		//id dell'utente	
@@ -11,7 +12,13 @@ public class Autista {
 		//saldo dell'autista
 		private float saldo;
 		
-		public Autista(String username, String email, String password, int idAutista, String numeroCartaDiCredito, int saldo) {
+		private String nome;
+		private String cognome;
+		private Date dataDiNascita;
+		private String telefono;
+		
+		
+		public Autista(String username, String email, String password, int idAutista, String numeroCartaDiCredito, float saldo, String nome, String cognome, Date dataDiNascita, String telefono) {
 			if((password == null) || (email == null) || (username == null))
 				throw new IllegalArgumentException("Si sta tentando di creare un utente senza dei campi importanti");
 			
@@ -25,6 +32,10 @@ public class Autista {
 			}
 			
 			this.saldo = saldo;
+			this.nome = nome;
+			this.cognome = cognome;
+			this.dataDiNascita = dataDiNascita;
+			this.telefono = telefono;
 		}
 
 	//-----------------------------------GETTERS AND SETTERS------------------------------------------------
@@ -81,6 +92,22 @@ public class Autista {
 			if(saldo != 0) {
 			this.saldo = saldo;
 			}
+		}
+
+		public String getNome() {
+			return nome;
+		}
+
+		public String getCognome() {
+			return cognome;
+		}
+
+		public Date getDataDiNascita() {
+			return dataDiNascita;
+		}
+
+		public String getTelefono() {
+			return telefono;
 		}
 		
 		

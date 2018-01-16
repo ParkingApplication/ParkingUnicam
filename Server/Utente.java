@@ -1,59 +1,41 @@
 
 public class Utente {
+	protected String username, password, email, nome, cognome;
+	protected int id;
 	
-	//id dell'utente	
-	private int idUtente;
-	//email, username e password dell'utente
-	private String username;
-	private String email;
-	private String password;
-	
-	public Utente(String username, String email, String password, int idUtente) {
-		if((password == null) || (email == null) || (username == null))
+	public Utente(int id, String username, String email, String password, String nome, String cognome) {
+		if((password == null) || (email == null) || (username == null) || (nome == null) || (cognome == null))
 			throw new IllegalArgumentException("Si sta tentando di creare un utente senza dei campi importanti");
 		
+		this.id = id;
 		this.username = username;
 		this.email = email;
 		this.password = password;
-		this.idUtente = idUtente;
+		this.nome = nome;
+		this.cognome = cognome;
 	}
 
-//-----------------------------------GETTERS AND SETTERS------------------------------------------------
-	
 	public String getUsername() {
 		return username;
-	}
-
-	public void setUsername(String username) {
-		if(username == null)
-			throw new IllegalArgumentException("Non è stato inserito alcun username");
-		this.username = username;
 	}
 
 	public String getEmail() {
 		return email;
 	}
 
-	public void setEmail(String email) {
-		if(email == null)
-			throw new IllegalArgumentException("Non è stato inserito alcun username");
-		this.email = email;
-	}
-
 	public String getPassword() {
 		return password;
 	}
-
-	public void setPassword(String password) {
-		if(password == null)
-			throw new IllegalArgumentException("Non è stato inserito alcun username");
-		this.password = password;
-	}
-
-	public int getIdUtente() {
-		return idUtente;
+	
+	public String getNome() {
+		return nome;
 	}
 	
-//-------------------------------------------------------------------------------------------------------	
+	public String getCognome() {
+		return cognome;
+	}
 	
+	public int getId() {
+		return id;
+	}
 }

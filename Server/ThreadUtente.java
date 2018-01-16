@@ -54,7 +54,7 @@ public class ThreadUtente implements Runnable {
 		int pos = prenotaPostoParcheggio(idParcheggio, tPosto);
 		
 		if (pos >= 0) {
-			prenotazioni.add(new Prenotazione(curUser.getIdAutista(), idParcheggio, tPosto, new Date(), pos));
+			prenotazioni.add(new Prenotazione(curUser.getId(), idParcheggio, tPosto, new Date(), pos));
 			return true;
 		}
 		

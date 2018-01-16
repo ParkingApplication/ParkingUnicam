@@ -1,5 +1,6 @@
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 //	Classe per la gestione della connessione con un database MySql
@@ -12,7 +13,7 @@ public class DB_Connection {
 	public DB_Connection()
 	{
 		username = "root";
-		password = "root";	// devo toglierlo prima di caricare su git o sono stupido e lascio la password del mio db a tutti
+		password = "b21c4e08";	// devo toglierlo prima di caricare su git o sono stupido e lascio la password del mio db a tutti
 		nomedb = "parkingdb";
 	}
 	
@@ -59,10 +60,10 @@ public class DB_Connection {
 		return true;
 	}
 	
-	//	Carica tutti i parcheggi presenti nel database e li restituisce come array <--- (FUNZIONA CORRETTAMENTE)
+	//	Carica tutti i parcheggi presenti nel database e li restituisce come array <--- (TESTATO E FUNZIONANTE)
 	public Parcheggio[] caricaParcheggi() {
 		String query = "SELECT * FROM parcheggi;";
-		Parcheggio[] parcheggi;
+		Parcheggio[] parcheggi = null;
 		
 		// create the java statement
 	     Statement st = null;
@@ -83,7 +84,7 @@ public class DB_Connection {
 	    		rs.beforeFirst();
 	    		
 	    		//	Se non ci sono parcheggi l'applicazione non ha motivo di essere in funzione
-	    		if(row == 0)
+	    		if(row < 0)
 	    			return null;
 	    		
 	    		parcheggi = new Parcheggio[row];
@@ -116,11 +117,173 @@ public class DB_Connection {
 	    return parcheggi;  
 	}
 	
+	//	Carica un array di utenti presenti nel database e li restituisce come array <--- (TESTATO E FUNZIONANTE)
+	public Utente[] caricaUtenti() {
+		if (username == null || password == null)
+			return null;
+		
+		Utente[] utenti = null;
+		String query = "SELECT * FROM utenti;";
+	    Statement st = null;
+	      
+		try {
+			st = this.dbcon.createStatement();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	      
+		try {
+	    	 ResultSet rs = st.executeQuery(query);
+	    	 
+	    	 //	Prendo il numero totale delle righe di ritorno
+	    	 rs.last();
+	    	 int row = rs.getRow();
+	    	 rs.beforeFirst();
+	    	 
+	    	 //	Se < 1 allora username o password sono errati, se > 1 c'è un errore nel database
+	    	 if(row < 1)
+	    		return null;
+	    	 
+	    	 utenti = new Utente[row];
+	    	 int i = 0;
+			
+	    	 while(rs.next()) {    	 
+		    	 int id = rs.getInt("idUtente");
+		    	 String email = rs.getString("email");
+		    	 String nome = rs.getString("nome");
+		    	 String cognome = rs.getString("cognome");
+				
+		    	 utenti[i] = new Utente(id, username, email, password, nome, cognome);
+		    	 i++;
+	    	 }
+	    	 
+	    	 st.close();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return utenti;
+	}
+	
+	//	Carica un autista dati username e password, restituisce null in caso i dati siano errati <--- (TESTATO E FUNZIONANTE)
+	public Autista caricaAutista(String username, String password) throws Exception {
+		if (username == null || password == null)
+			return null;
+		
+		Autista user = null;
+		CartaDiCredito carta = null;
+		String query = "SELECT * FROM autisti_view WHERE username =\'" + username + "\' AND password =\'" + password + "\';";
+	    Statement st = null;
+	      
+		try {
+			st = this.dbcon.createStatement();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	      
+		try {
+	    	 ResultSet rs = st.executeQuery(query);
+	    	 
+	    	 //	Prendo il numero totale delle righe di ritorno
+	    	 rs.last();
+	    	 int row = rs.getRow();
+	    	 rs.beforeFirst();
+	    	 
+	    	 //	Se < 1 allora username o password sono errati, se > 1 c'è un errore nel database
+	    	 if(row != 1)
+	    		 if (row == 0)
+	    			 return null;
+	    		 else
+	    			 if (row > 1)
+	    				 throw new Exception("Ci sono due utenti con lo stesso username all' interno del database.");
+			
+	    	rs.next();
+	    	 
+	    	//	Dati per l'autista
+			int id = rs.getInt("idUtente");
+			String email = rs.getString("email");
+			String nome = rs.getString("nome");
+			String cognome = rs.getString("cognome");
+			Date dataDiNascita = rs.getDate("dataDiNascita");
+			String telefono = rs.getString("telefono");
+			double saldo = rs.getDouble("saldo");
+			
+			//	Dati per la carta di credito associata all' autista
+			String numeroCarta = rs.getString("numeroCarta");
+			String pin = rs.getString("pinDiVerifica");
+			Date dataScadenza = rs.getDate("dataDiScadenza");
+			
+			st.close();
+			
+			carta = new CartaDiCredito(numeroCarta, pin, dataScadenza);
+			user = new Autista(id, username, email, password, nome, cognome, carta, dataDiNascita, telefono, saldo);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return user;
+	}
+	
+	//	Carica un utente solo se esso ha i diritti di amministratore  <--- (TESTATO E FUNZIONANTE)
+	public Utente caricaUtenteSeAdmin(String username, String password) throws Exception {
+		if (username == null || password == null)
+			return null;
+		
+		Utente user = null;
+		String query = "SELECT * FROM admin_view WHERE username =\'" + username + "\' AND password =\'" + password + "\';";
+	    Statement st = null;
+	      
+		try {
+			st = this.dbcon.createStatement();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+	      
+		try {
+	    	 ResultSet rs = st.executeQuery(query);
+	    	 
+	    	 //	Prendo il numero totale delle righe di ritorno
+	    	 rs.last();
+	    	 int row = rs.getRow();
+	    	 rs.beforeFirst();
+	    	 
+	    	 //	Se < 1 allora username o password sono errati, se > 1 c'è un errore nel database
+	    	 if(row != 1)
+	    		 if (row == 0)
+	    			 return null;
+	    		 else
+	    			 if (row > 1)
+	    				 throw new Exception("Ci sono due admin con lo stesso username all' interno del database.");
+	    	 
+	    	rs.next();
+			
+			int id = rs.getInt("idUtente");
+			String email = rs.getString("email");
+			String nome = rs.getString("nome");
+			String cognome = rs.getString("cognome");
+			int livelloAmministratore = rs.getInt("livelloAmministrazione");	//	PER ORA NON ANCORA UTILIZZATO
+			
+			st.close();
+			
+			user = new Utente(id, username, email, password, nome, cognome);
+		} catch (SQLException e) {
+			e.printStackTrace();
+			return null;
+		}
+		
+		return user;
+	}
+	
 	/*FUNZIONE CHE SELEZIONA L'AUTISTA IN BASE AD USERNAME E PASSWORDO
 	*UNICO PROBLEMA è DA CONSIDERARE SE BISOGNA METTERE IL SALDO ALL'INTERNO DEL DATABASE PER L'UTENTE (DATO CHE SALDO NON è PRESENTE DA 
 	*NESSUNA PARTE)
 	*/
-	public Autista selectAutista(String username, String password) {
+	/*public Autista selectAutista(String username, String password) {
 		//controllare che username e password non siano nulli
 		String query = "SELECT * FROM utenti WHERE username =\'" + username + "\' AND password =\'" + password + "\';";
 		
@@ -159,7 +322,7 @@ public class DB_Connection {
 			return null;
 		}
 	      
-	}
+	}*/
 	
 	
 	/*
@@ -304,8 +467,7 @@ public class DB_Connection {
 	 *FUNZIONE CHE INSERISCE UN UTENTE NEL DATABASE
 	 */
 	public void insertUtente(Autista aut) {
-		
-		int idUtente = aut.getIdAutista();
+		int idUtente = aut.getId();
 		String username = aut.getUsername();
 		String password = aut.getPassword();
 		String email = aut.getEmail();
@@ -408,7 +570,7 @@ public class DB_Connection {
 	 */
 	public void insertParcheggio(Autista aut) {
 		
-		int idUtente = aut.getIdAutista();
+		int idUtente = aut.getId();
 		String username = aut.getUsername();
 		String password = aut.getPassword();
 		String email = aut.getEmail();

@@ -15,8 +15,8 @@ public class ThreadPooledServer implements Runnable {
 	private boolean isStopped = false;
 	private Thread runningThread = null;	// Non ho ancora capito a cosa serve esattamente
 	private List<ThreadUtente> lUtenti;
-	private GestoreParcheggi gParcheggi;	//	Andra poi letto da db
-	private Date curData;	//	Data corrente potrebbe non servire
+	private GestoreParcheggi gParcheggi;
+	private Date curData;	//	Data corrente (potrebbe non servire)
 	private DB_Connection database;
    
 	private ExecutorService threadPool = Executors.newFixedThreadPool(8); // Imposto quanti thread client possono essere eseguiti contemporaneamente

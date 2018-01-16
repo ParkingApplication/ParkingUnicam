@@ -12,7 +12,7 @@ public class DB_Connection {
 	public DB_Connection()
 	{
 		username = "root";
-		password = "b21c4e08";	// devo toglierlo prima di caricare su git o sono stupido e lascio la password del mio db a tutti
+		password = "root";	// devo toglierlo prima di caricare su git o sono stupido e lascio la password del mio db a tutti
 	}
 	
 	//	Costruttore con parametri

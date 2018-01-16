@@ -16,25 +16,30 @@ public class ThreadPooledServer implements Runnable {
 	private Thread runningThread = null;	// Non ho ancora capito a cosa serve esattamente
 	private List<ThreadUtente> lUtenti;
 	private GestoreParcheggi gParcheggi;	//	Andra poi letto da db
-	private Date curData;	//	Data corrente
+	private Date curData;	//	Data corrente potrebbe non servire
+	private DB_Connection database;
    
 	private ExecutorService threadPool = Executors.newFixedThreadPool(8); // Imposto quanti thread client possono essere eseguiti contemporaneamente
 
     public ThreadPooledServer(int port, Date data){
         this.serverPort = port;
         curData = data;
+        lUtenti = new ArrayList<ThreadUtente>();
+        database = new DB_Connection();
     }
 
     @Override
     public void run() {
         synchronized(this) {
             this.runningThread = Thread.currentThread();
-        }
-        
-        openServerSocket();
+        }    
         Socket clientSocket;
         ThreadUtente curThread;
-        lUtenti = new ArrayList<ThreadUtente>();
+        
+        database.Connect();
+        gParcheggi = new GestoreParcheggi(database.caricaParcheggi());
+
+        openServerSocket();
         
         while (!isStopped()) {
         	curThread = null;
@@ -53,6 +58,8 @@ public class ThreadPooledServer implements Runnable {
             lUtenti.add(curThread);
             System.out.println("\nUna nuova connessione e' stata accettata.\n");
         }
+        
+        database.Disconnect();
         
         //	Fermo tutti i thread utenti in esecuzione
         for (ThreadUtente utente: lUtenti)

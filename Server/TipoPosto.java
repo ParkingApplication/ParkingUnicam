@@ -20,7 +20,7 @@ public enum TipoPosto {
 			ris = 2;
 			break;
 		case Autobus:
-			ris = 4;
+			ris = 3;
 			break;
 		case Disabile:
 			ris = 4;

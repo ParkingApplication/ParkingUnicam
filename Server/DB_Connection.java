@@ -13,6 +13,7 @@ public class DB_Connection {
 	{
 		username = "root";
 		password = "root";	// devo toglierlo prima di caricare su git o sono stupido e lascio la password del mio db a tutti
+		nomedb = "parkingdb";
 	}
 	
 	//	Costruttore con parametri
@@ -58,8 +59,8 @@ public class DB_Connection {
 		return true;
 	}
 	
-	//	Carica tutti i parcheggi presenti nel database e li restituisce come array
-	public Parcheggio[] caricaParcheggi(){
+	//	Carica tutti i parcheggi presenti nel database e li restituisce come array <--- (FUNZIONA CORRETTAMENTE)
+	public Parcheggio[] caricaParcheggi() {
 		String query = "SELECT * FROM parcheggi;";
 		Parcheggio[] parcheggi;
 		
@@ -75,14 +76,20 @@ public class DB_Connection {
 	      
 	    try {
 	    		ResultSet rs = st.executeQuery(query);
-	    		if(rs.getRow() == 0) //	Se non ci sono parcheggi l'applicazione non ha motivo di essere in funzione
+	    		
+	    		//	Prendo il numero totale delle righe di ritorno
+	    		rs.last();
+	    		int row = rs.getRow();
+	    		rs.beforeFirst();
+	    		
+	    		//	Se non ci sono parcheggi l'applicazione non ha motivo di essere in funzione
+	    		if(row == 0)
 	    			return null;
-			
-	    		parcheggi = new Parcheggio[rs.getRow()];
+	    		
+	    		parcheggi = new Parcheggio[row];
 	    		int[] postiPerTipo = new int[5];
 	    		Indirizzo ind = null;
 	    		int i = 0;
-	    		
 	    		
 	    		while(rs.next()) {
 	    			ind = new Indirizzo(rs.getString("citta"), rs.getString("via"), rs.getInt("numero_civico"), 
@@ -96,6 +103,8 @@ public class DB_Connection {
 	    			
 	    			parcheggi[i] = new Parcheggio(ind, rs.getString("coordinataX"), rs.getString("coordinataY"), postiPerTipo, 
 	    					rs.getDouble("tariffaOrariaLavorativi"), rs.getDouble("tariffaOrariaFestivi"));
+	    			
+	    			i++;
 		    	}
 				
 				st.close();

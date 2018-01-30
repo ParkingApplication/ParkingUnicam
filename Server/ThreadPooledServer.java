@@ -53,20 +53,20 @@ public class ThreadPooledServer implements Runnable {
                 throw new RuntimeException("Error accepting client connection.", e);
             }
             //	Lancio il thread client con il socket associato (poi gli andranno passati altri oggetti)
-            curThread = new ThreadUtente(clientSocket, gParcheggi);
+            curThread = new ThreadUtente(clientSocket, gParcheggi, database);
             this.threadPool.execute(curThread);
             lUtenti.add(curThread);
             System.out.println("\nUna nuova connessione e' stata accettata.\n");
         }
-        
-        database.Disconnect();
         
         //	Fermo tutti i thread utenti in esecuzione
         for (ThreadUtente utente: lUtenti)
         	utente.stop();
         
         this.threadPool.shutdown();
-        System.out.println("Server Stopped.") ;
+        database.Disconnect();
+        
+        System.out.println("Server Stopped successfull.") ;
     }
 
     private synchronized boolean isStopped() {

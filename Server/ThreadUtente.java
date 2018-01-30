@@ -16,11 +16,13 @@ public class ThreadUtente implements Runnable {
 	private Autista curUser = null;	//	Verrà caricato appena ricevuti e convalidati i dati di login
 	private List<Prenotazione> prenotazioni; //	Lista delle prenotazioni in corso
 	private GestoreParcheggi gParcheggi;
+	private DB_Connection database;
 	
-	public ThreadUtente(Socket sock, GestoreParcheggi gParcheggi) {
+	public ThreadUtente(Socket sock, GestoreParcheggi gParcheggi, DB_Connection dbcon) {
 		connessione = sock;
 		prenotazioni = new ArrayList<Prenotazione>();
 		this.gParcheggi = gParcheggi;
+		database = dbcon;
 	}
 	
 	@Override
@@ -29,7 +31,10 @@ public class ThreadUtente implements Runnable {
 		InputStreamReader in = null;
 		BufferedReader reader = null;
 		
-		try
+		handshake();
+		stop();
+		
+		/*try
 		{
 			//	Flusso in ingresso da socket
 			in = new InputStreamReader(connessione.getInputStream());
@@ -38,7 +43,7 @@ public class ThreadUtente implements Runnable {
 		}
 		catch (IOException e) {
 			System.out.println(e);
-		}
+		}*/
 		
 		while (!isStopped()) {
 			try {
@@ -48,7 +53,24 @@ public class ThreadUtente implements Runnable {
 				e.printStackTrace();
 			}
 		}
+		System.out.println("\nThreadUtente chiuso.\n");
 	}
+	
+	//	Carica l'utente con username e password indicati se i dati sono corretti, ritorna false altrimenti
+	private synchronized boolean caricaUtente(String username, String password) {
+		try {
+			curUser = database.caricaAutista(username, password);
+		} catch (Exception e) {
+			e.printStackTrace();
+			stop();
+		}
+		
+		//	Se i dati di login non sono corretti
+		if (curUser == null)
+			return false;
+		
+		return true;
+    }
 	
 	private boolean effettuaPrenotazione(int idParcheggio, TipoPosto tPosto) {
 		int pos = prenotaPostoParcheggio(idParcheggio, tPosto);
@@ -81,6 +103,9 @@ public class ThreadUtente implements Runnable {
 	
 	//	Chiude la connessione ed arresta il thread
 	public synchronized void stop(){
+		if (this.isStopped)
+			return;
+		
         this.isStopped = true;
         
         try {
@@ -96,7 +121,48 @@ public class ThreadUtente implements Runnable {
 	
 	//	Identifica l'identità dell' utente e stabilisce gli algoritmi di sicurezza e le chiavi correlate per la comunicazione criptata
 	public boolean handshake() {
+		InputStreamReader in = null;
+		BufferedReader reader = null;
+		OutputStream out = null;
+		PrintWriter writer = null;
 		
+		String input, output;
+		input = output = null;
+	
+		//	Inizializzazione buffer
+		try
+		{
+			//	Reader
+			in = new InputStreamReader(connessione.getInputStream());
+			reader = new BufferedReader(in);
+			//	Writer
+			out = connessione.getOutputStream();
+			writer = new PrintWriter(out);
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		//	---------------------------------------------------------------------------
+		// Attesa messaggio hello (contenente versione app e altre info)
+		try {
+			input = reader.readLine();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String[] data = input.split("|");
+		
+		//	Se il messaggio di hello è errato rispondo con un errore e chiudo il thread
+		if (data.length != 3)
+		{
+			writer.println("<FatalError>");	//	Invece dei tag sarebbe meglio utilizzare dei codici (magari esadecimali)
+			System.out.println("<FatalError>");
+			writer.flush();
+			stop();
+		}
+		
+		// Richiesta autenticazione
+		//	---------------------------------------------------------------------------
 		return true;
 	}
 	

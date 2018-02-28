@@ -9,6 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="left|center"
+        android:id="@+id/linearInternalBook"
         android:orientation="vertical">
 
         <ImageView
@@ -17,28 +18,10 @@
             android:layout_height="200dp"
             android:layout_gravity="center"
             android:src="@mipmap/ic_books"
-            android:scaleType="fitXY" />
-        <!--title-->
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/your_book"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/title" />
+            android:scaleType="fitXY"/>
         <!--Only for padding-->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-        <!--example-->
-        <TextView
-            android:id="@+id/bookExample"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/provaPren"
-            android:gravity="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/title" />
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

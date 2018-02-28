@@ -4,17 +4,27 @@ package com.example.stach.app_test;
 import java.util.Date;
 
 public class Prenotazione {
-    private final String intro = "Parcheggio in ";
+    private final String intro = "Parcheggio: ";
     private Date data;
     private String nomeParcheggio;
+    private String dataStringa;
 
     public Prenotazione() {
         this.data = new Date();
-        this.nomeParcheggio = "Via Francesco Sforza,MC,62100";
+        this.nomeParcheggio = "Via Francesco Sforza, MC, 62100";
+        this.dataStringa = "Data:" + this.data.toString();
     }
 
+    //metto private perchè devo vedere se lo voglio utilizzare
     public String returnValue() {
-        return this.intro + this.nomeParcheggio + this.data.getTime();
+        return this.intro + this.nomeParcheggio + "\n \n" + this.dataStringa;
     }
 
+    public String getData() {
+        return data.toString();
+    }
+
+    public String getNomeParcheggio() {
+        return nomeParcheggio;
+    }
 }

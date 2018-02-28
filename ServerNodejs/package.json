@@ -1,0 +1,27 @@
+{
+  "name": "server_parking_app",
+  "version": "1.0.0",
+  "description": "Server per sito/clientAndroid dell' applicazione parcheggio.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ParkingApplication/ParkingUnicam.git"
+  },
+  "author": "Ruggeri Nicolò, Lupini Matteo, Stacchio Lorenzo, Marasca Luca.",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ParkingApplication/ParkingUnicam/issues"
+  },
+  "homepage": "https://github.com/ParkingApplication/ParkingUnicam#readme",
+  "dependencies": {
+    "body-parser": "^1.18.2",
+    "connect-multiparty": "^2.0.0",
+    "express": "^4.16.0",
+    "http": "0.0.0",
+    "jsonwebtoken": "^8.0.1",
+    "mysql": "^2.14.1"
+  }
+}

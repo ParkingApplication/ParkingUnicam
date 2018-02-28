@@ -84,8 +84,10 @@ public class LoginActivity extends AppCompatActivity {
                     // Oops
                 }
             }
-            if(result.equals("ok") && response != null)
+            if(result.equals("success") && response != null) {
+                Parametri.Token = response;
                 return true;
+            }
             else
                 return false;
         }

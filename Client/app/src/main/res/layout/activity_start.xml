@@ -25,6 +25,8 @@
         android:layout_marginBottom="116dp"
         app:layout_constraintBottom_toBottomOf="parent"
         tools:ignore="MissingConstraints"
+        android:indeterminateTint="@color/blue"
+        android:indeterminateTintMode="src_in"
         tools:layout_editor_absoluteX="0dp" />
 
 </android.support.constraint.ConstraintLayout>

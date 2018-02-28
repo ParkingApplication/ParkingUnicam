@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Unicam Parking</string>
     <string name="title_activity_login">Accedi</string>
@@ -19,8 +20,9 @@
     <string name="permission_rationale">"Contacts permissions are needed for providing email
         completions."
     </string>
-    <string name="btn_login">Effettua il login</string>
-    <string name="btn_credentials"> <u>Hai dimenticato la mail o la password?</u></string>
+    <string name="btn_login">Login</string>
+    <string name="btn_return_login">Effettua il Login</string>
+    <string name="btn_credentials"> <u>Hai dimenticato la mail o la password?</u> </string>
     <string name="btn_to_signUp"> Registrati</string>
     <string name="btn_to_gps"> GPS backdoor</string>
     <string name="btn_to_map"> Google Maps backdoor</string>
@@ -45,7 +47,7 @@
     <string name="icon_settings">Impostazioni</string>
     <string name="icon_logout">Logout</string>
     <!-- String related to profile fragment-->
-    <string name="username">Username:</string>
+    <string name="mail">mail</string>
     <string name="denaro">Saldo:</string>
     <string name="ricarica">Ricarica il conto</string>
     <string name="profile_image">Immagine del profilo</string>
@@ -59,7 +61,5 @@
     <string name="changePassword">Cambia password</string>
     <string name="changeMail">Cambia email</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

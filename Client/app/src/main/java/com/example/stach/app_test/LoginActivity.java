@@ -39,6 +39,7 @@ public class LoginActivity extends AppCompatActivity {
         //IF SERVER TOLD THAT LOG STATS ARE OK, SAVE DATA IN A LOCAL TXT FILE FOR NEXT LOGINS
         //save data
         this.saveData(mail.getText().toString(), password.getText().toString());
+        startActivity(new Intent(LoginActivity.this,MainActivity.class));
     }
 
     /**
@@ -98,11 +99,4 @@ public class LoginActivity extends AppCompatActivity {
     public void goToMap(View view){
         startActivity(new Intent(LoginActivity.this,MapActivity.class));
     }
-    /**
-     * This method allow user to go map google activity
-     */
-    public void goToNav(View view){
-        startActivity(new Intent(LoginActivity.this,MainActivity.class));
-    }
-
 }

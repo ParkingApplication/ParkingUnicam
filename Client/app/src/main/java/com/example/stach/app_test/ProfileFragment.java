@@ -27,12 +27,13 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View view = inflater.inflate (R.layout.fragment_profile, container, false);
+        //injection of user information in structure elements
         mImageView = (ImageView) view.findViewById(R.id.image_profile);
         mImageView.setImageResource(R.mipmap.ic_profile);
         t_user = (TextView) view.findViewById(R.id.username);
         t_user.setText(t_user.getText()+"Lorenzo Stacchio");
         t_saldo = (TextView) view.findViewById(R.id.money);
-        t_saldo.setText(t_saldo.getText()+"100000 $");
+        t_saldo.setText(t_saldo.getText()+"100000.00");
         // return inflate
         return view;
     }

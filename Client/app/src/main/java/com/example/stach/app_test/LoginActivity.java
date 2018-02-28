@@ -20,6 +20,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import org.json.*;
 
 public class LoginActivity extends AppCompatActivity {
     //text file for save login in local file
@@ -38,10 +39,12 @@ public class LoginActivity extends AppCompatActivity {
         this.recruitData();
     }
 
+    //METODO DA TESTARE!!!!!!!!!!!!!!!!!!
     //Metodo utilizzato per loggare
     public boolean Login(String mail,String password)
     {
         try{
+            //Invio i dati al server
             URL url = new URL("Parametri.IP");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
@@ -54,8 +57,37 @@ public class LoginActivity extends AppCompatActivity {
             OutputStream os = conn.getOutputStream();
             os.write(input.getBytes());
             os.flush();
-            //Gestione risposta.
-            return true;
+
+            //Leggo la risposta dal server
+            BufferedReader reader = new BufferedReader(new InputStreamReader (conn.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null)
+            {
+                sb.append(line + "\n");
+            }
+            line = sb.toString();
+
+            //Verifico i dati che ho letto
+            JSONObject jObject = new JSONObject(line);
+            JSONArray jArray = jObject.getJSONArray("ARRAYNAME");   //BOH
+            String result = null;
+            String response = null;
+            for (int i=0; i < jArray.length(); i++)
+            {
+                try {
+                    JSONObject oneObject = jArray.getJSONObject(i);
+                    // Pulling items from the array
+                    result = oneObject.getString("RESULT");  //OK o NO
+                    response = oneObject.getString("RESPONSE");  //TOKEN AUTENTICAZIONE
+                } catch (JSONException e) {
+                    // Oops
+                }
+            }
+            if(result.equals("ok") && response != null)
+                return true;
+            else
+                return false;
         }
         catch(Exception e){ //Devo scrivere eccezione dati login errati
             return false;

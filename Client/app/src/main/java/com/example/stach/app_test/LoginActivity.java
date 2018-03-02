@@ -5,12 +5,22 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.Toast;
+
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.StringTokenizer;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
+import java.net.URL;
+import org.json.*;
 
 public class LoginActivity extends AppCompatActivity {
     //text file for save login in local file
@@ -29,17 +39,83 @@ public class LoginActivity extends AppCompatActivity {
         this.recruitData();
     }
 
+    //METODO DA TESTARE!!!!!!!!!!!!!!!!!!
+    //Metodo utilizzato per loggare
+    public boolean Login(String mail,String password)
+    {
+        try{
+            //Invio i dati al server
+            URL url = new URL("Parametri.IP");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type", "application/json");
+
+
+            String input = "{\"email\":" + mail + ",\"password\":" + password+ "}";
+
+            OutputStream os = conn.getOutputStream();
+            os.write(input.getBytes());
+            os.flush();
+
+            //Leggo la risposta dal server
+            BufferedReader reader = new BufferedReader(new InputStreamReader (conn.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String line = null;
+            while ((line = reader.readLine()) != null)
+            {
+                sb.append(line + "\n");
+            }
+            line = sb.toString();
+
+            //Verifico i dati che ho letto
+            JSONObject jObject = new JSONObject(line);
+            JSONArray jArray = jObject.getJSONArray("ARRAYNAME");   //BOH
+            String result = null;
+            String response = null;
+            for (int i=0; i < jArray.length(); i++)
+            {
+                try {
+                    JSONObject oneObject = jArray.getJSONObject(i);
+                    // Pulling items from the array
+                    result = oneObject.getString("RESULT");  //OK o NO
+                    response = oneObject.getString("RESPONSE");  //TOKEN AUTENTICAZIONE
+                } catch (JSONException e) {
+                    // Oops
+                }
+            }
+            if(result.equals("success") && response != null) {
+                Parametri.Token = response;
+                return true;
+            }
+            else
+                return false;
+        }
+        catch(Exception e){ //Devo scrivere eccezione dati login errati
+            return false;
+        }
+
+    }
     /**
      * This method will send data to server to verify user credentials.
      */
     public void sendDataForLogin(View view) {
         EditText mail = (EditText) findViewById(R.id.mail);
         EditText password = (EditText) findViewById(R.id.pass);
-        //contact server
-        //IF SERVER TOLD THAT LOG STATS ARE OK, SAVE DATA IN A LOCAL TXT FILE FOR NEXT LOGINS
-        //save data
+
+        //Server
+        if(Login(mail.toString(),password.toString()))  //Da ricontrollare
+        {
+            this.saveData(mail.getText().toString(), password.getText().toString());
+            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+        }
+        else
+        {
+            Toast.makeText(this,"Dati di login errati",Toast.LENGTH_SHORT).show();
+        }
         this.saveData(mail.getText().toString(), password.getText().toString());
         startActivity(new Intent(LoginActivity.this,MainActivity.class));
+
     }
 
     /**

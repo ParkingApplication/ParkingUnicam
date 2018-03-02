@@ -60,6 +60,10 @@
     <!-- String related to settings fragment-->
     <string name="changePassword">Cambia password</string>
     <string name="changeMail">Cambia email</string>
+    <!-- String related to show book fragment-->
+    <string name="returnToBook">Torna alle prenotazioni</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 
 </resources>

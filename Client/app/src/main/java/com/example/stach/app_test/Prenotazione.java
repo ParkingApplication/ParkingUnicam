@@ -4,6 +4,7 @@ package com.example.stach.app_test;
 import java.util.Date;
 
 public class Prenotazione {
+    static int count;
     private final String intro = "Parcheggio: ";
     private Date data;
     private String nomeParcheggio;
@@ -11,8 +12,9 @@ public class Prenotazione {
 
     public Prenotazione() {
         this.data = new Date();
-        this.nomeParcheggio = "Via Francesco Sforza, MC, 62100";
+        this.nomeParcheggio = count + "Via Francesco Sforza, MC, 62100";
         this.dataStringa = "Data:" + this.data.toString();
+        count++;
     }
 
     //metto private perchè devo vedere se lo voglio utilizzare

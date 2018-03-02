@@ -1,0 +1,48 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.stach.app_test.Detail_Book">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="left|center"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+        <!--nome parcheggio-->
+        <TextView
+            android:id="@+id/nomeParcheggio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/medTitle"
+            android:text="ciao"/>
+        <!--ora prenotazione parcheggio-->
+        <TextView
+            android:id="@+id/oraPrenotazioneParcheggio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textAlignment="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/medTitle"
+            android:text="ciao"/>
+        <!-- Torna alle prenotazioni-->
+        <Button
+            android:id="@+id/btnBook"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/roundedbutton"
+            android:text="@string/returnToBook"
+            android:onClick="returnToBook"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textStyle="normal"/>
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

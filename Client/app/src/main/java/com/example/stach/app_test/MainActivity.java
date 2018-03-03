@@ -42,7 +42,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        } else {
+        }
+        else{
             super.onBackPressed();
         }
     }
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             ProfileFragment fragment = new ProfileFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Profile");
+            fragmentTransaction.addToBackStack("Profile_Fragment");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_findPark) {
             setTitle("Trova il parcheggio");
@@ -110,4 +112,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+
 }

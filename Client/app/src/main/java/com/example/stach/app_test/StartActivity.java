@@ -22,6 +22,7 @@ public class StartActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             public void run() {
                 startActivity(new Intent(StartActivity.this, LoginActivity.class));
+                finish();
             }
         }, 2000); // 2 seconds
     }

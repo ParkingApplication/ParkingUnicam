@@ -107,7 +107,10 @@ public class LoginActivity extends AppCompatActivity {
         if(Login(mail.toString(),password.toString()))  //Da ricontrollare
         {
             this.saveData(mail.getText().toString(), password.getText().toString());
+            //devo inviare un bundle alla prossima activity con i dati di login salvati in locale per sapere di chi è l'account
             startActivity(new Intent(LoginActivity.this,MainActivity.class));
+            //il finish serve per far chiudere l'activity e non far tornare indietro l'utente, ci potrà tornare se farà log-out
+            finish();
         }
         else
         {
@@ -115,6 +118,7 @@ public class LoginActivity extends AppCompatActivity {
         }
         this.saveData(mail.getText().toString(), password.getText().toString());
         startActivity(new Intent(LoginActivity.this,MainActivity.class));
+        finish();
 
     }
 

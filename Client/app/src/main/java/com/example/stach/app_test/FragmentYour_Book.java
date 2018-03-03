@@ -22,9 +22,7 @@ import java.util.List;
 public class FragmentYour_Book extends Fragment {
     Prenotazione[] prenotazioni = new Prenotazione[3];
     TextView padding;
-    //utilizzato poi
-    String parcheggioAttuale;
-    String data;
+
 
     public FragmentYour_Book() {
         //le creo casuali
@@ -40,43 +38,36 @@ public class FragmentYour_Book extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_your__book, container, false);
         View linearLayout = view.findViewById(R.id.linearInternalBook);
-        //LinearLayout layout = (LinearLayout) findViewById(R.id.info);
-        //arrai di textVIEW
+        //array di buttons
         Button buttonsPrenotazioni[] = new Button[prenotazioni.length];
         //array di linear Layout
         //View linearLayoutArray []= new View[prenotazioni.length];
         for (int i = 0; i < prenotazioni.length; i++) {
+            //index is the solution
+            final int index=i;
             //LAYOUT PERSONALE PRENOTAZIONE
-            //Creo un linear layout per ogni prenotazione
-            //linearLayoutArray[i] = new View(view.getContext());
             //TEXT VIEW
             //creo la text view
-            buttonsPrenotazioni[i] = new Button(view.getContext());
-            //prendo le variabili per passarle al fragment dei dettagli
-            parcheggioAttuale = prenotazioni[i].getNomeParcheggio();
-            data = prenotazioni[i].getData();
+            buttonsPrenotazioni[index] = new Button(view.getContext());
             //ritorno la stringa da stampare
-            buttonsPrenotazioni[i].setText(prenotazioni[i].returnValue());
+            buttonsPrenotazioni[index].setText(prenotazioni[i].getNomeParcheggio().substring(0,10)+"...  >");
             //Setto i parametri della text view
-            buttonsPrenotazioni[i].setId(i);
+            buttonsPrenotazioni[index].setId(i);
             //scrivo le risorse background
             buttonsPrenotazioni[i].setBackgroundResource(R.drawable.roundedbutton);
             //setto la dimensione
-            buttonsPrenotazioni[i].setTextSize(19);
+            buttonsPrenotazioni[index].setTextSize(19);
             //colore
-            buttonsPrenotazioni[i].setTextColor(Color.parseColor("#FFFFFF"));
+            buttonsPrenotazioni[index].setTextColor(Color.parseColor("#FFFFFF"));
             //Setto la funzione da chiamare per mostrare i dettagli della prenotazione
-            buttonsPrenotazioni[i].setOnClickListener(new View.OnClickListener() {
+            buttonsPrenotazioni[index].setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    //TO FIX: VEDE SEMPRE L'ULTIMO PARCHEGGIO E MAI QUELLO GIUSTO
-                    String parcheggioAttualeInside = parcheggioAttuale;
-                    String oraPrenotazioneParcheggioInside = data;
                     //passo le informazioni relative alla mia prenotazione
                     //genero il bundle
                     Bundle bundle = new Bundle();
-                    bundle.putString("NomeParcheggio", parcheggioAttuale.getBytes().toString());
-                    bundle.putString("oraPrenotazioneParcheggio", data.getBytes().toString());
+                    bundle.putString("NomeParcheggio", prenotazioni[index].getNomeParcheggio());
+                    bundle.putString("oraPrenotazioneParcheggio",  prenotazioni[index].getData());
                     //eseguo la transazione
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -85,11 +76,15 @@ public class FragmentYour_Book extends Fragment {
                     detail_book.setArguments(bundle);
                     //eseguo la transazione
                     fragmentTransaction.replace(R.id.fram, detail_book);
+                    //uso backstack perchè android in automatico con il tasto indietro si muove tra activity e non tra fragment
+                    //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
+                    //io possa tornare indietro
+                    fragmentTransaction.addToBackStack("Fragment_book");
                     fragmentTransaction.commit();
                 }
             });
             //aggiunto text a layout
-            buttonsPrenotazioni[i].setLayoutParams(new LinearLayout.LayoutParams(
+            buttonsPrenotazioni[index].setLayoutParams(new LinearLayout.LayoutParams(
                     LinearLayout.LayoutParams.FILL_PARENT,
                     LinearLayout.LayoutParams.WRAP_CONTENT
             ));

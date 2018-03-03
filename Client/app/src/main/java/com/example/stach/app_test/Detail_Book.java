@@ -3,7 +3,6 @@ package com.example.stach.app_test;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -36,7 +35,7 @@ public class Detail_Book extends Fragment {
         TextView nomeParcheggio = (TextView) view.findViewById(R.id.nomeParcheggio);
         nomeParcheggio.setText(parcheggio);
         TextView oraPrenotazioneParcheggio = (TextView) view.findViewById(R.id.oraPrenotazioneParcheggio);
-        nomeParcheggio.setText(parcheggio);
+        oraPrenotazioneParcheggio.setText(ora);
         return view;
     }
 
@@ -44,12 +43,18 @@ public class Detail_Book extends Fragment {
      * Funzione per ritornare alle prenotazioni
      * @param view
      */
-    public void returnToBook(View view) {
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        FragmentYour_Book book_fragment = new FragmentYour_Book();
-        //eseguo la transazione
-        fragmentTransaction.replace(R.id.fram, book_fragment);
+    public void eraseBooking(View view) {
+        FragmentYour_Book fragment = new FragmentYour_Book();
+        FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
         fragmentTransaction.commit();
+    }
+
+    /**
+     * Funzione per aprire google maps e navigare fino al parcheggio prenotato
+     * @param view
+     */
+    public void navBooking(View view){
+
     }
 }

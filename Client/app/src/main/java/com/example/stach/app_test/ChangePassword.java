@@ -11,10 +11,10 @@ import android.view.ViewGroup;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class Automatic_Search_Fragment extends Fragment {
+public class ChangePassword extends Fragment {
 
 
-    public Automatic_Search_Fragment() {
+    public ChangePassword() {
         // Required empty public constructor
     }
 
@@ -23,7 +23,16 @@ public class Automatic_Search_Fragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_automatic__search_, container, false);
+        return inflater.inflate(R.layout.fragment_change__password_, container, false);
     }
-
+    /**
+     * This method allow contact server to change password
+     * @param password
+     *          new user password
+     * @return
+     *         true if password changes
+     */
+    public boolean changePassword(String password){
+        return true;
+    }
 }

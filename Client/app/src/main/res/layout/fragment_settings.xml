@@ -12,71 +12,56 @@
         android:orientation="vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
+
         <ImageView
             android:layout_width="200dp"
-            android:layout_height="200dp"
+            android:layout_height="204dp"
             android:layout_gravity="center"
+            android:contentDescription="@string/icon_profile"
             android:scaleType="fitXY"
-            android:src="@mipmap/ic_settings"
-            android:contentDescription="@string/icon_profile" />
-        <!--Only for padding-->
+            android:src="@mipmap/ic_settings" />
+
         <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <!--Password field-->
-        <EditText
-            android:id="@+id/pass1"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:hint="@string/prompt_password"
-            android:textColor="@color/black"
-            android:textSize="@dimen/title" />
-        <!--Password field-->
-        <EditText
-            android:id="@+id/pass2"
+            android:layout_gravity="center"
+            android:text="Vuoi cambiare password o mail?"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/medTitle"
+            android:textStyle="bold" />
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/prompt_pass_repeate_signUp"
-            android:textColor="@color/black"
-            android:textSize="@dimen/title" />
-        <Button
-            android:id="@+id/btnChangePassword"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/blue"
-            android:text="@string/changePassword"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textStyle="normal"/>
-        <!--Only for padding-->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <!--Password field-->
-        <EditText
-            android:id="@+id/mail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/prompt_email"
-            android:textColor="@color/black"
-            android:textSize="@dimen/title" />
-        <!--Only for padding-->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-        <Button
-            android:id="@+id/btnChangeMail"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/blue"
-            android:text="@string/changeMail"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textStyle="normal"/>
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-        <!--button for login-->
+            android:layout_height="match_parent"
+            android:gravity="center">
+
+            <ImageButton
+                android:id="@+id/btnChangePassword"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:background="@drawable/roundedbutton"
+                android:src="@mipmap/ic_change_password"
+                android:text="@string/yourPosition"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textStyle="normal" />
+            <!--Only for padding-->
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="wrap_content" />
+
+            <ImageButton
+                android:id="@+id/btnChangeMail"
+                android:layout_width="140dp"
+                android:layout_height="140dp"
+                android:background="@drawable/roundedbutton"
+                android:src="@mipmap/ic_change_mail"
+                android:text="@string/yourPosition"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textStyle="normal" />
+        </LinearLayout>
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>
 

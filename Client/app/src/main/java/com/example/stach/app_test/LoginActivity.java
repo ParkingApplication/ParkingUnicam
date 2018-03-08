@@ -41,18 +41,18 @@ public class LoginActivity extends AppCompatActivity {
 
     //METODO DA TESTARE!!!!!!!!!!!!!!!!!!
     //Metodo utilizzato per loggare
-    public boolean Login(String mail,String password)
+    public boolean Login(String username,String password)
     {
         try{
             //Invio i dati al server
-            URL url = new URL("Parametri.IP");
+            URL url = new URL(Parametri.IP + "/login:80");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
 
 
-            String input = "{\"email\":" + mail + ",\"password\":" + password+ "}";
+            String input = "{\"username\":" + username + ",\"password\":" + password+ "}";
 
             OutputStream os = conn.getOutputStream();
             os.write(input.getBytes());
@@ -70,28 +70,27 @@ public class LoginActivity extends AppCompatActivity {
 
             //Verifico i dati che ho letto
             JSONObject jObject = new JSONObject(line);
-            JSONArray jArray = jObject.getJSONArray("ARRAYNAME");   //BOH
-            String result = null;
-            String response = null;
-            for (int i=0; i < jArray.length(); i++)
-            {
-                try {
-                    JSONObject oneObject = jArray.getJSONObject(i);
-                    // Pulling items from the array
-                    result = oneObject.getString("RESULT");  //OK o NO
-                    response = oneObject.getString("RESPONSE");  //TOKEN AUTENTICAZIONE
-                } catch (JSONException e) {
-                    // Oops
-                }
+            JSONObject Autistajs = new JSONObject(jObject.getString("autista"));
+            try{
+
             }
-            if(result.equals("success") && response != null) {
-                Parametri.Token = response;
+            catch(Exception e) {
+
+            }
+            String result = null;
+            String token = null;
+            token = jObject.getString("token");
+
+
+            if(token != null) {
+                Parametri.Token = token;
                 return true;
             }
             else
                 return false;
         }
         catch(Exception e){ //Devo scrivere eccezione dati login errati
+            Toast.makeText(this,e.toString(),Toast.LENGTH_SHORT).show();
             return false;
         }
 
@@ -102,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
     public void sendDataForLogin(View view) {
         EditText mail = (EditText) findViewById(R.id.mail);
         EditText password = (EditText) findViewById(R.id.pass);
-
+        Toast.makeText(this,"LOGIN è partito",Toast.LENGTH_SHORT).show();
         //Server
         if(Login(mail.toString(),password.toString()))  //Da ricontrollare
         {

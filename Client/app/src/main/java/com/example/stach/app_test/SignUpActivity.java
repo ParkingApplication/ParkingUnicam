@@ -30,26 +30,35 @@ public class SignUpActivity extends AppCompatActivity {
      * This method will send user credentials for registration.
      */
     public void sendDataForSignUp(View view){
-        String email = "";
-        String password = "";
-        if(Invio_dati(email,password))
+        String email = "email";
+        String password = "password";
+        String username = "user";
+        String nome = "nome";
+        String cognome = "cognome";
+        String dataDiNascita = "data";
+        String telefono = "cellulare bello";
+
+        if(Invio_dati(email,password,username,nome,cognome,dataDiNascita,telefono))
         {}//Va avanti .-.
 
     }
     //METODO DA TESTARE!!
     //Utilizzato per Inviare i dati al server
-    public boolean Invio_dati(String mail,String password)
+    public boolean Invio_dati(String mail,String password, String username, String nome, String cognome, String dataDiNascita, String telefono)
     {
         try{
             //Invio i dati al server
-            URL url = new URL(Parametri.IP);
+            URL url = new URL(Parametri.IP + "/Signup");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
 
 
-            String input = "{\"email\":" + mail + ",\"password\":" + password+ "}";
+            String input = "{\"email\":" + mail + ",\"password\":" + password + ",\"username\":" + username +
+                    ",\"nome\":" + nome + ",\"cognome\":" + cognome + ",\"dataDiNascita\":" + dataDiNascita +
+                    ",\"telefono\":" + telefono +
+                    "}";
 
             OutputStream os = conn.getOutputStream();
             os.write(input.getBytes());

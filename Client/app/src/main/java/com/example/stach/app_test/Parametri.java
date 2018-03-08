@@ -5,6 +5,6 @@ package com.example.stach.app_test;
  */
 
 public class Parametri {
-    static String IP = "192.168.1.67";
+    static String IP = "2.226.207.189";
     static String Token = null;
 }

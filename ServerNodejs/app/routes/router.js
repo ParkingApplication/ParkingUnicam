@@ -46,7 +46,7 @@ apiRoutes.use(bodyParser.urlencoded({ extended: false }));
 apiRoutes.use(bodyParser.json());
 
 apiRoutes.post('/singup', function (req, res) {
-    if (!req.autista)
+    if (!req.body.autista)
         res.json({
             error: {
                 codice: 7,
@@ -54,7 +54,7 @@ apiRoutes.post('/singup', function (req, res) {
             }
         });
     else
-        Autista.addAutista(req.autista, function (err, result) {
+        Autista.addAutista(req.body.autista, function (err, result) {
             if (err)
                 res.json({
                     error: {
@@ -73,7 +73,8 @@ apiRoutes.post('/singup', function (req, res) {
 });
 
 apiRoutes.post('/login', function (req, res) {
-    if (!req.username || !req.password)
+    console.log("Login request from: " + req.ip);
+    if (!req.body.username || !req.body.password)
         res.json({
             error: {
                 codice: 7,
@@ -81,7 +82,7 @@ apiRoutes.post('/login', function (req, res) {
             }
         });
     else
-        Autista.getAutista(req.username, req.password, function (err, rows) {
+        Autista.getAutista(req.body.username, req.body.password, function (err, rows) {
             if (err)
                 res.json({
                     error: {
@@ -90,7 +91,7 @@ apiRoutes.post('/login', function (req, res) {
                     }
                 });
             else
-                if (result.length > 0)
+                if (rows.length > 0) {
                     res.json({
                         token: "Non te lo do il token, gne gne.",   // Costruire dopo
                         autista: {
@@ -111,6 +112,7 @@ apiRoutes.post('/login', function (req, res) {
                             }
                         }
                     });
+                }
                 else
                     res.json({
                         error: {

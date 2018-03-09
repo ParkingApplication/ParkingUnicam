@@ -1,19 +1,14 @@
 package com.example.stach.app_test;
-import android.app.Activity;
-import android.os.AsyncTask;
-import android.util.Log;
-import android.widget.Toast;
 
+import android.os.AsyncTask;
 import org.json.*;
 import java.util.*;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.*;
-import android.widget.Toast;
+
 
 public class Connessione extends AsyncTask<String, Void, Void> {
-
-    // This is the JSON body of the post
     JSONObject postData;
     CustomCallback callback;
     String requestType;
@@ -22,6 +17,7 @@ public class Connessione extends AsyncTask<String, Void, Void> {
     public Connessione(Map<String, String> postData, String requestType, CustomCallback callback) {
         this.callback = callback;
         this.requestType = requestType;
+
         if (postData != null) {
             this.postData = new JSONObject(postData);
         }
@@ -30,10 +26,7 @@ public class Connessione extends AsyncTask<String, Void, Void> {
     // This is a function that we are overriding from AsyncTask. It takes Strings as parameters because that is what we defined for the parameters of our async task
     @Override
     protected Void doInBackground(String... params) {
-
-
         try {
-
             // This is getting the url from the string we passed in
             URL url = new URL(params[0]);
 
@@ -45,15 +38,12 @@ public class Connessione extends AsyncTask<String, Void, Void> {
             urlConnection.setDoOutput(true);
 
             urlConnection.setRequestProperty("Content-Type", "application/json");
-
             urlConnection.setRequestMethod(requestType);
 
 
             // Send the post body
             if (this.postData != null) {
                 OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
-
-
                 writer.write(postData.toString());
                 writer.flush();
             }
@@ -66,6 +56,7 @@ public class Connessione extends AsyncTask<String, Void, Void> {
             BufferedReader reader = new BufferedReader(new InputStreamReader (urlConnection.getInputStream()));
             StringBuilder sb = new StringBuilder();
             String response = null;
+
             while ((response = reader.readLine()) != null)
             {
                 sb.append(response + "\n");
@@ -76,7 +67,8 @@ public class Connessione extends AsyncTask<String, Void, Void> {
             callback.execute(response, statusCode);
 
         } catch (Exception e) {
-            // Mostrare l'eccezione da qualche parte
+            // Lo statuscode -145 indica un eccezione nella connessione con il server
+            callback.execute(e.toString(), -145);
         }
         return null;
     }

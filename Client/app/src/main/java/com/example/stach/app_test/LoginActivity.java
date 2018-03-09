@@ -74,33 +74,72 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
     @Override
     public void execute(String response, int statusCode)
     {
-
-        try {
-            JSONObject token = new JSONObject(response);
-            JSONObject autistajs = new JSONObject(token.getString("autista"));
-            while (token.getString("token") == null)
+        if (statusCode == -145) // Errore durante la connessione con il server, segnalarlo all' utente
+        {
+            /**
+             * Possibili cause dell' errore:
+             *
+             * - l'utente non ha la connessione alla rete
+             * - il server è offline
+             * - errori di rete
+             */
+        }
+        else {
+            if (statusCode == 400)  // Errore segnalato dal server
             {
-                Toast.makeText(this,"Login errato!" + response,Toast.LENGTH_SHORT).show();
+                /**
+                 * Tutte le cause dell' errore:
+                 *
+                 * - dati di login errati
+                 * - dati mancanti
+                 * - riscontrati problemi con il database
+                 */
+
+                //  Leggo l'errore di risposta inviatomi dal server
+                JSONObject error = null;
+                String errore = "";
+
+                try {
+                    JSONObject res = new JSONObject(response);
+                    error = new JSONObject(res.getString("error"));
+                    errore = error.getString("info");
+                }catch (Exception e)
+                {
+                    // Segnalare l'errore (forse)
+                }
+
+                // Scrivo l'errore all' utente
+                //Toast.makeText(this, "Login errato!" + errore, Toast.LENGTH_SHORT).show(); CRASHA QUI trovare possibile alternativa
+
             }
-            Parametri.Token = token.getString("token");
-            Parametri.id = autistajs.getString("id");
-            Parametri.username = autistajs.getString("username");
-            Parametri.nome = autistajs.getString("nome");
-            Parametri.cognome = autistajs.getString("cognome");
-            Parametri.data_nascita = autistajs.getString("data_nascita");
-            Parametri.email = autistajs.getString("email");
-            Parametri.password = autistajs.getString("password");
-            Parametri.saldo = autistajs.getString("saldo");
-            Parametri.telefono = autistajs.getString("telefono");
+                else {
+                try {
+                    JSONObject token = new JSONObject(response);
+                    JSONObject autistajs = new JSONObject(token.getString("autista"));
 
+                    while (token.getString("token") == null) {
+                        Toast.makeText(this, "Login errato!" + response, Toast.LENGTH_SHORT).show();
+                    }
 
-            Toast.makeText(this,"Login riuscito!" + response,Toast.LENGTH_SHORT).show();
-            startActivity(new Intent(LoginActivity.this,MainActivity.class));
+                    Parametri.Token = token.getString("token");
+                    Parametri.id = autistajs.getString("id");
+                    Parametri.username = autistajs.getString("username");
+                    Parametri.nome = autistajs.getString("nome");
+                    Parametri.cognome = autistajs.getString("cognome");
+                    Parametri.data_nascita = autistajs.getString("data_nascita");
+                    Parametri.email = autistajs.getString("email");
+                    Parametri.password = autistajs.getString("password");
+                    Parametri.saldo = autistajs.getString("saldo");
+                    Parametri.telefono = autistajs.getString("telefono");
 
+                    Toast.makeText(this, "Login riuscito!" + response, Toast.LENGTH_SHORT).show();
+                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
 
-            finish();
-        } catch (Exception e) {
+                    finish();
+                } catch (Exception e) {
 
+                }
+            }
         }
     }
 

@@ -1,6 +1,6 @@
 var http = require('http');
 var express = require('express');
-var router = require('./app/api/router');
+var router = require('./app/routes/router');
 var app = express();
 
 //  Togliere da app e spostare solo al sito statico (per registrazione e login admin)
@@ -22,7 +22,6 @@ app.use('/', router);
 app.use('/site', express.static('site'));
 
 var httpServer = http.createServer(app);
-
 
 httpServer.listen(5044, "172.16.0.212", function () {
     console.log('server started on 5044.');

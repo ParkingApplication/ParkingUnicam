@@ -1,0 +1,102 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.stach.app_test.Detail_Book">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="left|center"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="left"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            tools:layout_editor_absoluteY="218dp">
+            <!--icon-->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_place"/>
+            <!--Only for padding-->
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="wrap_content" />
+            <!--nome parcheggio-->
+            <TextView
+                android:id="@+id/nomeParcheggio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/black"
+                android:textSize="@dimen/medTitle" />
+        </LinearLayout>
+        <!--Only for padding-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="left"
+        android:paddingLeft="20dp"
+        android:paddingRight="20dp"
+        tools:layout_editor_absoluteY="218dp">
+        <!--icon-->
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@mipmap/ic_clock"/>
+        <!--Only for padding-->
+        <TextView
+            android:layout_width="30dp"
+            android:layout_height="wrap_content" />
+        <!--ora prenotazione parcheggio-->
+        <TextView
+            android:id="@+id/oraPrenotazioneParcheggio"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:textColor="@color/black"
+            android:textSize="@dimen/medTitle" />
+    </LinearLayout>
+        <!--Only for padding-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <!-- Naviga verso Parcheggio-->
+        <Button
+            android:id="@+id/btnNavBook"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/roundedbutton"
+            android:onClick="navBooking"
+            android:text="@string/navBooking"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textStyle="normal" />
+        <!--Only for padding-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+        <!-- Cancella prenotazioni-->
+        <Button
+            android:id="@+id/btnEraseBook"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/roundedbutton"
+            android:onClick="eraseBooking"
+            android:text="@string/eraseBooking"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textStyle="normal" />
+    </LinearLayout>
+
+</android.support.design.widget.CoordinatorLayout>

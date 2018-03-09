@@ -25,23 +25,28 @@
             android:layout_height="wrap_content" />
         <!-- linear for mail icon and mail text-->
         <LinearLayout
+            android:id="@+id/internal1"
             android:layout_width="match_parent"
-            android:layout_height="29dp"
+            android:layout_height="wrap_content"
             android:gravity="left"
-            android:paddingLeft="40dp"
-            android:paddingRight="16dp"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
             tools:layout_editor_absoluteY="218dp">
+
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_mail"/>
+                android:src="@mipmap/ic_mail" />
+            <!--Only for padding-->
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="wrap_content" />
             <!--user name-->
             <TextView
                 android:id="@+id/username"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:layout_height="match_parent"
-                android:textAlignment="center"
                 android:textColor="@color/black"
                 android:textSize="@dimen/medTitle" />
         </LinearLayout>
@@ -49,27 +54,33 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-    <!-- linear for mail icon and mail text-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="29dp"
-        android:gravity="left"
-        android:paddingLeft="40dp"
-        android:paddingRight="16dp"
-        tools:layout_editor_absoluteY="218dp">
-
-        <ImageView
-            android:layout_width="wrap_content"
+        <!-- linear for mail icon and mail text-->
+        <LinearLayout
+            android:id="@+id/internal2"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:src="@mipmap/ic_money" />
-        <!--money-->
-        <TextView
-            android:id="@+id/money"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:textColor="@color/black"
-            android:textSize="@dimen/medTitle" />
-    </LinearLayout>
+            android:gravity="left"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            tools:layout_editor_absoluteY="218dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_money" />
+            <!--Only for padding-->
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="wrap_content" />
+            <!--money-->
+            <TextView
+                android:id="@+id/money"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/black"
+                android:textSize="@dimen/medTitle" />
+        </LinearLayout>
         <!--Only for padding-->
         <TextView
             android:layout_width="match_parent"

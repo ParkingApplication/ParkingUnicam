@@ -22,34 +22,11 @@ public class StartActivity extends AppCompatActivity {
         handler.postDelayed(new Runnable() {
             public void run() {
                 startActivity(new Intent(StartActivity.this, LoginActivity.class));
+                finish();
             }
-        }, 2000); // 2 seconds
+        }, 500); // 0.5 seconds
     }
-/**
-    @Override
-    protected void onStart() {
-        super.onStart();
-        //the handler is to showing an activity presentation for two second and then pass to login
-        Handler handler = new Handler();
-        handler.postDelayed(new Runnable() {
-            public void run() {
-                startActivity(new Intent(StartActivity.this, LoginActivity.class));
-            }
-        }, 2000); // 2 seconds
 
-        //Im trying to set socket's connection
-        try {
-
-            Socket connessione = null;
-
-            connessione = new Socket("192.168.1.67" , 5050); //<--crasha qua
-
-            Toast.makeText(this, "Connessione riuscita", Toast.LENGTH_SHORT).show();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Connessione non riuscita", Toast.LENGTH_SHORT).show();
-        }
-    }*/
 
 
 

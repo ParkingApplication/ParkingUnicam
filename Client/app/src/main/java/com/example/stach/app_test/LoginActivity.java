@@ -135,7 +135,7 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
         postData.put("username", user);
         postData.put("password",password1);
         Connessione conn = new Connessione(postData, "POST", this);
-        conn.doInBackground(Parametri.IP + "/login");
+        conn.execute(Parametri.IP + "/login");
 
 
         this.saveData(mail.getText().toString(), password.getText().toString());
@@ -147,6 +147,7 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
     @Override
     public void execute(String response, int statusCode)
     {
+
         try {
             JSONObject jObject = new JSONObject(response);
             JSONObject Autistajs = new JSONObject(jObject.getString("autista"));

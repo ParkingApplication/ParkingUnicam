@@ -1,11 +1,14 @@
 package com.example.stach.app_test;
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.widget.Toast;
+
 import org.json.*;
 import java.util.*;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.*;
+import android.widget.Toast;
 
 public class Connessione extends AsyncTask<String, Void, Void> {
 
@@ -27,7 +30,9 @@ public class Connessione extends AsyncTask<String, Void, Void> {
     @Override
     protected Void doInBackground(String... params) {
 
+
         try {
+
             // This is getting the url from the string we passed in
             URL url = new URL(params[0]);
 

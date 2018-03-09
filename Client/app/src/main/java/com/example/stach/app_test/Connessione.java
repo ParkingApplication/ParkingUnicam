@@ -7,17 +7,17 @@ import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.*;
 
-
-
-
-
 public class Connessione extends AsyncTask<String, Void, Void> {
 
     // This is the JSON body of the post
     JSONObject postData;
+    CustomCallback callback;
+    String requestType;
 
     // This is a constructor that allows you to pass in the JSON body
-    public Connessione(Map<String, String> postData) {
+    public Connessione(Map<String, String> postData, String requestType, CustomCallback callback) {
+        this.callback = callback;
+        this.requestType = requestType;
         if (postData != null) {
             this.postData = new JSONObject(postData);
         }
@@ -40,7 +40,7 @@ public class Connessione extends AsyncTask<String, Void, Void> {
 
             urlConnection.setRequestProperty("Content-Type", "application/json");
 
-            urlConnection.setRequestMethod("POST");
+            urlConnection.setRequestMethod(requestType);
 
 
             // OPTIONAL - Sets an authorization header
@@ -54,24 +54,13 @@ public class Connessione extends AsyncTask<String, Void, Void> {
             }
 
             int statusCode = urlConnection.getResponseCode();
+            InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
+            String response = inputStream.toString();
 
-            if (statusCode ==  200) {
-
-                InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
-
-                String response = inputStream.toString();
-
-                // From here you can convert the string to JSON with whatever JSON parser you like to use
-
-                // After converting the string to JSON, I call my custom callback. You can follow this process too, or you can implement the onPostExecute(Result) method
-
-            } else {
-                // Status code is not 200
-                // Do something to handle the error
-            }
+            callback.execute(response, statusCode);
 
         } catch (Exception e) {
-
+            // Mostrare l'eccezione da qualche parte
         }
         return null;
     }

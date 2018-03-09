@@ -28,7 +28,7 @@ import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.*;
 
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements CustomCallback {
     //text file for save login in local file
     File login_file;
 
@@ -80,12 +80,14 @@ public class LoginActivity extends AppCompatActivity {
             //Verifico i dati che ho letto
             JSONObject jObject = new JSONObject(line);
             JSONObject Autistajs = new JSONObject(jObject.getString("autista"));
+
             try{
 
             }
             catch(Exception e) {
 
             }
+
             String result = null;
             String token = null;
             token = jObject.getString("token");
@@ -130,9 +132,9 @@ public class LoginActivity extends AppCompatActivity {
         String user = mail.toString();
         String password1 = password.toString();
         Map<String, String> postData = new HashMap<>();
-        postData.put(user, user);
-        postData.put(password1,password1);
-        Connessione conn = new Connessione(postData);
+        postData.put("username", user);
+        postData.put("password",password1);
+        Connessione conn = new Connessione(postData, "POST", this);
         conn.doInBackground(Parametri.IP + "/login");
 
 
@@ -140,6 +142,18 @@ public class LoginActivity extends AppCompatActivity {
         startActivity(new Intent(LoginActivity.this,MainActivity.class));
         finish();
 
+    }
+
+    @Override
+    public void execute(String response, int statusCode)
+    {
+        try {
+            JSONObject jObject = new JSONObject(response);
+            JSONObject Autistajs = new JSONObject(jObject.getString("autista"));
+            Toast.makeText(this,"Autista loggato" + response,Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+
+        }
     }
 
     /**

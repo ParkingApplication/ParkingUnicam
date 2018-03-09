@@ -13,7 +13,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.StringTokenizer;
-import java.io.BufferedReader;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
@@ -21,6 +21,12 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import org.json.*;
+import android.os.AsyncTask;
+import org.json.*;
+import java.util.*;
+import java.net.URL;
+import java.net.HttpURLConnection;
+import java.io.*;
 
 public class LoginActivity extends AppCompatActivity {
     //text file for save login in local file
@@ -43,10 +49,13 @@ public class LoginActivity extends AppCompatActivity {
     //Metodo utilizzato per loggare
     public boolean Login(String username,String password)
     {
+
         try{
+
             //Invio i dati al server
-            URL url = new URL(Parametri.IP + "/login:80");
+            URL url = new URL(Parametri.IP + "/login");
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Content-Type", "application/json");
@@ -102,7 +111,8 @@ public class LoginActivity extends AppCompatActivity {
         EditText mail = (EditText) findViewById(R.id.mail);
         EditText password = (EditText) findViewById(R.id.pass);
         Toast.makeText(this,"LOGIN è partito",Toast.LENGTH_SHORT).show();
-        //Server
+
+      /*  //Server
         if(Login(mail.toString(),password.toString()))  //Da ricontrollare
         {
             this.saveData(mail.getText().toString(), password.getText().toString());
@@ -115,6 +125,17 @@ public class LoginActivity extends AppCompatActivity {
         {
             Toast.makeText(this,"Dati di login errati",Toast.LENGTH_SHORT).show();
         }
+        */
+
+        String user = mail.toString();
+        String password1 = password.toString();
+        Map<String, String> postData = new HashMap<>();
+        postData.put(user, user);
+        postData.put(password1,password1);
+        Connessione conn = new Connessione(postData);
+        conn.doInBackground(Parametri.IP + "/login");
+
+
         this.saveData(mail.getText().toString(), password.getText().toString());
         startActivity(new Intent(LoginActivity.this,MainActivity.class));
         finish();

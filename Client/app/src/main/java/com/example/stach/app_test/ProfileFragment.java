@@ -45,9 +45,9 @@ public class ProfileFragment extends Fragment {
         Richiesta_Utente(Parametri.Token);
 
         t_user = (TextView) view.findViewById(R.id.username);
-        t_user.setText(t_user.getText()+"Lorenzo Stacchio");
+        t_user.setText(t_user.getText()+Parametri.nome + Parametri.cognome);
         t_saldo = (TextView) view.findViewById(R.id.money);
-        t_saldo.setText(t_saldo.getText()+"100000.00");
+        t_saldo.setText(t_saldo.getText()+Parametri.saldo);
         // return inflate
         return view;
     }

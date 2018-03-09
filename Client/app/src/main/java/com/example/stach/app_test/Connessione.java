@@ -1,6 +1,7 @@
 package com.example.stach.app_test;
 import android.app.Activity;
 import android.os.AsyncTask;
+import android.util.Log;
 import android.widget.Toast;
 
 import org.json.*;
@@ -48,19 +49,29 @@ public class Connessione extends AsyncTask<String, Void, Void> {
             urlConnection.setRequestMethod(requestType);
 
 
-            // OPTIONAL - Sets an authorization header
-            urlConnection.setRequestProperty("Authorization", "someAuthString");
-
             // Send the post body
             if (this.postData != null) {
                 OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
+
+
                 writer.write(postData.toString());
                 writer.flush();
             }
 
             int statusCode = urlConnection.getResponseCode();
             InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
-            String response = inputStream.toString();
+
+
+            //Leggo la risposta dal server
+            BufferedReader reader = new BufferedReader(new InputStreamReader (urlConnection.getInputStream()));
+            StringBuilder sb = new StringBuilder();
+            String response = null;
+            while ((response = reader.readLine()) != null)
+            {
+                sb.append(response + "\n");
+            }
+            response = sb.toString();
+
 
             callback.execute(response, statusCode);
 

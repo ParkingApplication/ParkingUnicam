@@ -48,6 +48,7 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
         // Inserisco i dati del login in un HashMap così da poterli convertire facilmente in JSonObject in seguito
         Map<String, String> postData = new HashMap<>();
         postData.put("username", user);
+<<<<<<< HEAD
         postData.put("password", password1);
 
         // Avverto l'utente del tentativo di invio dei dati di login al server
@@ -60,11 +61,28 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
 
         // Ha senso salvare questi dati senza aver verificato che siano corretti ?
         this.saveData(mail.getText().toString(), password.getText().toString());
+=======
+        postData.put("password",password1);
+
+        dialog = ProgressDialog.show(LoginActivity.this, "",
+                "Connessione con il server in corso...", true);
+
+        Connessione conn = new Connessione(postData, "POST", this);
+        conn.execute(Parametri.IP + "/login");
+
+
+        this.saveData(mail.getText().toString(), password.getText().toString()); // Ha senso salvare questi dati senza aver verificato che siano corretti ?
+>>>>>>> master
     }
 
     // Callback passata al task asincrono di tipo Connessione
     @Override
+<<<<<<< HEAD
     public void execute(String response, int statusCode) {
+=======
+    public void execute(String response, int statusCode)
+    {
+>>>>>>> master
         // Chiudo la dialog del login in cirso
         dialog.dismiss();
 
@@ -97,6 +115,7 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
                     error = new JSONObject(res.getString("error"));
 
                     errore = error.getString("info"); // Salvo l'informazione dell' error nella stringa errore
+<<<<<<< HEAD
                 } catch (Exception e) {
                     // Segnalare l'errore
                 }
@@ -104,6 +123,16 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
                 // Segnalare l'errore contenuto in "errore" all' utente
 
             } else {
+=======
+                }catch (Exception e)
+                {
+                    // Segnalare l'errore (forse)
+                }
+
+                // Scrivo l'errore all' utente
+            }
+            else {
+>>>>>>> master
                 try {
                     JSONObject token = new JSONObject(response);
                     JSONObject autistajs = new JSONObject(token.getString("autista"));
@@ -125,7 +154,10 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
                     Parametri.saldo = autistajs.getString("saldo");
                     Parametri.telefono = autistajs.getString("telefono");
 
+<<<<<<< HEAD
                     //  Chiudo l'activitt corrente e passo alla MainActivity
+=======
+>>>>>>> master
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
                     finish();
                 } catch (Exception e) {

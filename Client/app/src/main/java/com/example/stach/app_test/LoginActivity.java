@@ -32,6 +32,7 @@ import java.io.*;
 public class LoginActivity extends AppCompatActivity implements CustomCallback {
     //text file for save login in local file
     File login_file;
+    ProgressDialog dialog = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +47,6 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
         this.recruitData();
     }
 
-
     /**
      * This method will send data to server to verify user credentials.
      */
@@ -60,20 +60,23 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
         Map<String, String> postData = new HashMap<>();
         postData.put("username", user);
         postData.put("password",password1);
+
+        dialog = ProgressDialog.show(LoginActivity.this, "",
+                "Connessione con il server in corso...", true);
+
         Connessione conn = new Connessione(postData, "POST", this);
         conn.execute(Parametri.IP + "/login");
 
 
-        this.saveData(mail.getText().toString(), password.getText().toString());
-        ProgressDialog dialog = ProgressDialog.show(LoginActivity.this, "",
-                "Connessione con il server in corso...", true);
-
-
+        this.saveData(mail.getText().toString(), password.getText().toString()); // Ha senso salvare questi dati senza aver verificato che siano corretti ?
     }
     //Callback
     @Override
     public void execute(String response, int statusCode)
     {
+        // Chiudo la dialog del login in cirso
+        dialog.dismiss();
+
         if (statusCode == -145) // Errore durante la connessione con il server, segnalarlo all' utente
         {
             /**
@@ -102,24 +105,25 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
                 try {
                     JSONObject res = new JSONObject(response);
                     error = new JSONObject(res.getString("error"));
-                    errore = error.getString("info");
+
+                    errore = error.getString("info"); // Salvo l'informazione dell' error nella stringa errore
                 }catch (Exception e)
                 {
                     // Segnalare l'errore (forse)
                 }
 
                 // Scrivo l'errore all' utente
-                //Toast.makeText(this, "Login errato!" + errore, Toast.LENGTH_SHORT).show(); CRASHA QUI trovare possibile alternativa
-
             }
-                else {
+            else {
                 try {
                     JSONObject token = new JSONObject(response);
                     JSONObject autistajs = new JSONObject(token.getString("autista"));
 
-                    while (token.getString("token") == null) {
+                    //  ERRATO, FA CRASHARE L'APP, non si possono usare toast o altri oggetti in un task asincrono come questo
+
+                    /*while (token.getString("token") == null) {
                         Toast.makeText(this, "Login errato!" + response, Toast.LENGTH_SHORT).show();
-                    }
+                    }*/
 
                     Parametri.Token = token.getString("token");
                     Parametri.id = autistajs.getString("id");
@@ -132,12 +136,10 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
                     Parametri.saldo = autistajs.getString("saldo");
                     Parametri.telefono = autistajs.getString("telefono");
 
-                    Toast.makeText(this, "Login riuscito!" + response, Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(LoginActivity.this, MainActivity.class));
-
                     finish();
                 } catch (Exception e) {
-
+                    // Segnalare l'errore
                 }
             }
         }

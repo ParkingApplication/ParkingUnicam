@@ -31,9 +31,11 @@ var verifyToken = function (req, res, next) {
             }
         });
     } else {
-        return res.sendStatus(403).json({
-            success: false,
-            message: 'No token provided.'
+        return res.status(400).json({
+            error: {
+                codice: 15,
+                info: "Devi essere loggato per eseguire quest' azione."
+            }
         });
     }
 };
@@ -47,26 +49,21 @@ apiRoutes.use(bodyParser.json());
 
 apiRoutes.post('/singup', function (req, res) {
     if (!req.body.autista)
-    {
-        res.statusCode = 400;
-        res.json({
+        res.status(400).json({
             error: {
                 codice: 7,
                 info: "Campi mancanti."
             }
         });
-    }
     else
         Autista.addAutista(req.body.autista, function (err, result) {
-            if (err) {
-                res.statusCode = 400;
-                res.json({
+            if (err)
+                res.status(400).json({
                     error: {
                         codice: 50,
                         info: "Riscontrati problemi con il database."
                     }
                 });
-            }
             else
                 res.json({
                     successful: {
@@ -80,29 +77,23 @@ apiRoutes.post('/singup', function (req, res) {
 apiRoutes.post('/login', function (req, res) {
     console.log("Login request from: " + req.ip);
     if (!req.body.username || !req.body.password)
-    {
-        res.statusCode = 400;
-        res.json({
+        res.status(400).json({
             error: {
                 codice: 7,
                 info: "Campi mancanti."
             }
         });
-    }
     else
         Autista.getAutista(req.body.username, req.body.password, function (err, rows) {
             if (err)
-            {
-                res.statusCode = 400;
-                res.json({
+                res.status(400).json({
                     error: {
                         codice: 50,
                         info: err
                     }
                 });
-            }
             else
-                if (rows.length > 0) {
+                if (rows.length > 0)
                     res.json({
                         token: "Non te lo do il token, gne gne.",   // Costruire dopo
                         autista: {
@@ -123,11 +114,9 @@ apiRoutes.post('/login', function (req, res) {
                             }
                         }
                     });
-                }
                 else
                 {
-                    res.statusCode = 400;
-                    res.json({
+                    res.status(400).json({
                         error: {
                             codice: 7,
                             info: "Dati di login errati."

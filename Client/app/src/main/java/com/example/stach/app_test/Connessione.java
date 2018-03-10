@@ -33,13 +33,12 @@ public class Connessione extends AsyncTask<String, Void, Void> {
             // Create the urlConnection
             HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
 
-
             urlConnection.setDoInput(true);
             urlConnection.setDoOutput(true);
 
-            urlConnection.setRequestProperty("Content-Type", "application/json");
+            urlConnection.setRequestProperty("Content-Type", "application/json; charset= utf-8");
+            urlConnection.setRequestProperty("Accept", "application/json");
             urlConnection.setRequestMethod(requestType);
-
 
             // Send the post body
             if (this.postData != null) {
@@ -49,27 +48,32 @@ public class Connessione extends AsyncTask<String, Void, Void> {
             }
 
             int statusCode = urlConnection.getResponseCode();
-            InputStream inputStream = new BufferedInputStream(urlConnection.getInputStream());
+            InputStreamReader inputStreamReader = null;
 
+            // Se lo statuscode è 200 leggo la risposta, altrimenti leggo l'errore (IMPORTANTE, SENZA DI QUESTO CRASHEREBBE AD OGNI RISPOSTA RICEVUTA CON STATUS 400)
+            if (statusCode == 200)
+                inputStreamReader = new InputStreamReader (urlConnection.getInputStream());
+            else    // Leggo dall' ErrorStream
+                inputStreamReader = new InputStreamReader (urlConnection.getErrorStream());
 
-            //Leggo la risposta dal server
-            BufferedReader reader = new BufferedReader(new InputStreamReader (urlConnection.getInputStream()));
+            // Leggo la risposta dal server
+            BufferedReader reader = new BufferedReader(inputStreamReader);
             StringBuilder sb = new StringBuilder();
             String response = null;
 
             while ((response = reader.readLine()) != null)
-            {
                 sb.append(response + "\n");
-            }
+
             response = sb.toString();
 
-
+            // Richiamo la callback per gestire la risposta inviatami dal server
             callback.execute(response, statusCode);
 
         } catch (Exception e) {
-            // Lo statuscode -145 indica un eccezione nella connessione con il server
-            callback.execute(e.toString(), -145);
+            // Lo statuscode -145 indica un eccezione nella connessione con il server oppure nella lettura della risposta
+            callback.execute(e.getMessage(), -145);
         }
+
         return null;
     }
 }

@@ -1,6 +1,9 @@
 package com.example.stach.app_test;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -15,11 +18,15 @@ import java.io.FileWriter;
 import java.util.StringTokenizer;
 import org.json.*;
 import java.util.*;
+import android.app.AlertDialog.Builder;
 
-public class LoginActivity extends AppCompatActivity implements CustomCallback {
+public class LoginActivity extends AppCompatActivity {
     //text file for save login in local file
     File login_file;
-    ProgressDialog dialog = null;
+    static ProgressDialog caricamento = null;
+    Context context = LoginActivity.this;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -40,7 +47,7 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
     public void sendDataForLogin(View view) {
         EditText mail = (EditText) findViewById(R.id.mail);
         EditText password = (EditText) findViewById(R.id.pass);
-        Toast.makeText(this, "LOGIN è partito", Toast.LENGTH_SHORT).show();
+
 
         // Prelevo i dati per il login per inviarli al server.
         String user = mail.getText().toString();
@@ -51,89 +58,18 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
         postData.put("password", password1);
 
         // Avverto l'utente del tentativo di invio dei dati di login al server
-        dialog = ProgressDialog.show(LoginActivity.this, "",
-                "Connessione con il server in corso...", true);
+        caricamento = ProgressDialog.show(LoginActivity.this, "",
+               "Connessione con il server in corso...", true);
 
         // Creo ed eseguo una connessione con il server web
-        Connessione conn = new Connessione(postData, "POST", this);
+        Connessione conn = new Connessione(postData, "POST",context);
         conn.execute(Parametri.IP + "/login");
 
         // Ha senso salvare questi dati senza aver verificato che siano corretti ?
         this.saveData(mail.getText().toString(), password.getText().toString());
+
     }
 
-    // Callback passata al task asincrono di tipo Connessione
-    @Override
-    public void execute(String response, int statusCode) {
-        // Chiudo la dialog del login in cirso
-        dialog.dismiss();
-
-        if (statusCode == -145) // Errore durante la connessione con il server, segnalarlo all' utente
-        {
-            /**
-             * Possibili cause dell' errore:
-             *
-             * - l'utente non ha la connessione alla rete
-             * - il server è offline
-             * - errori di rete (vari)
-             */
-        } else {
-            if (statusCode == 400)  // Errore segnalato dal server
-            {
-                /**
-                 * Tutte le cause dell' errore:
-                 *
-                 * - dati di login errati
-                 * - dati mancanti
-                 * - riscontrati problemi con il database
-                 */
-
-                //  Leggo l'errore di risposta inviatomi dal server
-                JSONObject error = null;
-                String errore = "";
-
-                try {
-                    JSONObject res = new JSONObject(response);
-                    error = new JSONObject(res.getString("error"));
-
-                    errore = error.getString("info"); // Salvo l'informazione dell' error nella stringa errore
-                } catch (Exception e) {
-                    // Segnalare l'errore
-                }
-
-                // Segnalare l'errore contenuto in "errore" all' utente
-
-            } else {
-                try {
-                    JSONObject token = new JSONObject(response);
-                    JSONObject autistajs = new JSONObject(token.getString("autista"));
-
-                    //  ERRATO, FA CRASHARE L'APP, non si possono usare toast o altri oggetti in un task asincrono come questo
-
-                    /*while (token.getString("token") == null) {
-                        Toast.makeText(this, "Login errato!" + response, Toast.LENGTH_SHORT).show();
-                    }*/
-
-                    Parametri.Token = token.getString("token");
-                    Parametri.id = autistajs.getString("id");
-                    Parametri.username = autistajs.getString("username");
-                    Parametri.nome = autistajs.getString("nome");
-                    Parametri.cognome = autistajs.getString("cognome");
-                    Parametri.data_nascita = autistajs.getString("data_nascita");
-                    Parametri.email = autistajs.getString("email");
-                    Parametri.password = autistajs.getString("password");
-                    Parametri.saldo = autistajs.getString("saldo");
-                    Parametri.telefono = autistajs.getString("telefono");
-
-                    //  Chiudo l'activitt corrente e passo alla MainActivity
-                    startActivity(new Intent(LoginActivity.this, MainActivity.class));
-                    finish();
-                } catch (Exception e) {
-                    // Segnalare l'errore
-                }
-            }
-        }
-    }
 
     /**
      * This method is use to save user data after login, to allow user to overdrop the login activity if is logged yet.
@@ -196,4 +132,6 @@ public class LoginActivity extends AppCompatActivity implements CustomCallback {
     public void goToMap(View view) {
         startActivity(new Intent(LoginActivity.this, MapActivity.class));
     }
+
+
 }

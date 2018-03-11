@@ -18,7 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-public class SignUpActivity extends AppCompatActivity implements CustomCallback {
+public class SignUpActivity extends AppCompatActivity  {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,30 +36,7 @@ public class SignUpActivity extends AppCompatActivity implements CustomCallback 
 
 
     }
-    //Callback
-    @Override
-    public void execute(String response, int statusCode)
-    {
 
-        try {
-            JSONObject result = new JSONObject(response);
-            JSONObject codice = new JSONObject(result.getString("successful"));
-            if(codice.getString("codice") == "200") {
-                Toast.makeText(this,"SignUp Riuscito!" + response,Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-            }
-            else
-            {
-                Toast.makeText(this,"ERRORE!" + response,Toast.LENGTH_SHORT).show();
-                startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
-            }
-
-
-
-        } catch (Exception e) {
-
-        }
-    }
 
     /**
      * This method allow user to return to login activity

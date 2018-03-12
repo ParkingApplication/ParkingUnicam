@@ -1,5 +1,6 @@
 package com.example.stach.app_test;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -25,7 +26,7 @@ public class LoginActivity extends AppCompatActivity {
     File login_file;
     static ProgressDialog caricamento = null;
     Context context = LoginActivity.this;
-
+    Activity activity = LoginActivity.this;
 
 
     @Override
@@ -45,6 +46,7 @@ public class LoginActivity extends AppCompatActivity {
      * This method will send data to server to verify user credentials.
      */
     public void sendDataForLogin(View view) {
+
         EditText mail = (EditText) findViewById(R.id.mail);
         EditText password = (EditText) findViewById(R.id.pass);
 
@@ -62,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
                "Connessione con il server in corso...", true);
 
         // Creo ed eseguo una connessione con il server web
-        Connessione conn = new Connessione(postData, "POST",context);
+        Connessione conn = new Connessione(postData, "POST",context,activity);
         conn.execute(Parametri.IP + "/login");
 
         // Ha senso salvare questi dati senza aver verificato che siano corretti ?
@@ -124,6 +126,7 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void goToSignUp(View view) {
         startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
+        finish();
     }
 
     /**
@@ -132,6 +135,7 @@ public class LoginActivity extends AppCompatActivity {
     public void goToMap(View view) {
         startActivity(new Intent(LoginActivity.this, MapActivity.class));
     }
+
 
 
 }

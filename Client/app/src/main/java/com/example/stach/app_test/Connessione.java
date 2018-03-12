@@ -21,15 +21,15 @@ import static com.example.stach.app_test.LoginActivity.caricamento;
 
 public class Connessione extends AsyncTask<String, String, String> {
     JSONObject postData;
-
     String requestType;
     Context context ;
-
+    Activity activity;
     // This is a constructor that allows you to pass in the JSON body
-    public Connessione(Map<String, String> postData, String requestType, Context context) {
+    public Connessione(Map<String, String> postData, String requestType, Context context, Activity activity) {
 
         this.requestType = requestType;
         this.context =  context;
+        this.activity = activity;
         if (postData != null) {
             this.postData = new JSONObject(postData);
         }
@@ -82,48 +82,30 @@ public class Connessione extends AsyncTask<String, String, String> {
 
             publishProgress(response, String.valueOf(statusCode));
             // Richiamo la callback per gestire la risposta inviatami dal server
-            //callback.execute(response, statusCode);
+
             return String.valueOf(statusCode);
         } catch (Exception e) {
             // Lo statuscode -145 indica un eccezione nella connessione con il server oppure nella lettura della risposta
-           // callback.execute(e.getMessage(), -145);
+
             publishProgress(e.getMessage(), String.valueOf(-145));
         }
 
         return null;
     }
+
+    // Da qui in poi gestisco la risposta del server
     @Override
     protected void onProgressUpdate(String... progress) {
         if (progress[1].equals("-145")) // Errore durante la connessione con il server, segnalarlo all' utente
-        {
-
-            /**
-             * Possibili cause dell' errore:
-             *
-             * - l'utente non ha la connessione alla rete
-             * - il server è offline
-             * - errori di rete (vari)
-             */
-        } else {
+        {}
+        else {
             if (progress[1].equals("400"))  // Errore segnalato dal server
             {
-
-                /**
-                 * Tutte le cause dell' errore:
-                 *
-                 * - dati di login errati
-                 * - dati mancanti
-                 * - riscontrati problemi con il database
-                 */
-
-                //  Leggo l'errore di risposta inviatomi dal server
                 JSONObject error = null;
                 String errore = "";
-
                 try {
                     JSONObject res = new JSONObject(progress[0]);
                     error = new JSONObject(res.getString("error"));
-
                     errore = error.getString("info"); // Salvo l'informazione dell' error nella stringa errore
                 } catch (Exception e) {
                     // Segnalare l'errore
@@ -132,31 +114,39 @@ public class Connessione extends AsyncTask<String, String, String> {
                 // Segnalare l'errore contenuto in "errore" all' utente
 
             } else {
-                try {
-                    JSONObject token = new JSONObject(progress[0]);
-                    JSONObject autistajs = new JSONObject(token.getString("autista"));
+//++++++++++++++++++++++++++++++++++++++++LOGIN +++++++++++++++++++++++++++++++++++++++++++++++++++
+                if (activity instanceof LoginActivity) {
+                    try {
+                        JSONObject token = new JSONObject(progress[0]);
+                        JSONObject autistajs = new JSONObject(token.getString("autista"));
 
-                    //  ERRATO, FA CRASHARE L'APP, non si possono usare toast o altri oggetti in un task asincrono come questo
-
-                    /*while (token.getString("token") == null) {
-                        Toast.makeText(this, "Login errato!" + response, Toast.LENGTH_SHORT).show();
-                    }*/
-
-                    Parametri.Token = token.getString("token");
-                    Parametri.id = autistajs.getString("id");
-                    Parametri.username = autistajs.getString("username");
-                    Parametri.nome = autistajs.getString("nome");
-                    Parametri.cognome = autistajs.getString("cognome");
-                    Parametri.data_nascita = autistajs.getString("data_nascita");
-                    Parametri.email = autistajs.getString("email");
-                    Parametri.password = autistajs.getString("password");
-                    Parametri.saldo = autistajs.getString("saldo");
-                    Parametri.telefono = autistajs.getString("telefono");
+                        Parametri.Token = token.getString("token");
+                        Parametri.id = autistajs.getString("id");
+                        Parametri.username = autistajs.getString("username");
+                        Parametri.nome = autistajs.getString("nome");
+                        Parametri.cognome = autistajs.getString("cognome");
+                        Parametri.data_nascita = autistajs.getString("data_nascita");
+                        Parametri.email = autistajs.getString("email");
+                        Parametri.password = autistajs.getString("password");
+                        Parametri.saldo = autistajs.getString("saldo");
+                        Parametri.telefono = autistajs.getString("telefono");
 
 
+                    } catch (Exception e) {
 
-                } catch (Exception e) {
-                   // context.startActivity(new Intent(context, MainActivity.class));
+                    }
+                }
+//++++++++++++++++++++++++++++++++++SIGN UP++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+                if (activity instanceof SignUpActivity)
+                {
+                    try {
+                        JSONObject success = new JSONObject(progress[0]);
+                        String codice = success.getString("codice");
+
+
+                    }catch(Exception e){
+                        //Da gestire errori con nicolò
+                    }
                 }
             }
         }
@@ -165,14 +155,45 @@ public class Connessione extends AsyncTask<String, String, String> {
     }
     @Override
     protected void onPostExecute(String result){
+        //LOGIN
 
-        if (result.equals("-145"))
-            Toast.makeText(context, "ERRORE:\nConnessione Assente", Toast.LENGTH_LONG).show();
-        if (result.equals("400"))
+        if (result == null && activity instanceof LoginActivity) {
+            caricamento.dismiss();
+            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline", Toast.LENGTH_LONG).show();
+            context.startActivity(new Intent(context, LoginActivity.class));
+            return;
+        }
+
+        if (result.equals("400") && activity instanceof LoginActivity) {
+            caricamento.dismiss();
             Toast.makeText(context, "ERRORE:\nDati di login errati o mancanti", Toast.LENGTH_LONG).show();
-        if(!(result.equals("400") || result.equals("-145")))
+            context.startActivity(new Intent(context, LoginActivity.class));
+            return;
+        }
+        if(!(result.equals("400") || result.equals("-145")) && activity instanceof LoginActivity) {
+            caricamento.dismiss();
+            Toast.makeText(context, "SUCCESS\nLogin riuscito", Toast.LENGTH_LONG).show();
             context.startActivity(new Intent(context, MainActivity.class));
-        caricamento.dismiss();
+            return;
+        }
+
+        //SIGNUP
+        if (result == null && activity instanceof SignUpActivity) {
+            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline", Toast.LENGTH_LONG).show();
+            context.startActivity(new Intent(context, LoginActivity.class));
+            return;
+        }
+        if (activity instanceof SignUpActivity && result.equals("400")) {
+            Toast.makeText(context, "Errore nella registrazione", Toast.LENGTH_LONG).show();
+            context.startActivity(new Intent(context, LoginActivity.class));
+            return;
+        }
+        if (activity instanceof SignUpActivity && result.equals("200")) {
+            Toast.makeText(context, "Registrazione avvenuta con successo", Toast.LENGTH_LONG).show();
+            context.startActivity(new Intent(context, LoginActivity.class));
+        }
+
+        activity.finish();
 
     }
 

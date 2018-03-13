@@ -27,6 +27,7 @@
                 android:layout_height="100dp"
                 android:src="@mipmap/ic_add_user"/>
             <!--Nome-->
+
             <EditText
                 android:id="@+id/nome"
                 android:layout_width="match_parent"

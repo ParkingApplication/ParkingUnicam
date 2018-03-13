@@ -25,13 +25,13 @@ public class Connessione extends AsyncTask<String, String, String> {
     Context context ;
     Activity activity;
     // This is a constructor that allows you to pass in the JSON body
-    public Connessione(Map<String, String> postData, String requestType, Context context, Activity activity) {
+    public Connessione(JSONObject postData, String requestType, Context context, Activity activity) {
 
         this.requestType = requestType;
         this.context =  context;
         this.activity = activity;
         if (postData != null) {
-            this.postData = new JSONObject(postData);
+            this.postData = postData;
         }
     }
 
@@ -125,7 +125,7 @@ public class Connessione extends AsyncTask<String, String, String> {
                         Parametri.username = autistajs.getString("username");
                         Parametri.nome = autistajs.getString("nome");
                         Parametri.cognome = autistajs.getString("cognome");
-                        Parametri.data_nascita = autistajs.getString("data_nascita");
+                        Parametri.data_nascita = autistajs.getString("dataDiNascita");
                         Parametri.email = autistajs.getString("email");
                         Parametri.password = autistajs.getString("password");
                         Parametri.saldo = autistajs.getString("saldo");
@@ -155,8 +155,8 @@ public class Connessione extends AsyncTask<String, String, String> {
     }
     @Override
     protected void onPostExecute(String result){
-        //LOGIN
 
+        //Connessione assente
         if (result == null && activity instanceof LoginActivity) {
             caricamento.dismiss();
             Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline", Toast.LENGTH_LONG).show();
@@ -164,36 +164,45 @@ public class Connessione extends AsyncTask<String, String, String> {
             return;
         }
 
+        if (result == null && activity instanceof SignUpActivity) {
+            caricamento.dismiss();
+            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline", Toast.LENGTH_LONG).show();
+            context.startActivity(new Intent(context, LoginActivity.class));
+            activity.finish();
+            return;
+
+        }
+        //LOGIN
         if (result.equals("400") && activity instanceof LoginActivity) {
             caricamento.dismiss();
             Toast.makeText(context, "ERRORE:\nDati di login errati o mancanti", Toast.LENGTH_LONG).show();
             context.startActivity(new Intent(context, LoginActivity.class));
             return;
+
         }
         if(!(result.equals("400") || result.equals("-145")) && activity instanceof LoginActivity) {
             caricamento.dismiss();
             Toast.makeText(context, "SUCCESS\nLogin riuscito", Toast.LENGTH_LONG).show();
             context.startActivity(new Intent(context, MainActivity.class));
+            activity.finish();
             return;
         }
 
         //SIGNUP
-        if (result == null && activity instanceof SignUpActivity) {
-            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline", Toast.LENGTH_LONG).show();
-            context.startActivity(new Intent(context, LoginActivity.class));
-            return;
-        }
         if (activity instanceof SignUpActivity && result.equals("400")) {
             Toast.makeText(context, "Errore nella registrazione", Toast.LENGTH_LONG).show();
             context.startActivity(new Intent(context, LoginActivity.class));
+            activity.finish();
             return;
         }
         if (activity instanceof SignUpActivity && result.equals("200")) {
             Toast.makeText(context, "Registrazione avvenuta con successo", Toast.LENGTH_LONG).show();
             context.startActivity(new Intent(context, LoginActivity.class));
+            activity.finish();
+            return;
         }
 
-        activity.finish();
+
 
     }
 

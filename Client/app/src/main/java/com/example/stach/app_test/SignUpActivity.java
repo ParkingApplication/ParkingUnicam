@@ -1,6 +1,7 @@
 package com.example.stach.app_test;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
@@ -30,7 +31,7 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
 
     Context context = SignUpActivity.this;
     Activity activity = SignUpActivity.this;
-
+    static ProgressDialog caricamento = null;
 
 
 
@@ -45,6 +46,9 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
      * This method will send user credentials for registration.
      */
     public void sendDataForSignUp(View view){
+
+
+
         //Prendo i dati dalla form:
         EditText nome = (EditText) findViewById(R.id.nome);
         EditText cognome = (EditText) findViewById(R.id.cognome);
@@ -65,16 +69,28 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
         String passwords = password.getText().toString();
         String passwordrs = passwordr.getText().toString();
 
-        //Creo l'oggetto da passare al server
-        Map<String, String> postData = new HashMap<>();
-        postData.put("username", usernames);
-        postData.put("password", passwords);
-        postData.put("email", mails);
-        postData.put("nome", nomes);
-        postData.put("cognome", cognomes);
-        postData.put("dataDiNascita", dataDinascitas);
-        postData.put("telefono", telefonos);
+        JSONObject postData = new JSONObject();
 
+        JSONObject autista = new JSONObject();
+
+
+        try {
+            autista.put("username", usernames);
+            autista.put("password", passwords);
+            autista.put("email", mails);
+            autista.put("nome", nomes);
+            autista.put("cognome", cognomes);
+            autista.put("dataDiNascita", dataDinascitas);
+            autista.put("telefono", telefonos);
+            postData.put("autista", autista);
+        }catch (Exception e){
+            // Gestire l'errore come se fosse l'ultimo
+        }
+
+
+// Avverto l'utente del tentativo di invio dei dati di login al server
+        caricamento = ProgressDialog.show(SignUpActivity.this, "",
+                "Connessione con il server in corso...", true);
         Connessione conn = new Connessione(postData, "POST",context,activity);
         conn.execute(Parametri.IP + "/signup");
 
@@ -95,6 +111,11 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
         finish();
     }
+
+
+
+
+
 
     @Override
     public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {

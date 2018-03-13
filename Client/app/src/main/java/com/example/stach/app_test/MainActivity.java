@@ -35,11 +35,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         //DEFAULT FRAGMENT
-        setTitle("Il tuo profilo");
+        setTitle("Trova parcheggio");
         //assign default fragment
-        ProfileFragment fragment = new ProfileFragment();
+        FindYourParkingFragment fragment = new FindYourParkingFragment();
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fram, fragment, "Fragment Profile");
+        fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
         fragmentTransaction.commit();
     }
 

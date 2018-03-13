@@ -25,9 +25,14 @@ import java.net.URL;
  */
 public class ProfileFragment extends Fragment {
     private ImageView mImageView;
-    private TextView t_user;
+    private TextView t_nome;
+    private TextView t_cognome;
+    private TextView t_data;
+    private TextView t_telefono;
+    private TextView t_email;
+    private TextView t_password;
     private TextView t_saldo;
-
+    private TextView t_user;
     public ProfileFragment() {
         // Required empty public constructor
     }
@@ -43,12 +48,32 @@ public class ProfileFragment extends Fragment {
 
 
 
-        t_user = (TextView) view.findViewById(R.id.username);
-        t_user.setText(t_user.getText()+Parametri.nome + " " + Parametri.cognome);
-        t_saldo = (TextView) view.findViewById(R.id.money);
-        t_saldo.setText(t_saldo.getText()+Parametri.saldo);
+        t_nome = (TextView) view.findViewById(R.id.Nome);
+        t_nome.setText(t_nome.getText()+Parametri.nome );
+
+        t_cognome = (TextView) view.findViewById(R.id.Cognome);
+        t_cognome.setText(t_cognome.getText()+Parametri.cognome );
+
+        t_telefono = (TextView) view.findViewById(R.id.Telefono);
+        t_telefono.setText(t_telefono.getText()+Parametri.telefono );
+
+        t_data = (TextView) view.findViewById(R.id.Data_Nascita);
+        t_data.setText(t_data.getText()+Parametri.data_nascita );
+
+        t_email = (TextView) view.findViewById(R.id.Email);
+        t_email.setText(t_email.getText()+Parametri.email );
+
+        t_saldo = (TextView) view.findViewById(R.id.Saldo);
+        t_saldo.setText(t_saldo.getText()+Parametri.saldo );
+
+
+        t_user = (TextView) view.findViewById(R.id.Username);
+        t_user.setText(t_user.getText()+Parametri.username );
+
         // return inflate
+
         return view;
+
     }
 
 

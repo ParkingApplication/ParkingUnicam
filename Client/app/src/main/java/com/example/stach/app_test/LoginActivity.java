@@ -55,9 +55,11 @@ public class LoginActivity extends AppCompatActivity {
         String user = mail.getText().toString();
         String password1 = password.getText().toString();
         // Inserisco i dati del login in un HashMap così da poterli convertire facilmente in JSonObject in seguito
-        Map<String, String> postData = new HashMap<>();
-        postData.put("username", user);
-        postData.put("password", password1);
+        JSONObject postData = new JSONObject();
+        try {
+            postData.put("username", user);
+            postData.put("password", password1);
+        }catch (Exception e){}
 
         // Avverto l'utente del tentativo di invio dei dati di login al server
         caricamento = ProgressDialog.show(LoginActivity.this, "",

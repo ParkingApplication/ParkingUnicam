@@ -28,7 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:backgroundTint="@color/blue"
-                android:hint="@string/prompt_email"
+                android:hint="username o email"
                 android:inputType="textEmailAddress" />
             <!--password-->
             <EditText
@@ -48,7 +48,7 @@
                 android:id="@+id/btnSend"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background = "@drawable/roundedbutton"
+                android:background="@color/blue"
                 android:onClick="sendDataForLogin"
                 android:text="@string/btn_login"
                 android:textAllCaps="true"

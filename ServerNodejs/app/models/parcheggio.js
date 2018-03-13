@@ -1,4 +1,16 @@
+var db = require("../DB_Connection");
+
 var parcheggio = {
+    getAllParcheggi: function (callback) {
+        return db.query("SELECT * FROM parcheggi;", callback);
+    }
+};
+
+module.exports = parcheggio;
+
+
+
+/*var parcheggio = {
     id: Number,
     indirizzo: {
         citta: String,
@@ -17,4 +29,4 @@ var parcheggio = {
     tariffaOrariaFestivi: Number,
 }
 
-module.exports = parcheggio;
+module.exports = parcheggio;*/

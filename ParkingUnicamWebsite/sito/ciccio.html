@@ -1,0 +1,16 @@
+<h4>Info utente:</h4>
+<ul>
+    <li>username: {{ utente.username }}</li>
+    <li>email: {{ utente.email }}</li>
+    <li>nome: {{ utente.nome }}</li>
+    <li>cognome: {{ utente.cognome }}</li>
+    <li>data di nascita: {{ utente.data_nascita | date }}</li>
+    <li>telefono: {{ utente.telefono }}</li>
+    <li>saldo: {{ utente.saldo | number:2}}€</li>
+</ul>
+<h4>Info carta di credito:</h4>
+<ul>
+    <li>Numero carta: {{ utente.carta_di_credito.numero_carta }}</li>
+    <li>Data di scadenza: {{ utente.carta_di_credito.data_di_scadenza | date }}</li>
+    <li>Pin: {{ utente.carta_di_credito.pin }}</li>
+</ul>

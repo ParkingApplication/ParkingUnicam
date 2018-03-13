@@ -1,0 +1,32 @@
+<div class="container-fluid" ng-show="logIn">
+    <div class="row text-center">
+        <p class="titoloAdmin">Pagina di amministrazione</p>
+    </div>
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-2 text-center">
+        </div>
+        <div class="col-md-8">
+            <!-- CENTRO PAGINA -->
+            <div class="panel panel-primary pannelloAdmin text-center">
+                <div class="panel-heading" style="background-color: #333;">
+                    Informazioni generali parcheggi
+                </div>
+                <div class="panel-body corpoPannello">
+                    asdfasdfasf
+                </div>
+            </div>
+        </div>
+        <div class="col-md-2">
+        </div>
+    </div>
+</div>
+
+<!-- PARTE VISIBILE SOLO SE NON SI E' LOGGATI -->
+<div class="container-fluid" ng-hide="logIn">
+    <div class="row text-center">
+        <p class="subTitolo" style="margin-top: 30px;">IMPOSSIBILE ACCEDERE SENZA ESSERE LOGGATI!</p>
+        <h3>
+            <p style="margin-top: 30px;color: rgb(161, 20, 20);font-weight: bold;">Pagina riservata agli amministratori.</p>
+        </h3>
+    </div>
+</div>

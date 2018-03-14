@@ -101,12 +101,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
             fragmentTransaction.commit();
-        } else if (id == R.id.nav_settings) {
-            setTitle("Impostazioni");
-            SettingsFragment fragment = new SettingsFragment();
-            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-            fragmentTransaction.replace(R.id.fram, fragment, "Fragment Settings");
-            fragmentTransaction.commit();
         } else if (id == R.id.nav_logout) {
             //return to login page
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);

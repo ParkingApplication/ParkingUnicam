@@ -93,9 +93,6 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
                 "Connessione con il server in corso...", true);
         Connessione conn = new Connessione(postData, "POST",context,activity);
         conn.execute(Parametri.IP + "/signup");
-
-
-
     }
 
 
@@ -111,9 +108,6 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
         startActivity(new Intent(SignUpActivity.this, LoginActivity.class));
         finish();
     }
-
-
-
 
 
 

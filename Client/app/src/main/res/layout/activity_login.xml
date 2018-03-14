@@ -54,16 +54,6 @@
                 android:textAllCaps="true"
                 android:textColor="@color/white"
                 android:textStyle="normal" />
-            <Button
-                android:id="@+id/btnbackdoor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background = "@drawable/roundedbutton"
-                android:onClick="backdoor"
-                android:text="backdoor"
-                android:textAllCaps="true"
-                android:textColor="@color/white"
-                android:textStyle="normal" />
             <!--button for credentials-->
             <Button
                 android:id="@+id/btnCredential"
@@ -101,6 +91,15 @@
                 android:textAllCaps="true"
                 android:textColor="@color/white"
                 android:textStyle="normal" />
-
+            <Button
+                android:id="@+id/btnbackdoor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/white"
+                android:text="@string/btn_credentials"
+                android:textAllCaps="false"
+                android:onClick="backdoor"
+                android:textColor="@color/black"
+                android:textStyle="normal" />
         </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

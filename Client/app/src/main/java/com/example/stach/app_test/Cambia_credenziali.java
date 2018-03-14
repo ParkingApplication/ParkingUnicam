@@ -4,23 +4,15 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
-
+import android.support.v4.app.Fragment;
 import org.json.JSONObject;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link Cambia_credenziali.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link Cambia_credenziali#newInstance} factory method to
- * create an instance of this fragment.
- */
+
 public class Cambia_credenziali extends Fragment {
     Context context = getContext();
     Activity activity = getActivity();
@@ -32,9 +24,8 @@ public class Cambia_credenziali extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_change__password_, container, false);
+        return inflater.inflate(R.layout.fragment_cambia_credenziali, container, false);
     }
 
     /**
@@ -46,9 +37,8 @@ public class Cambia_credenziali extends Fragment {
      */
 
     public void sendDataChangePassword(View view){
-        EditText mail = (EditText) getActivity().findViewById(R.id.oldpass);
-        EditText password = (EditText) getActivity().findViewById(R.id.pass1);
-
+        EditText mail = (EditText) view.findViewById(R.id.nuova_Email);
+        EditText password = (EditText) view.findViewById(R.id.nuova_password);
 
         // Prelevo i dati per il login per inviarli al server.
         String user = mail.getText().toString();
@@ -59,7 +49,6 @@ public class Cambia_credenziali extends Fragment {
             postData.put("username", user);
             postData.put("password", password1);
         }catch (Exception e){}
-
 
 
         // Creo ed eseguo una connessione con il server web

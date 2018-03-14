@@ -1,13 +1,187 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/sfondo"
     tools:context="com.example.stach.app_test.Cambia_credenziali">
 
-    <!-- TODO: Update blank fragment layout -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:text="@string/hello_blank_fragment" />
+    <!--Only for padding-->
+    <!-- linear for mail icon and mail text-->
+    <!--Only for padding-->
 
-</FrameLayout>
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="382dp"
+        android:layout_height="392dp"
+        tools:layout_editor_absoluteX="2dp">
+
+        <EditText
+            android:id="@+id/nuova_Data_Nascita"
+            android:hint="Inserisci la nuova data di nascita"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@color/blue_trasparente"
+            android:paddingVertical="10dp"
+            android:scrollbars="none|horizontal"
+            android:singleLine="true"
+            android:textAlignment="textStart"
+            android:textColor="#1D1C1D"
+            android:textIsSelectable="false"
+            android:textSize="17sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintBottom_toTopOf="@+id/nuova_password"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Cognome" />
+
+        <EditText
+            android:id="@+id/nuova_Telefono"
+            android:hint="Inserisci il nuovo telefono"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:background="@color/blue_trasparente"
+            android:paddingVertical="10dp"
+            android:scrollbars="none|horizontal"
+            android:singleLine="true"
+            android:textAlignment="textStart"
+            android:textColor="#1D1C1D"
+            android:textIsSelectable="false"
+            android:textSize="17sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintBottom_toTopOf="@+id/nuova_buttonCommit"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Data_Nascita" />
+
+        <EditText
+            android:id="@+id/nuova_Username"
+            android:layout_width="match_parent"
+            android:hint="Inserisci il nuovo username"
+            android:layout_height="40dp"
+            android:layout_marginBottom="8dp"
+            android:background="@color/blue_trasparente"
+            android:paddingVertical="10dp"
+            android:scrollbars="none|horizontal"
+            android:singleLine="true"
+            android:textAlignment="textStart"
+            android:textColor="#1D1C1D"
+            android:textIsSelectable="false"
+            android:textSize="17sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintBottom_toTopOf="@+id/nuova_Nome"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Telefono" />
+
+        <EditText
+            android:id="@+id/nuova_Email"
+            android:hint="Inserisci la nuova email"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:background="@color/blue_trasparente"
+            android:paddingVertical="10dp"
+            android:scrollbars="none|horizontal"
+            android:singleLine="true"
+            android:textAlignment="textStart"
+            android:textColor="#1D1C1D"
+            android:textIsSelectable="false"
+            android:textSize="17sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Username" />
+
+        <EditText
+            android:id="@+id/nuova_Nome"
+            android:hint="Inserisci il nuovo username"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:background="@color/blue_trasparente"
+            android:paddingVertical="10dp"
+            android:scrollbars="none|horizontal"
+            android:singleLine="true"
+            android:textAlignment="textStart"
+            android:textColor="#1D1C1D"
+            android:textIsSelectable="false"
+            android:textSize="17sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintBottom_toTopOf="@+id/nuova_Cognome"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.981" />
+
+        <EditText
+            android:id="@+id/nuova_Cognome"
+            android:hint="Inserisci il nuovo cognome"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:background="@color/blue_trasparente"
+            android:paddingVertical="10dp"
+            android:scrollbars="none|horizontal"
+            android:textAlignment="textStart"
+            android:textColor="#1D1C1D"
+            android:textIsSelectable="false"
+            android:textSize="17sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintBottom_toTopOf="@+id/nuova_Data_Nascita"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Nome" />
+
+        <EditText
+            android:id="@+id/nuova_password"
+            android:hint="Inserisci la nuova password"
+            android:layout_width="0dp"
+            android:layout_height="45dp"
+            android:layout_marginBottom="8dp"
+            android:layout_marginStart="8dp"
+            android:background="@color/blue_trasparente"
+            android:paddingVertical="10dp"
+            android:scrollbars="none|horizontal"
+            android:textAlignment="textStart"
+            android:textColor="#1D1C1D"
+            android:textIsSelectable="false"
+            android:textSize="17sp"
+            android:textStyle="bold|italic"
+            app:layout_constraintBottom_toTopOf="@+id/nuova_Telefono"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Nome" />
+
+        <ImageView
+            android:id="@+id/image_profile"
+            android:layout_width="97dp"
+            android:layout_height="0dp"
+            android:layout_gravity="center"
+            android:background=" #E4DBC5"
+            android:scaleType="fitXY"
+            app:layout_constraintBottom_toTopOf="@+id/Data_Nascita"
+            app:layout_constraintEnd_toStartOf="@+id/Nome"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <Button
+            android:id="@+id/nuova_buttonCommit"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="32dp"
+            android:text="Esegui il cambia credenziali"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/Saldo" />
+    </android.support.constraint.ConstraintLayout>
+</android.support.design.widget.CoordinatorLayout>

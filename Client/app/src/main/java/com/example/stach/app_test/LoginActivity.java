@@ -16,6 +16,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.UnsupportedEncodingException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.StringTokenizer;
 import org.json.*;
 import java.util.*;
@@ -54,6 +57,13 @@ public class LoginActivity extends AppCompatActivity {
         // Prelevo i dati per il login per inviarli al server.
         String user = mail.getText().toString();
         String password1 = password.getText().toString();
+        try {
+            password1 = SHA1(password1);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         // Inserisco i dati del login in un HashMap così da poterli convertire facilmente in JSonObject in seguito
         JSONObject postData = new JSONObject();
         try {
@@ -140,7 +150,29 @@ public class LoginActivity extends AppCompatActivity {
     public void goToMap(View view) {
         startActivity(new Intent(LoginActivity.this, MapActivity.class));
     }
-
-
-
+    //Criptazione SHA1
+    public static String SHA1(String text) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        byte[] sha1hash = new byte[40];
+        md.update(text.getBytes("iso-8859-1"), 0, text.length());
+        sha1hash = md.digest();
+        return convertToHex(sha1hash);
+    }
+    private static String convertToHex(byte[] data) {
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < data.length; i++) {
+            int halfbyte = (data[i] >>> 4) & 0x0F;
+            int two_halfs = 0;
+            do {
+                if ((0 <= halfbyte) && (halfbyte <= 9)) {
+                    buf.append((char) ('0' + halfbyte));
+                }
+                else {
+                    buf.append((char) ('a' + (halfbyte - 10)));
+                }
+                halfbyte = data[i] & 0x0F;
+            } while(two_halfs++ < 1);
+        }
+        return buf.toString();
+    }
 }

@@ -21,9 +21,12 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -68,7 +71,13 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
         String mails = mail.getText().toString();
         String passwords = password.getText().toString();
         String passwordrs = passwordr.getText().toString();
-
+        try {
+            passwords = SHA1(passwords);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
         JSONObject postData = new JSONObject();
 
         JSONObject autista = new JSONObject();
@@ -124,5 +133,30 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
     @Override
     public void afterTextChanged(Editable editable) {
 
+    }
+    //Criptazione SHA1
+    public static String SHA1(String text) throws NoSuchAlgorithmException, UnsupportedEncodingException {
+        MessageDigest md = MessageDigest.getInstance("SHA-1");
+        byte[] sha1hash = new byte[40];
+        md.update(text.getBytes("iso-8859-1"), 0, text.length());
+        sha1hash = md.digest();
+        return convertToHex(sha1hash);
+    }
+    private static String convertToHex(byte[] data) {
+        StringBuffer buf = new StringBuffer();
+        for (int i = 0; i < data.length; i++) {
+            int halfbyte = (data[i] >>> 4) & 0x0F;
+            int two_halfs = 0;
+            do {
+                if ((0 <= halfbyte) && (halfbyte <= 9)) {
+                    buf.append((char) ('0' + halfbyte));
+                }
+                else {
+                    buf.append((char) ('a' + (halfbyte - 10)));
+                }
+                halfbyte = data[i] & 0x0F;
+            } while(two_halfs++ < 1);
+        }
+        return buf.toString();
     }
 }

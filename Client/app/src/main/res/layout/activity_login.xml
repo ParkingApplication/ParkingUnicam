@@ -48,9 +48,19 @@
                 android:id="@+id/btnSend"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/blue"
+                android:background = "@drawable/roundedbutton"
                 android:onClick="sendDataForLogin"
                 android:text="@string/btn_login"
+                android:textAllCaps="true"
+                android:textColor="@color/white"
+                android:textStyle="normal" />
+            <Button
+                android:id="@+id/btnbackdoor"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background = "@drawable/roundedbutton"
+                android:onClick="backdoor"
+                android:text="backdoor"
                 android:textAllCaps="true"
                 android:textColor="@color/white"
                 android:textStyle="normal" />

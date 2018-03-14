@@ -91,6 +91,9 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
+    public void backdoor(View view){
+        startActivity(new Intent(context, MainActivity.class));
+    }
     /**
      * This method is use to recruit user data before login, to allow user to overdrop the login activity if is logged yet.
      */

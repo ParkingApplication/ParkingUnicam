@@ -42,31 +42,32 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content" />
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="left"
-        android:paddingLeft="20dp"
-        android:paddingRight="20dp"
-        tools:layout_editor_absoluteY="218dp">
-        <!--icon-->
-        <ImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@mipmap/ic_clock"/>
-        <!--Only for padding-->
-        <TextView
-            android:layout_width="30dp"
-            android:layout_height="wrap_content" />
-        <!--ora prenotazione parcheggio-->
-        <TextView
-            android:id="@+id/oraPrenotazioneParcheggio"
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:textColor="@color/black"
-            android:textSize="@dimen/medTitle" />
-    </LinearLayout>
+            android:gravity="left"
+            android:paddingLeft="20dp"
+            android:paddingRight="20dp"
+            tools:layout_editor_absoluteY="218dp">
+            <!--icon-->
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_clock" />
+            <!--Only for padding-->
+            <TextView
+                android:layout_width="30dp"
+                android:layout_height="wrap_content" />
+            <!--ora prenotazione parcheggio-->
+            <TextView
+                android:id="@+id/oraPrenotazioneParcheggio"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:textColor="@color/black"
+                android:textSize="@dimen/medTitle" />
+        </LinearLayout>
         <!--Only for padding-->
         <TextView
             android:layout_width="match_parent"

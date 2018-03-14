@@ -11,7 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.LinearLayout;
-
+import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -50,11 +50,11 @@ public class FragmentYour_Book extends Fragment {
             //creo la text view
             buttonsPrenotazioni[index] = new Button(view.getContext());
             //ritorno la stringa da stampare
-            buttonsPrenotazioni[index].setText(prenotazioni[i].getNomeParcheggio().substring(0,10)+"...  >");
+            buttonsPrenotazioni[index].setText(prenotazioni[index].getNomeParcheggio().substring(0,10)+"...  >");
             //Setto i parametri della text view
-            buttonsPrenotazioni[index].setId(i);
+            buttonsPrenotazioni[index].setId(index);
             //scrivo le risorse background
-            buttonsPrenotazioni[i].setBackgroundResource(R.drawable.roundedbutton);
+            buttonsPrenotazioni[index].setBackgroundResource(R.drawable.roundedbutton);
             //setto la dimensione
             buttonsPrenotazioni[index].setTextSize(19);
             //colore

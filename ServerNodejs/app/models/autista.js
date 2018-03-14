@@ -1,4 +1,3 @@
-var CartaDiCredito = require("./cartaDiCredito");
 var db = require("../DB_Connection");
 
 var autista = {

@@ -1,11 +1,12 @@
 var http = require('http');
 var express = require('express');
 var router = require('./app/routes/router');
+var ConfigConnessione = require("./app/config/configConnessione");
+
 var app = express();
 
-//  Togliere da app e spostare solo al sito statico (per registrazione e login admin)
 app.use(function allowCrossDomain(req, res, next) {
-    res.header('Access-Control-Allow-Origin', '*'); // Mettere poi indirizzo ip esterno
+    res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET, PUT, POST, DELETE, PATCH, OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
@@ -15,11 +16,11 @@ app.use(function allowCrossDomain(req, res, next) {
         next();
 });
 
-// Uso le api express router (COMMENTO DA SISTEMARE)
+//  Imposto le API Routes nella path principale del server
 app.use('/', router);
 
 var httpServer = http.createServer(app);
 
-httpServer.listen(5044, "172.16.0.212", function () {
-    console.log('server started on 5044.');
+httpServer.listen(ConfigConnessione.portInternal, ConfigConnessione.ipInternal, function () {
+    console.log("\nServer started on " + ConfigConnessione.ipInternal + ":" + ConfigConnessione.portInternal + ".\n");
 });

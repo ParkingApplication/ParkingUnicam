@@ -1,23 +1,31 @@
 var jwt = require('jsonwebtoken');
 var bodyParser = require('body-parser');
 var express = require('express');
+var crypto = require('crypto');
+var path = require('path');
+var fs = require('fs');
 
 // Non so se il multiparty sia necessario qui <-------------------------------------
 var multiparty = require('connect-multiparty');
 var multipartyMiddleware = multiparty();
 
+// Servizio posta elettronica
+var servizioPosta = require('nodemailer');
+
 // Modelli
 var Utente = require("../models/utente");
 var Parcheggio = require("../models/parcheggio");
 var Carta = require("../models/cartaDiCredito");
+var VerificaEmail = require("../models/verificaEmail");
 
-// Secret for jsonwebtoken
-var secret = "hfq3g7f03Q,£$Fwetf.g3g@#ù_àergeg";
+// Configurazioni
+var ConfigEmail = require("../config/configEmail");
+var ConfigConnessione = require("../config/configConnessione");
 
-//  Correzione per update
+//  Correzione campi dati vuoti per update
 var CorreggiAutista = function (nuovo, vecchio) {
     var result = {
-        id: vecchio.id, //   l' id di nuovo e vecchio hanno comunque sempre lo stesso valore
+        id: vecchio.id,
         username: vecchio.username || nuovo.username,
         password: vecchio.password || nuovo.password,
         email: vecchio.email || nuovo.email,
@@ -26,6 +34,7 @@ var CorreggiAutista = function (nuovo, vecchio) {
         dataDiNascita: vecchio.dataDiNascita || nuovo.dataDiNascita,
         telefono: vecchio.telefono || nuovo.telefono,
         saldo: vecchio.saldo || nuovo.saldo,
+        abilitato: 1,
         carta_di_credito: {
             numero_carta: vecchio.username.carta_di_credito.numero_carta || nuovo.username.carta_di_credito.numero_carta,
             pin: vecchio.username.carta_di_credito.pin || nuovo.username.carta_di_credito.pin,
@@ -36,14 +45,19 @@ var CorreggiAutista = function (nuovo, vecchio) {
     return result;
 };
 
-//  Da sistemare secondo le specifiche del progetto corrente
+//  Verifica del token
 var verifyToken = function (req, res, next) {
     var token = req.headers['x-access-token'] || req.body.token || req.query.token;
 
     if (token) {
-        jwt.verify(token, secret, function (err, decoded) {
+        jwt.verify(token, ConfigConnessione.secret, function (err, decoded) {
             if (err)
-                return res.json({ success: false, message: 'Failed to authenticate token.' });
+                return res.json({
+                    error: {
+                        codice: -1,
+                        info: "Riscontrati problemi nell' autenticare il token."
+                    }
+                });
             else {
                 req.user = decoded;
                 next();
@@ -83,13 +97,101 @@ apiRoutes.post('/signup', function (req, res) {
                         info: "Nome utente o email già in uso."
                     }
                 });
-            else
-                res.json({
-                    successful: {
-                        codice: 200,
-                        info: "L'utente è stato registrato correttamente."
+            else {
+                // Genero il codice di verifica
+                var milliseconds = new Date().getMilliseconds();
+                var data = milliseconds + result.insertId;
+                var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
+
+                // Aggiungo il codice di verifica al database
+                VerificaEmail.addEmailCode(result.insertId, codice, function (err) {
+                    if (err)
+                        res.status(400).json({
+                            error: {
+                                codice: 59,
+                                info: "Riscontrati problemi con il database per la verifica email."
+                            }
+                        });
+                    else {
+                        // Setto i dati per l'invio dell' email di verifica
+                        var postino = servizioPosta.createTransport({
+                            service: ConfigEmail.service,
+                            auth: {
+                                user: ConfigEmail.email,
+                                pass: ConfigEmail.password
+                            }
+                        });
+
+                        var indirizzo = "http://" + ConfigConnessione.ipExternal + ":" + ConfigConnessione.portExternal + "/verify?code=" + codice;
+
+                        //  Invio l'email di verifica
+                        postino.sendMail({
+                            from: ConfigEmail.nome,
+                            to: req.body.autista.email,
+                            subject: "Conferma registrazione ParkingUnicam",
+                            text: "Ciao " + req.body.autista.nome + ",\ngrazie per esserti iscritto alla nostra applicazione."
+                                + "\n\nSegui il link per procedere con la registrazione:\n" + indirizzo
+                        }, function (err, info) {
+                            if (err) {
+                                console.log("Email sender error > " + err);
+                                res.status(400).json({
+                                    error: {
+                                        codice: 90,
+                                        info: "Riscontrati errori nell' invio dell' email di verifica."
+                                    }
+                                });
+                                return;
+                            }
+                            else
+                                res.json({
+                                    successful: {
+                                        codice: 200,
+                                        info: "Ti è stata inviata un email per confermare la registrazione."
+                                    }
+                                });
+                        });
                     }
                 });
+            }
+        });
+});
+
+// Verifica email (acceduta solo da browser, risponde con status 200 o 400 e con pagine html)
+apiRoutes.get('/verify', function (req, res) {
+    if (!req.query.code)
+        res.sendFile(path.join(__dirname, './html/errorRegistrazione.html'));
+    else
+        VerificaEmail.getEmailCode(req.query.code, function (err, rows) {
+            if (err)
+                res.sendFile(path.join(__dirname, './html/errorRegistrazione.html'));
+            else {
+                // Abilito l'autista
+                if (rows.length == 1) {
+                    var idUtente = rows[0].id_utente;
+                    Utente.setAbilitazioneAutista(idUtente, 1, function (err) {
+                        if (err)
+                            res.sendFile(path.join(__dirname, './html/errorRegistrazione.html'));
+                        else {
+                            res.sendFile(path.join(__dirname, './html/confermaRegistrazione.html'));
+
+                            console.log("Codice email verificato (account abilitato), codice > " + req.query.code);
+                            // Elimino il record di verifica dell' utente
+                            VerificaEmail.delEmailCode(idUtente, function (err) {
+                                if (err)
+                                    console.log("Riscontrato problema nell' eliminare EmailCode >\n" + err);
+                            });
+                        }
+                    });
+                    return; // Altrimenti node passa all' else successivo anche se non dovrebbe
+                }
+                else
+                    if (rows.length > 1) {
+                        res.sendFile(path.join(__dirname, './html/errorRegistrazione.html'));
+                        console.log("Riscontrato problema nel database, trovato codice verifica duplicato.\n");
+                    }
+                    else
+                        res.sendFile(path.join(__dirname, './html/alreadyRegistrazione.html'));
+            }
         });
 });
 
@@ -131,7 +233,7 @@ apiRoutes.post('/login', function (req, res) {
                             }
                         };
                         res.json({
-                            token: jwt.sign(user, secret),
+                            token: jwt.sign(user, ConfigConnessione.secret),
                             autista: user
                         });
                     }
@@ -163,7 +265,7 @@ apiRoutes.post('/login', function (req, res) {
                                         }
                                     };
                                     res.json({
-                                        token: jwt.sign(user, secret),
+                                        token: jwt.sign(user, ConfigConnessione.secret),
                                         autista: user
                                     });
                                 }
@@ -171,7 +273,7 @@ apiRoutes.post('/login', function (req, res) {
                                     res.status(400).json({
                                         error: {
                                             codice: 7,
-                                            info: "Dati di login errati."
+                                            info: "Dati di login errati o account non ancora abilitato."
                                         }
                                     });
                                 }
@@ -198,7 +300,7 @@ apiRoutes.post('/login', function (req, res) {
                             livelloAmministrazione: rows[0].livelloAmministrazione
                         };
                         res.json({
-                            token: jwt.sign(user, secret),
+                            token: jwt.sign(user, ConfigConnessione.secret),
                             admin: user
                         });
                     }
@@ -317,6 +419,7 @@ apiRoutes.post('/getAllAutisti', function (req, res) {
                                 dataDiNascita: dateN,
                                 telefono: rows[i].telefono || "",
                                 saldo: rows[i].saldo || 0,
+                                abilitato: rows[i].abilitato,
                                 carta_di_credito: {
                                     numero_carta: rows[i].numeroCarta || "",
                                     pin: rows[i].pinDiVerifica || "",

@@ -18,9 +18,6 @@ app.use(function allowCrossDomain(req, res, next) {
 // Uso le api express router (COMMENTO DA SISTEMARE)
 app.use('/', router);
 
-// Esempio di caricamento sito statico (HTML)
-app.use('/site', express.static('site'));
-
 var httpServer = http.createServer(app);
 
 httpServer.listen(5044, "172.16.0.212", function () {

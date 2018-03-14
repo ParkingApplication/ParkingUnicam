@@ -3,6 +3,12 @@ var indexApp = angular.module('parkingApp', ['ngRoute', 'ngStorage']);
 var ipserver = "172.16.0.212:5044";
 var protocol = "http";
 
+//  variabile contenente il token
+var curToken = { value: "", enable: false };
+
+// variabili per il menu
+var searchFor = 1;
+
 //  Aggiunta della variabile e funzione globali per nascondere/mostrare il menù
 indexApp.run(function ($rootScope) {
     $rootScope.logIn = false;
@@ -47,140 +53,87 @@ indexApp.config(function ($routeProvider) {
         });
 });
 
-//  variabile contenente il token
-var curToken = { value: "", enable: false };
-
 var menuSet = function (val) {
     if (val == 0) {
-        e1 = document.getElementById("linkHome");   // 0
-        e1.setAttribute("class", "active");
+        $("#linkHome").addClass("active");
+        $("#linkParcheggi").removeClass("active");
+        $("#linkMain").removeClass("active");
+        $("#linkUtenti").removeClass("active");
+        $("#linkPrenotazioni").removeClass("active");
 
-        e2 = document.getElementById("linkParcheggi");  // 1
-        e2.setAttribute("class", "");
-
-        e3 = document.getElementById("linkMain");   // 2
-        e3.setAttribute("class", "");
-
-        e4 = document.getElementById("linkUtenti"); // 3
-        e4.setAttribute("class", "");
-
-        e5 = document.getElementById("linkPrenotazioni");   // 4
-        e5.setAttribute("class", "");
         $("#navSearch").hide();
-        $("#cu1").hide();
-        $("#cu2").hide();
-        $("#cu3").hide();
+        $("#cercaPerNome").hide();
+        $("#cercaPerCognome").hide();
+        $("#cercaPerID").hide();
     }
     else
         if (val == 1) {
-            e1 = document.getElementById("linkHome");   // 0
-            e1.setAttribute("class", "");
+            $("#linkHome").removeClass("active");
+            $("#linkParcheggi").addClass("active");
+            $("#linkMain").removeClass("active");
+            $("#linkUtenti").removeClass("active");
+            $("#linkPrenotazioni").removeClass("active");
 
-            e2 = document.getElementById("linkParcheggi");  // 1
-            e2.setAttribute("class", "active");
-
-            e3 = document.getElementById("linkMain");   // 2
-            e3.setAttribute("class", "");
-
-            e4 = document.getElementById("linkUtenti"); // 3
-            e4.setAttribute("class", "");
-
-            e5 = document.getElementById("linkPrenotazioni");   // 4
-            e5.setAttribute("class", "");
             $("#navSearch").hide();
-            $("#cu1").hide();
-            $("#cu2").hide();
-            $("#cu3").hide();
+            $("#cercaPerNome").hide();
+            $("#cercaPerCognome").hide();
+            $("#cercaPerID").hide();
         }
         else
             if (val == 2) {
-                e1 = document.getElementById("linkHome");   // 0
-                e1.setAttribute("class", "");
+                $("#linkHome").removeClass("active");
+                $("#linkParcheggi").removeClass("active");
+                $("#linkMain").addClass("active");
+                $("#linkUtenti").removeClass("active");
+                $("#linkPrenotazioni").removeClass("active");
 
-                e2 = document.getElementById("linkParcheggi");  // 1
-                e2.setAttribute("class", "");
-
-                e3 = document.getElementById("linkMain");   // 2
-                e3.setAttribute("class", "active");
-
-                e4 = document.getElementById("linkUtenti"); // 3
-                e4.setAttribute("class", "");
-
-                e5 = document.getElementById("linkPrenotazioni");   // 4
-                e5.setAttribute("class", "");
                 $("#navSearch").hide();
-                $("#cu1").hide();
-                $("#cu2").hide();
-                $("#cu3").hide();
+                $("#cercaPerNome").hide();
+                $("#cercaPerCognome").hide();
+                $("#cercaPerID").hide();
             }
             else {
                 if (val == 3) {
-                    e1 = document.getElementById("linkHome");   // 0
-                    e1.setAttribute("class", "");
+                    $("#linkHome").removeClass("active");
+                    $("#linkParcheggi").removeClass("active");
+                    $("#linkMain").removeClass("active");
+                    $("#linkUtenti").addClass("active");
+                    $("#linkPrenotazioni").removeClass("active");
 
-                    e2 = document.getElementById("linkParcheggi");  // 1
-                    e2.setAttribute("class", "");
-
-                    e3 = document.getElementById("linkMain");   // 2
-                    e3.setAttribute("class", "");
-
-                    e4 = document.getElementById("linkUtenti"); // 3
-                    e4.setAttribute("class", "active");
-
-                    e5 = document.getElementById("linkPrenotazioni");   // 4
-                    e5.setAttribute("class", "");
                     $("#navSearch").show();
-                    $("#cu1").show();
-                    $("#cu2").show();
-                    $("#cu3").show();;
+                    $("#cercaPerNome").show();
+                    $("#cercaPerCognome").show();
+                    $("#cercaPerID").show();;
                 }
                 else {
                     if (val == 4) {
-                        e1 = document.getElementById("linkHome");   // 0
-                        e1.setAttribute("class", "");
+                        $("#linkHome").removeClass("active");
+                        $("#linkParcheggi").removeClass("active");
+                        $("#linkMain").removeClass("active");
+                        $("#linkUtenti").removeClass("active");
+                        $("#linkPrenotazioni").addClass("active");
 
-                        e2 = document.getElementById("linkParcheggi");  // 1
-                        e2.setAttribute("class", "");
-
-                        e3 = document.getElementById("linkMain");   // 2
-                        e3.setAttribute("class", "");
-
-                        e4 = document.getElementById("linkUtenti"); // 3
-                        e4.setAttribute("class", "");
-
-                        e5 = document.getElementById("linkPrenotazioni");   // 4
-                        e5.setAttribute("class", "active");
                         $("#navSearch").show();
-                        $("#cu1").hide();
-                        $("#cu2").hide();
-                        $("#cu3").hide();
+                        $("#cercaPerNome").hide();
+                        $("#cercaPerCognome").hide();
+                        $("#cercaPerID").hide();
                     }
                     else {
-                        e1 = document.getElementById("linkHome");   // 0
-                        e1.setAttribute("class", "");
+                        $("#linkHome").removeClass("active");
+                        $("#linkParcheggi").removeClass("active");
+                        $("#linkMain").removeClass("active");
+                        $("#linkUtenti").removeClass("active");
+                        $("#linkPrenotazioni").removeClass("active");
 
-                        e2 = document.getElementById("linkParcheggi");  // 1
-                        e2.setAttribute("class", "");
-
-                        e3 = document.getElementById("linkMain");   // 2
-                        e3.setAttribute("class", "");
-
-                        e4 = document.getElementById("linkUtenti"); // 3
-                        e4.setAttribute("class", "");
-
-                        e5 = document.getElementById("linkPrenotazioni");   // 4
-                        e5.setAttribute("class", "");
                         $("#navSearch").hide();
-                        $("#cu1").hide();
-                        $("#cu2").hide();
-                        $("#cu3").hide();
+                        $("#cercaPerNome").hide();
+                        $("#cercaPerCognome").hide();
+                        $("#cercaPerID").hide();
                     }
                 }
             }
-
 };
 
-// create the controller and inject Angular's $scope
 indexApp.controller('homeController', function ($scope, $localStorage, $location) {
     if ($localStorage.XToken) {
         curToken = $localStorage.XToken;
@@ -230,6 +183,10 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
     }
 
     $scope.page = 1;
+    searchFor = 1;
+    $scope.AllAutisti = [];
+    $scope.Autisti = [];
+    $scope.Search = [];
     menuSet(3);
 
     $http({
@@ -251,6 +208,13 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
         else
             alert("Errore sconosciuto.");
     });
+
+    var IndexFromId = function (id) {
+        var j;
+        for (j = 0; j < $scope.AllAutisti.length; j++)
+            if ($scope.AllAutisti[j].id == id)
+                return j;
+    };
 
     $scope.ModificaUtente = function (index, value) {
         // Nascondo/Mostro i tasti relativi alla funzionalità richiesta
@@ -334,6 +298,9 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
                     alert(response.data.successful.info);
                     //  Setto i nuovi valori
                     $scope.Autisti[index] = parametri.autista;
+                    $scope.AllAutisti[IndexFromId(parametri.autista.id)] = parametri.autista;
+                    if ($scope.Search.length > 0)
+                        $scope.Search[(($scope.page - 1) * 10) + index] = parametri.autista;
                     $scope.ModificaUtente(index, false);
                 }
                 else
@@ -364,7 +331,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             }).then(function (response) {
                 if (response.status == 200) {
                     if (response.data.successful) {
-                        for (var i = ((($scope.page - 1) * 10) + index); i < $scope.AllAutisti.length - 1; i++)
+                        for (var i = IndexFromId($scope.Autisti[index].id); i < $scope.AllAutisti.length - 1; i++)
                             $scope.AllAutisti[i] = $scope.AllAutisti[i + 1];
 
                         $scope.AllAutisti[$scope.AllAutisti.length - 1] = null;
@@ -386,18 +353,77 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
         };
     };
 
+    var Search = function () {
+        var input = $("#inputSearch").val();
+        var output = [];
+        var i = 0;
+
+        if ((input == "") || (input == "undefined")) {
+            $scope.page = 1;
+            $scope.Search = [];
+            visualizza($scope.page, $scope.AllAutisti);
+        }
+        else
+            if (searchFor == 1) {   // Cerca per nome
+                $scope.AllAutisti.forEach(user => {
+                    if (user.nome.toLowerCase().startsWith(input.toLowerCase())) {
+                        output[i] = user;
+                        i++;
+                    }
+                });
+                $scope.page = 1;
+                $scope.Search = output;
+                visualizza($scope.page, output);
+            }
+            else
+                if (searchFor == 2) {   // Cerca per cognome
+                    $scope.AllAutisti.forEach(user => {
+                        if (user.cognome.toLowerCase().startsWith(input.toLowerCase())) {
+                            output[i] = user;
+                            i++;
+                        }
+                    });
+                    $scope.page = 1;
+                    $scope.Search = output;
+                    visualizza($scope.page, output);
+                }
+                else
+                    if (searchFor == 3) {   // ID
+                        $scope.AllAutisti.forEach(user => {
+                            if (user.id == input) {
+                                output[i] = user;
+                                i++;
+                            }
+                        });
+                        $scope.page = 1;
+                        $scope.Search = output;
+                        visualizza($scope.page, output);
+                    }
+                    else {
+                        $scope.Search = [];
+                        alert("Prima devi selezionare per cosa cercare.");
+                    }
+
+
+    }
+
     $("#cercaPerNome").click(function () {
         $("#cercaPer").text("Cerca per nome");
-        $scope.cercaPer = 1;
+        searchFor = 1;
     });
+
     $("#cercaPerCognome").click(function () {
         $("#cercaPer").text("Cerca per cognome");
-        $scope.cercaPer = 2;
+        searchFor = 2;
     });
+
     $("#cercaPerID").click(function () {
         $("#cercaPer").text("Cerca per id");
-        $scope.cercaPer = 3;
+        searchFor = 3;
     });
+
+    $("#inputSearch").change(Search);
+    $("#btnSearch").click(Search);
 
     var visualizza = function (pagina, users) {
         var user_for_page = 10;
@@ -421,20 +447,34 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
     $scope.Next = function () {
         var extra = 0;
 
-        if (($scope.AllAutisti.length % 10) > 0)
+        var vet = [];
+
+        if ($scope.Search.length > 0)
+            vet = $scope.Search;
+        else
+            vet = $scope.AllAutisti;
+
+        if ((vet.length % 10) > 0)
             extra = 1;
 
-        if ($scope.page + 1 <= ($scope.AllAutisti.length / 10) + extra) {
+        if ($scope.page + 1 <= (vet.length / 10) + extra) {
             $scope.page++;
-            visualizza($scope.page, $scope.AllAutisti);
+            visualizza($scope.page, vet);
             $window.scrollTo(0, 0);
         }
     };
 
     $scope.Previous = function () {
+        var vet = [];
+
+        if ($scope.Search.length > 0)
+            vet = $scope.Search;
+        else
+            vet = $scope.AllAutisti;
+
         if ($scope.page > 1) {
             $scope.page--;
-            visualizza($scope.page, $scope.AllAutisti);
+            visualizza($scope.page, vet);
             $window.scrollTo(0, 0);
         }
     };
@@ -478,7 +518,6 @@ indexApp.controller('gestisciLogin', function ($scope, $http, $location, $localS
     }
 
     menuSet();
-
 
     //   Autenticazione via token (se si è precedentementi loggati)
     if (curToken.enable == true) {
@@ -549,10 +588,6 @@ indexApp.controller("gestisciSingup", function ($scope, $http, $location, $local
     $('#datanascita').datetimepicker({
         format: 'YYYY/MM/DD'
     });
-
-    /*$scope.datanascita.datetimepicker({
-        format: 'DD/MM/YYYY'
-    });*/
 
     menuSet();
 

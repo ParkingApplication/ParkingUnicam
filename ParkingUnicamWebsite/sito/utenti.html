@@ -63,6 +63,12 @@
                                 <span class="subInfoUtente">saldo (€):</span>
                                 <input type="text" id="saldo{{ $index }}" value="{{ utente.saldo | number:2}}" class=" formUtente" disabled required/>
                             </li>
+                            <li>
+                                <div class="form-check">
+                                    <span class="subInfoUtente">abilitato:</span>
+                                    <input type="checkbox" class="form-check-input" ng-checked="{{ utente.abilitato }}" style="width: 20px; height: 20px;margin-left: 80px;" id="abilitato{{ $index }}" disabled/>
+                                </div>
+                            </li>
                         </ul>
                         <h4 class="infoUtente">Info carta di credito:</h4>
                         <ul>

@@ -5,21 +5,15 @@ var crypto = require('crypto');
 var path = require('path');
 var fs = require('fs');
 
-// Non so se il multiparty sia necessario qui <-------------------------------------
-var multiparty = require('connect-multiparty');
-var multipartyMiddleware = multiparty();
-
-// Servizio posta elettronica
-var servizioPosta = require('nodemailer');
-
 // Modelli
 var Utente = require("../models/utente");
 var Parcheggio = require("../models/parcheggio");
 var Carta = require("../models/cartaDiCredito");
 var VerificaEmail = require("../models/verificaEmail");
 
-// Configurazioni
-var ConfigEmail = require("../config/configEmail");
+// Servizio posta elettronica
+var EmailSender = require('../EmailSender');
+
 var ConfigConnessione = require("../config/configConnessione");
 
 //  Correzione campi dati vuoti per update
@@ -114,41 +108,21 @@ apiRoutes.post('/signup', function (req, res) {
                         });
                     else {
                         // Setto i dati per l'invio dell' email di verifica
-                        var postino = servizioPosta.createTransport({
-                            service: ConfigEmail.service,
-                            auth: {
-                                user: ConfigEmail.email,
-                                pass: ConfigEmail.password
-                            }
-                        });
-
                         var indirizzo = "http://" + ConfigConnessione.ipExternal + ":" + ConfigConnessione.portExternal + "/verify?code=" + codice;
+                        var testo = "Ciao " + req.body.autista.nome + ",\ngrazie per esserti iscritto alla nostra applicazione." + "\n\nSegui il link per procedere con la registrazione:\n" + indirizzo;
 
                         //  Invio l'email di verifica
-                        postino.sendMail({
-                            from: ConfigEmail.nome,
-                            to: req.body.autista.email,
-                            subject: "Conferma registrazione ParkingUnicam",
-                            text: "Ciao " + req.body.autista.nome + ",\ngrazie per esserti iscritto alla nostra applicazione."
-                                + "\n\nSegui il link per procedere con la registrazione:\n" + indirizzo
-                        }, function (err, info) {
-                            if (err) {
-                                console.log("Email sender error > " + err);
-                                res.status(400).json({
-                                    error: {
-                                        codice: 90,
-                                        info: "Riscontrati errori nell' invio dell' email di verifica."
-                                    }
-                                });
-                                return;
+                        EmailSender.sendEmail(req.body.autista.email, "Conferma registrazione ParkingUnicam", testo,
+                            function (err, info) {
+                                if (err)
+                                    console.log("Email sender error > " + err);
+                            });
+
+                        res.json({
+                            successful: {
+                                codice: 200,
+                                info: "Ti stiamo inviando un email per confermare la registrazione."
                             }
-                            else
-                                res.json({
-                                    successful: {
-                                        codice: 200,
-                                        info: "Ti è stata inviata un email per confermare la registrazione."
-                                    }
-                                });
                         });
                     }
                 });
@@ -367,6 +341,85 @@ apiRoutes.post('/getAllParcheggi', function (req, res) {
     });
 });
 
+apiRoutes.post('/resetPassword', function (req, res) {
+    if (!req.body.email)
+        res.status(400).json({
+            error: {
+                codice: 17,
+                info: "Campi mancanti."
+            }
+        });
+    else // Ritorna i dati dell' autista dall' email solo se esso è abilitato
+        Utente.getAutistaFromOnlyEmail(req.body.email, function (err, rows) {
+            if (err)
+                res.status(400).json({
+                    error: {
+                        codice: 55,
+                        info: "Riscontrati problemi con il database."
+                    }
+                });
+            else
+                if (rows.length == 1) {
+                    // Creo la nuova password
+                    var milliseconds = new Date().getMilliseconds();
+                    var newPassword = milliseconds + rows[0].idUtente;
+                    // Eseguo l'hash della password per salvarla nel db
+                    var hashedPassword = crypto.createHash('sha1').update(newPassword.toString()).digest('hex');
+
+                    var user = {
+                        id: rows[0].idUtente,
+                        username: rows[0].username,
+                        email: rows[0].email,
+                        password: hashedPassword,
+                        nome: rows[0].nome,
+                        cognome: rows[0].cognome,
+                        dataDiNascita: rows[0].dataDiNascita,
+                        telefono: rows[0].telefono,
+                        saldo: rows[0].saldo,
+                        abilitato: 1, // Se si arriva qui l'utente è obbligatoriamente abilitato
+                        carta_di_credito: {
+                            numero_carta: rows[0].numeroCarta,
+                            pin: rows[0].pinDiVerifica,
+                            dataDiScadenza: rows[0].dataDiScadenza
+                        }
+                    };
+
+                    Utente.updateAutista(user, function (err) {
+                        if (err)
+                        {
+                            console.log(err);
+                            res.status(400).json({
+                                error: {
+                                    codice: 61,
+                                    info: "Riscontrati problemi con il database nel resettare la password."
+                                }
+                            });
+                        }
+                        else {
+                            EmailSender.sendEmail(user.email, "ParkingApp reset password",
+                                "La tua nuova password è: " + newPassword + ".");
+
+                            res.json({
+                                successful: {
+                                    codice: 210,
+                                    info: "Ti è stata inviata un email con la nuova password."
+                                }
+                            });
+                        }
+                    });
+                    return;
+                }
+                else
+                    res.status(400).json({
+                        error: {
+                            codice: 95,
+                            info: "Nessun account è registrato con questa email."
+                        }
+                    })
+        });
+});
+
+//  #### da qui in poi è necessaria l'autenticazione via token ####
 apiRoutes.use(verifyToken);
 
 apiRoutes.post('/getAllAutisti', function (req, res) {

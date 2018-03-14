@@ -226,6 +226,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             $("#dataDiNascita" + index).removeAttr("disabled");
             $("#telefono" + index).removeAttr("disabled");
             $("#saldo" + index).removeAttr("disabled");
+            $("#abilitato" + index).removeAttr("disabled");
             $("#numero_carta" + index).removeAttr("disabled");
             $("#pin" + index).removeAttr("disabled");
             $("#dataDiScadenza" + index).removeAttr("disabled");
@@ -243,6 +244,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             $("#dataDiNascita" + index).attr("disabled", "disabled");
             $("#telefono" + index).attr("disabled", "disabled");
             $("#saldo" + index).attr("disabled", "disabled");
+            $("#abilitato" + index).attr("disabled", "disabled");
             $("#numero_carta" + index).attr("disabled", "disabled");
             $("#pin" + index).attr("disabled", "disabled");
             $("#dataDiScadenza" + index).attr("disabled", "disabled");
@@ -260,6 +262,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             $("#dataDiNascita" + index).val($scope.Autisti[index].dataDiNascita);
             $("#telefono" + index).val($scope.Autisti[index].telefono);
             $("#saldo" + index).val(parseFloat($scope.Autisti[index].saldo).toFixed(2));
+            $("#abilitato" + index).prop('checked', $scope.Autisti[index].abilitato);
             $("#numero_carta" + index).val($scope.Autisti[index].carta_di_credito.numero_carta);
             $("#pin" + index).val($scope.Autisti[index].carta_di_credito.pin);
             $("#dataDiScadenza" + index).val($scope.Autisti[index].carta_di_credito.dataDiScadenza);
@@ -279,6 +282,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
                 dataDiNascita: $("#dataDiNascita" + index).val(),
                 telefono: $("#telefono" + index).val(),
                 saldo: $("#saldo" + index).val(),
+                abilitato: $("#abilitato" + index).is(':checked'),
                 carta_di_credito: {
                     numero_carta: $("#numero_carta" + index).val(),
                     pin: $("#pin" + index).val(),
@@ -487,6 +491,7 @@ indexApp.controller('gestisciPrenotazioni', function ($scope, $http, $localStora
     }
 
     menuSet(4);
+
 });
 
 indexApp.controller('gestisciAdmin', function ($scope, $http, $localStorage) {
@@ -552,7 +557,7 @@ indexApp.controller('gestisciLogin', function ($scope, $http, $location, $localS
 
         var parametri = {
             username: $scope.username,
-            password: $scope.password, //CryptoJS.SHA1($scope.password).toString() <-----------------------------------------
+            password: CryptoJS.SHA1($scope.password).toString(),
             admin: true
         };
 
@@ -578,7 +583,7 @@ indexApp.controller('gestisciLogin', function ($scope, $http, $location, $localS
             if (response.data.error)
                 alert(response.data.error.info);
             else
-                alert("Errore sconosciuto!")
+                alert("Errore sconosciuto!");
         });
     }
 });
@@ -600,7 +605,7 @@ indexApp.controller("gestisciSingup", function ($scope, $http, $location, $local
         var parametri = {
             autista: {
                 username: $scope.username,
-                password: $scope.password, // CryptoJS.SHA1($scope.password).toString() <--------------------------------------------LEGGERE
+                password: CryptoJS.SHA1($scope.password).toString(),
                 email: $scope.email,
                 nome: $scope.nome,
                 cognome: $scope.cognome,

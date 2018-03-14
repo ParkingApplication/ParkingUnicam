@@ -24,6 +24,9 @@ var utente = {
     },
     getAllAutisti: function (callback) {
         return db.query("SELECT `utenti`.`idUtente` AS `idUtente`, `utenti`.`username` AS `username`, `utenti`.`password` AS `password`, `utenti`.`email` AS `email`, `utenti`.`nome` AS `nome`, `utenti`.`cognome` AS `cognome`, `utenti`.`dataDiNascita` AS `dataDiNascita`, `utenti`.`telefono` AS `telefono`, `utenti`.`saldo` AS `saldo`, `utenti`.`abilitato` as `abilitato`, `carte_di_credito`.`numeroCarta` AS `numeroCarta`, `carte_di_credito`.`dataDiScadenza` AS `dataDiScadenza`, `carte_di_credito`.`pinDiVerifica` AS `pinDiVerifica` FROM (`utenti` LEFT JOIN `carte_di_credito` ON ((`utenti`.`idUtente` = `carte_di_credito`.`idUtente`))) ORDER BY idUtente DESC;", callback);
+    },
+    getAutistaFromOnlyEmail: function (email, callback) {
+        return db.query("SELECT * FROM autisti_view WHERE email=?; ", [email], callback);
     }
 };
 

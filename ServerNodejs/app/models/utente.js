@@ -27,6 +27,58 @@ var utente = {
     },
     getAutistaFromOnlyEmail: function (email, callback) {
         return db.query("SELECT * FROM autisti_view WHERE email=?; ", [email], callback);
+    },
+    CorreggiAutista: function (nuovo, vecchio) { //  Correzione campi dati vuoti per update
+        var result = {
+            id: vecchio.id,
+            username: nuovo.username || vecchio.username,
+            password: nuovo.password || vecchio.password,
+            email: nuovo.email || vecchio.email,
+            nome: nuovo.nome || vecchio.nome,
+            cognome: nuovo.cognome || vecchio.cognome,
+            dataDiNascita: nuovo.dataDiNascita || vecchio.dataDiNascita,
+            telefono: nuovo.telefono || vecchio.telefono,
+            saldo: nuovo.saldo || vecchio.saldo,
+            abilitato: 1
+        }
+
+        if (nuovo.carta_di_credito == undefined)
+            if (vecchio.carta_di_credito == undefined)
+                return result;
+            else
+                if (vecchio.carta_di_credito.numero_carta == undefined || vecchio.carta_di_credito.pin == undefined || vecchio.carta_di_credito.dataDiScadenza == undefined)
+                    return result;
+                else
+                    result.carta_di_credito = {
+                        numero_carta: vecchio.carta_di_credito.numero_carta,
+                        pin: vecchio.carta_di_credito.pin,
+                        dataDiScadenza: vecchio.carta_di_credito.dataDiScadenza
+                    };
+        else
+            if (vecchio.carta_di_credito == undefined)
+                if (nuovo.carta_di_credito.numero_carta == undefined || nuovo.carta_di_credito.pin == undefined || nuovo.carta_di_credito.dataDiScadenza == undefined)
+                    return result;
+                else
+                    result.carta_di_credito = {
+                        numero_carta: nuovo.useame.carta_di_credito.numero_carta,
+                        pin: nuovo.urname.carta_di_credito.pin,
+                        dataDiScadenza: nuovo.carta_di_credito.dataDiScadenza
+                    };
+            else
+                if (vecchio.carta_di_credito.numero_carta == undefined || vecchio.carta_di_credito.pin == undefined || vecchio.carta_di_credito.dataDiScadenza == undefined)
+                    result.carta_di_credito = {
+                        numero_carta: nuovo.carta_di_credito.numero_carta,
+                        pin: nuovo.urname.carta_di_credito.pin,
+                        dataDiScadenza: nuovo.carta_di_credito.dataDiScadenza
+                    };
+                else
+                    result.carta_di_credito = {
+                        numero_carta: nuovo.carta_di_credito.numero_carta || vecchio.carta_di_credito.numero_carta,
+                        pin: nuovo.carta_di_credito.pin || vecchio.carta_di_credito.pin,
+                        dataDiScadenza: nuovo.carta_di_credito.dataDiScadenza || vecchio.carta_di_credito.dataDiScadenza
+                    };
+
+        return result;
     }
 };
 

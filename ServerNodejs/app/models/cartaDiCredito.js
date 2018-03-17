@@ -13,11 +13,3 @@ var cartaDiCredito = {
 };
 
 module.exports = cartaDiCredito;
-
-/*
-var cartaDiCredito = {
-    numeroCarta: String,
-    dataScadenza: Date,
-    pin: String
-}
-*/

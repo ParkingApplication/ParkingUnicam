@@ -1,29 +1,22 @@
 package com.example.stach.app_test;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.widget.Toast;
-
 import org.json.*;
-import java.util.*;
 import java.net.URL;
 import java.net.HttpURLConnection;
 import java.io.*;
-import java.lang.Object;
-
-import static android.support.v4.content.ContextCompat.startActivity;
-import static com.example.stach.app_test.LoginActivity.caricamento;
-
 
 public class Connessione extends AsyncTask<String, String, String> {
     JSONObject postData;
     String requestType;
-    Context context ;
+    Context context;
     Activity activity;
+    String responseInfo;
+
     // This is a constructor that allows you to pass in the JSON body
     public Connessione(JSONObject postData, String requestType, Context context, Activity activity) {
 
@@ -62,7 +55,7 @@ public class Connessione extends AsyncTask<String, String, String> {
             int statusCode = urlConnection.getResponseCode();
             InputStreamReader inputStreamReader = null;
 
-            // Se lo statuscode è 200 leggo la risposta, altrimenti leggo l'errore (IMPORTANTE, SENZA DI QUESTO CRASHEREBBE AD OGNI RISPOSTA RICEVUTA CON STATUS 400)
+            // Se lo statuscode è 200 leggo la risposta, altrimenti leggo l'errore
             if (statusCode == 200)
                 inputStreamReader = new InputStreamReader (urlConnection.getInputStream());
             else    // Leggo dall' ErrorStream
@@ -79,131 +72,215 @@ public class Connessione extends AsyncTask<String, String, String> {
                 sb.append(response + "\n");
 
             response = sb.toString();
+            responseInfo = response;
 
-            publishProgress(response, String.valueOf(statusCode));
-            // Richiamo la callback per gestire la risposta inviatami dal server
+            //publishProgress(response, String.valueOf(statusCode));
 
             return String.valueOf(statusCode);
         } catch (Exception e) {
             // Lo statuscode -145 indica un eccezione nella connessione con il server oppure nella lettura della risposta
-
-            publishProgress(e.getMessage(), String.valueOf(-145));
+            //publishProgress(e.getMessage(), String.valueOf(-145));
+            responseInfo = e.getMessage();
         }
 
         return null;
     }
 
-    // Da qui in poi gestisco la risposta del server
     @Override
-    protected void onProgressUpdate(String... progress) {
-        if (progress[1].equals("-145")) // Errore durante la connessione con il server, segnalarlo all' utente
-        {}
-        else {
-            if (progress[1].equals("400"))  // Errore segnalato dal server
-            {
-                JSONObject error = null;
-                String errore = "";
-                try {
-                    JSONObject res = new JSONObject(progress[0]);
-                    error = new JSONObject(res.getString("error"));
-                    errore = error.getString("info"); // Salvo l'informazione dell' error nella stringa errore
-                } catch (Exception e) {
-                    // Segnalare l'errore
-                }
+    protected void onPostExecute(String result){ // Result è lo status code di ritorno
+        // --------------- Connessione assente -------------------
 
-                // Segnalare l'errore contenuto in "errore" all' utente
-
-            } else {
-//++++++++++++++++++++++++++++++++++++++++LOGIN +++++++++++++++++++++++++++++++++++++++++++++++++++
-                if (activity instanceof LoginActivity) {
-                    try {
-                        JSONObject token = new JSONObject(progress[0]);
-                        JSONObject autistajs = new JSONObject(token.getString("autista"));
-
-                        Parametri.Token = token.getString("token");
-                        Parametri.id = autistajs.getString("id");
-                        Parametri.username = autistajs.getString("username");
-                        Parametri.nome = autistajs.getString("nome");
-                        Parametri.cognome = autistajs.getString("cognome");
-                        Parametri.data_nascita = autistajs.getString("dataDiNascita");
-                        Parametri.email = autistajs.getString("email");
-                        Parametri.password = autistajs.getString("password");
-                        Parametri.saldo = autistajs.getString("saldo");
-                        Parametri.telefono = autistajs.getString("telefono");
-
-
-                    } catch (Exception e) {
-
-                    }
-                }
-//++++++++++++++++++++++++++++++++++SIGN UP++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-                if (activity instanceof SignUpActivity)
-                {
-                    try {
-                        JSONObject success = new JSONObject(progress[0]);
-                        String codice = success.getString("codice");
-
-
-                    }catch(Exception e){
-                        //Da gestire errori con nicolò
-                    }
-                }
-            }
-        }
-
-
-    }
-    @Override
-    protected void onPostExecute(String result){
-
-        //Connessione assente
-        if (result == null && activity instanceof LoginActivity) {
-            caricamento.dismiss();
-            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline", Toast.LENGTH_LONG).show();
-            context.startActivity(new Intent(context, LoginActivity.class));
-            return;
-        }
-
-        if (result == null && activity instanceof SignUpActivity) {
-            caricamento.dismiss();
-            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline", Toast.LENGTH_LONG).show();
-            context.startActivity(new Intent(context, LoginActivity.class));
-            activity.finish();
-            return;
-
-        }
         //LOGIN
-        if (result.equals("400") && activity instanceof LoginActivity) {
-            caricamento.dismiss();
-            Toast.makeText(context, "ERRORE:\nDati di login errati o mancanti", Toast.LENGTH_LONG).show();
-            context.startActivity(new Intent(context, LoginActivity.class));
+        if (result == null && activity instanceof LoginActivity) {
+            LoginActivity actv = (LoginActivity)activity;
+            actv.caricamento.dismiss();
+            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
             return;
-
         }
-        if(!(result.equals("400") || result.equals("-145")) && activity instanceof LoginActivity) {
-            caricamento.dismiss();
-            Toast.makeText(context, "SUCCESS\nLogin riuscito", Toast.LENGTH_LONG).show();
+
+        //SINGUP
+        if (result == null && activity instanceof SignUpActivity) {
+            SignUpActivity actv = (SignUpActivity)activity;
+            actv.caricamento.dismiss();
+            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        //RECOVERY
+        if (result == null && activity instanceof PasswordRecoveryActivity) {
+            PasswordRecoveryActivity actv = (PasswordRecoveryActivity)activity;
+            actv.caricamento.dismiss();
+            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        //CREDENZIALI
+        if (result == null && activity instanceof MainActivity) {
+            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        // -------------- Status code di risposta (200 o 400) --------------------
+
+        //LOGIN 400
+        if (result.equals("400") && activity instanceof LoginActivity) {
+            String message = estraiErrore(responseInfo);
+
+            LoginActivity actv = (LoginActivity)activity;
+            actv.caricamento.dismiss();
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        //LOGIN 200
+        if(result.equals("200") && activity instanceof LoginActivity) {
+            String message = "";
+
+            LoginActivity actv = (LoginActivity)activity;
+
+            // Estraggo i miei dati restituiti dal server
+            try {
+                JSONObject token = new JSONObject(responseInfo);
+                JSONObject autistajs = new JSONObject(token.getString("autista"));
+
+                Parametri.Token = token.getString("token");
+                Parametri.id = autistajs.getString("id");
+                Parametri.username = autistajs.getString("username");
+                Parametri.nome = autistajs.getString("nome");
+                Parametri.cognome = autistajs.getString("cognome");
+                // Estraggo solo la data dal datetime
+                String[] data = autistajs.getString("dataDiNascita").split("T");
+                Parametri.data_nascita = data[0];
+                Parametri.email = autistajs.getString("email");
+                Parametri.password = autistajs.getString("password");
+                Parametri.saldo = autistajs.getString("saldo");
+                Parametri.telefono = autistajs.getString("telefono");
+
+                message = "Benvenuto " + Parametri.nome + ".";
+            } catch (Exception e) {
+                message = "Errore di risposta del server.";
+
+                actv.caricamento.dismiss();
+                Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+                context.startActivity(new Intent(context, LoginActivity.class));
+                return;
+            }
+
+            actv.caricamento.dismiss();
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             context.startActivity(new Intent(context, MainActivity.class));
             activity.finish();
             return;
         }
 
-        //SIGNUP
+        //SIGNUP 400
         if (activity instanceof SignUpActivity && result.equals("400")) {
-            Toast.makeText(context, "Errore nella registrazione", Toast.LENGTH_LONG).show();
-            context.startActivity(new Intent(context, LoginActivity.class));
-            activity.finish();
+            String message = estraiErrore(responseInfo);
+
+            SignUpActivity actv = (SignUpActivity)activity;
+            actv.caricamento.dismiss();
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             return;
         }
+
+        //SIGNUP 200
         if (activity instanceof SignUpActivity && result.equals("200")) {
-            Toast.makeText(context, "Registrazione avvenuta con successo", Toast.LENGTH_LONG).show();
+            String message = estraiSuccessful(responseInfo);
+
+            SignUpActivity actv = (SignUpActivity)activity;
+            actv.caricamento.dismiss();
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
             context.startActivity(new Intent(context, LoginActivity.class));
             activity.finish();
             return;
         }
 
+        //RECOVERY 400
+        if (activity instanceof PasswordRecoveryActivity && result.equals("400")) {
+            String message = estraiErrore(responseInfo);
 
+            PasswordRecoveryActivity actv = (PasswordRecoveryActivity)activity;
+            actv.caricamento.dismiss();
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        //RECOVERY 200
+        if (activity instanceof PasswordRecoveryActivity && result.equals("200")) {
+            String message = estraiSuccessful(responseInfo);
+
+            PasswordRecoveryActivity actv = (PasswordRecoveryActivity)activity;
+            actv.caricamento.dismiss();
+            Toast.makeText(context, message, Toast.LENGTH_LONG).show();
+            context.startActivity(new Intent(context, LoginActivity.class));
+            activity.finish();
+            return;
+        }
+
+        /** Da qui bisogna trovare un modo per distinguere i fragment dello stesso activity (del MainActivity)
+         * Es: passare al costruttore di questa classe (Connessione) anche il fragment, se null è stato chiamato
+         * da un activity altrimenti basta confrontarlo qua sotto oltre all' activity.
+        */
+
+        //CREDENZIALI 400
+        if (activity instanceof MainActivity && result.equals("400")) {
+            String message = estraiErrore(responseInfo);
+            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        //CREDENZIALI 200
+        if (activity instanceof MainActivity && result.equals("200")) {
+            String message = estraiSuccessful(responseInfo);
+            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+
+            MainActivity actv = (MainActivity)activity;
+            // Qui bisognerebbe estrarre i dati appena aggiornati e aggiornali anche nella classe Parametri <=========================
+
+            // Chiudo il fragment delle credenziali
+            actv.onBackPressed();
+            return;
+        }
 
     }
 
+    /**
+     *  Utilizzare solo in caso di dover informare l'utente durante la trasmissione o elaborazione dei dati,
+     *  questo significa che l'utente va avvisato di un eventuale risposta solo alla fine della trasmissione
+     *  la suddetta risposta deve essere inviata tramite onPostExecute e non qui.
+     */
+    @Override
+    protected void onProgressUpdate(String... progress) {
+
+    }
+
+    // Funzione per l'estrazione automatica del dato JSon error
+    private String estraiErrore(String data){
+        String result = "";
+
+        try {
+            JSONObject response = new JSONObject(data);
+            JSONObject error = new JSONObject(response.getString("error"));
+            result = error.getString("info");
+        } catch (Exception e) {
+            result = "Impossibile leggere la risposta del server.";
+        }
+
+        return result;
+    }
+
+    // Funzione per l'estrazione automatica del dato JSon successful
+    private String estraiSuccessful(String data){
+        String result = "";
+
+        try {
+            JSONObject response = new JSONObject(data);
+            JSONObject error = new JSONObject(response.getString("successful"));
+            result = error.getString("info");
+        } catch (Exception e) {
+            result = "Impossibile leggere la risposta del server.";
+        }
+
+        return result;
+    }
 }

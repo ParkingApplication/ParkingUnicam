@@ -1,6 +1,5 @@
 package com.example.stach.app_test;
 
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
@@ -12,10 +11,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
-
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.ui.PlacePicker;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -76,7 +71,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
+    @SuppressWarnings("StatementWithEmptyBody") // <=========================== Sarebbe meglio evitare e correggere StatementWithEmptyBody
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -105,9 +100,11 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //return to login page
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
+            this.finish();  // <====================== Bisogna chiudere la main activity altrimenti non si è veramente sloggati.
         } else if (id == R.id.nav_share) {
             //TODO
         }
+
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;

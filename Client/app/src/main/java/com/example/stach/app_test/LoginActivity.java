@@ -145,6 +145,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     /**
+     * This method allow user to go signUp activity
+     */
+    public void goToPasswordRecovery(View view) {
+        startActivity(new Intent(LoginActivity.this, PasswordRecoveryActivity.class));
+        finish();
+    }
+
+    /**
      * This method allow user to go map google activity
      */
     public void goToMap(View view) {

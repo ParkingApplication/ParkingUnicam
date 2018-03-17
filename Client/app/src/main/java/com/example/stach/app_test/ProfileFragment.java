@@ -50,6 +50,7 @@ public class ProfileFragment extends Fragment {
         mImageView = (ImageView) view.findViewById(R.id.image_profile);
         mImageView.setImageResource(R.mipmap.ic_profile);
 
+        // ######## Perché riaggiungi TextView.getText() alla stringa da inserire ? (non ha senso, equivale a fare Stringavuota + Stringa ) #######
 
         t_nome = (TextView) view.findViewById(R.id.Nome);
         t_nome.setText(t_nome.getText()+Parametri.nome );
@@ -60,7 +61,7 @@ public class ProfileFragment extends Fragment {
         t_telefono.setText(t_telefono.getText()+Parametri.telefono );
 
         t_data = (TextView) view.findViewById(R.id.Data_Nascita);
-        t_data.setText(t_data.getText()+Parametri.data_nascita );
+        t_data.setText(t_data.getText()+Parametri.data_nascita);
 
         t_email = (TextView) view.findViewById(R.id.Email);
         t_email.setText(t_email.getText()+Parametri.email );
@@ -73,6 +74,7 @@ public class ProfileFragment extends Fragment {
         t_user.setText(t_user.getText()+Parametri.username );
 
         Button button_cambia_credenziali = (Button) view.findViewById((R.id.buttonCambiaCredenziali));
+
         button_cambia_credenziali.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -90,11 +92,8 @@ public class ProfileFragment extends Fragment {
             }
         });
         // return inflate
-
         return view;
-
     }
-    void Prova(){}
 
 
 

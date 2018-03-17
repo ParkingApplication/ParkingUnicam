@@ -57,7 +57,7 @@ public class Cambia_credenziali extends Fragment {
         t_username.setText(Parametri.username);
 
         Button sendCredenziali = (Button) view.findViewById((R.id.nuova_buttonCommit));
-        final Fragment frag = this; // <================= Potrebbe non funzionare
+        final Fragment frag = this;
         sendCredenziali.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

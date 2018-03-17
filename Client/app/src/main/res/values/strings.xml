@@ -69,6 +69,7 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="password_recovery1">Inserisci la tua email di registrazione</string>
     <string name="password_recovery2">ti invieremo una nuova password</string>
+    <string name="icon_card">Dati pagamento</string>
 
 
 </resources>

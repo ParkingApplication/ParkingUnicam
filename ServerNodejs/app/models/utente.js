@@ -28,7 +28,7 @@ var utente = {
     getAutistaFromOnlyEmail: function (email, callback) {
         return db.query("SELECT * FROM autisti_view WHERE email=?; ", [email], callback);
     },
-    CorreggiAutista: function (nuovo, vecchio) { //  Correzione campi dati vuoti per update
+    CorreggiAutista: function (nuovo, vecchio, callback) { //  Correzione campi dati vuoti per update
         var result = {
             id: vecchio.id,
             username: nuovo.username || vecchio.username,
@@ -60,15 +60,15 @@ var utente = {
                     return result;
                 else
                     result.carta_di_credito = {
-                        numero_carta: nuovo.useame.carta_di_credito.numero_carta,
-                        pin: nuovo.urname.carta_di_credito.pin,
+                        numero_carta: nuovo.carta_di_credito.numero_carta,
+                        pin: nuovo.carta_di_credito.pin,
                         dataDiScadenza: nuovo.carta_di_credito.dataDiScadenza
                     };
             else
                 if (vecchio.carta_di_credito.numero_carta == undefined || vecchio.carta_di_credito.pin == undefined || vecchio.carta_di_credito.dataDiScadenza == undefined)
                     result.carta_di_credito = {
                         numero_carta: nuovo.carta_di_credito.numero_carta,
-                        pin: nuovo.urname.carta_di_credito.pin,
+                        pin: nuovo.carta_di_credito.pin,
                         dataDiScadenza: nuovo.carta_di_credito.dataDiScadenza
                     };
                 else
@@ -77,8 +77,7 @@ var utente = {
                         pin: nuovo.carta_di_credito.pin || vecchio.carta_di_credito.pin,
                         dataDiScadenza: nuovo.carta_di_credito.dataDiScadenza || vecchio.carta_di_credito.dataDiScadenza
                     };
-
-        return result;
+        callback(result);
     }
 };
 

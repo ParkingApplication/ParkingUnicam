@@ -117,7 +117,7 @@ public class Connessione extends AsyncTask<String, String, String> {
             return;
         }
 
-        //CREDENZIALI
+        //CREDENZIALI E CARTA (qui cadranno in automatico tutti i fragment di main activity, non serve riscriverlo per ogni fragment)
         if (result == null && activity instanceof MainActivity) {
             Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
             return;
@@ -145,20 +145,33 @@ public class Connessione extends AsyncTask<String, String, String> {
             try {
                 JSONObject token = new JSONObject(responseInfo);
                 JSONObject autistajs = new JSONObject(token.getString("autista"));
+                JSONObject carta = null;
 
                 Parametri.Token = token.getString("token");
                 Parametri.id = autistajs.getString("id");
                 Parametri.username = autistajs.getString("username");
                 Parametri.nome = autistajs.getString("nome");
                 Parametri.cognome = autistajs.getString("cognome");
-                // Estraggo solo la data dal datetime
-                String[] data = autistajs.getString("dataDiNascita").split("T");
-                Parametri.data_nascita = data[0];
+                Parametri.data_nascita = autistajs.getString("dataDiNascita");
                 Parametri.email = autistajs.getString("email");
                 Parametri.password = autistajs.getString("password");
                 Parametri.saldo = autistajs.getString("saldo");
                 Parametri.telefono = autistajs.getString("telefono");
+
                 message = "Benvenuto " + Parametri.nome + ".";
+
+                // Tento l'estrazione dei dati della carta di credito
+                if (autistajs.has("carta_di_credito")) {
+                    carta = new JSONObject(autistajs.getString("carta_di_credito"));
+
+                    if (carta.has("numero_carta"))
+                        Parametri.numero_carta = carta.getString("numero_carta");
+                    if (carta.has("dataDiScadenza"))
+                        Parametri.data_di_scadenza = carta.getString("dataDiScadenza");
+                    if (carta.has("pin"))
+                        Parametri.pin = carta.getString("pin");
+                }
+
             } catch (Exception e) {
                 message = "Errore di risposta del server.";
 
@@ -225,8 +238,8 @@ public class Connessione extends AsyncTask<String, String, String> {
         /** DA QUI IN POI CI SONO TUTTI FRAGMENT DI MainActivity, quindi per distinguerli bisogna controllare fragment
         */
 
-        //CREDENZIALI 400
-        if (activity instanceof MainActivity && result.equals("400") && fragment instanceof Cambia_credenziali) {
+        //CREDENZIALI E CARTA 400 #(stesso discorso di sopra, la risposta di errore è formatata ugualmente per ogni fragment del MainActivity)
+        if (activity instanceof MainActivity && result.equals("400")) {
             String message = estraiErrore(responseInfo);
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
             return;
@@ -237,10 +250,26 @@ public class Connessione extends AsyncTask<String, String, String> {
             String message = estraiSuccessful(responseInfo);
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
 
+            MainActivity actv = (MainActivity) activity;
+
+            // Converto il fragment nel suo tipo corretto ed aggiorno le credenziali dell' utente in Parametri
+            Cambia_credenziali frag = (Cambia_credenziali) fragment;
+            frag.AggiornaParametri();
+
+            // Chiudo il fragment delle credenziali
+            actv.onBackPressed();
+            return;
+        }
+
+        //CARTA 200
+        if (activity instanceof MainActivity && result.equals("200") && fragment instanceof Carta_di_credito) {
+            String message = estraiSuccessful(responseInfo);
+            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+
             MainActivity actv = (MainActivity)activity;
 
-            // Converto il fragment nel suo tipo corretto ed aggiorno le credenziali in Parametri
-            Cambia_credenziali frag = (Cambia_credenziali) fragment;
+            // Converto il fragment nel suo tipo corretto ed aggiorno le credenziali della carta in Parametri
+            Carta_di_credito frag = (Carta_di_credito) fragment;
             frag.AggiornaParametri();
 
             // Chiudo il fragment delle credenziali

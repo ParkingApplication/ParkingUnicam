@@ -533,26 +533,18 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
     else
         if (!req.user.livelloAmministrazione) { // L'autista ha richiesto la modifica dei propri dati
             // Correggo i dati dell' autista (es: aggiungo i campi mancanti con i dati che già conosco)
-            req.body.autista = Utente.CorreggiAutista(req.body.autista, req.user);
-
-            Utente.updateAutista(req.body.autista, function (err) {
-                if (err)
-                    res.status(400).json({
-                        error: {
-                            codice: 51,
-                            info: "Riscontrati problemi con il database."
-                        }
-                    });
-                else
-                    if (!req.body.autista.carta_di_credito)
-                        res.json({
-                            successful: {
-                                codice: 210,
-                                info: "I dati utente sono stati aggiornati correttamente."
+            Utente.CorreggiAutista(req.body.autista, req.user, function (resu) {
+                req.body.autista = resu;
+                Utente.updateAutista(req.body.autista, function (err) {
+                    if (err)
+                        res.status(400).json({
+                            error: {
+                                codice: 51,
+                                info: "Riscontrati problemi con il database."
                             }
                         });
                     else
-                        if (!req.body.autista.carta_di_credito.pin || !req.body.autista.carta_di_credito.numero_carta || !req.body.autista.carta_di_credito.dataDiScadenza)
+                        if (!req.body.autista.carta_di_credito)
                             res.json({
                                 successful: {
                                     codice: 210,
@@ -560,50 +552,59 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
                                 }
                             });
                         else
-                            Carta.getCartaFromIdUtente(req.body.autista.id, function (err, rows) {
-                                if (err)
-                                    res.status(400).json({
-                                        error: {
-                                            codice: 51,
-                                            info: "Riscontrati problemi con il database, dati carta non aggiornati."
-                                        }
-                                    });
-                                else
-                                    if (rows.length == 0)
-                                        Carta.addCarta(req.body.autista, function (err) {
-                                            if (err)
-                                                res.status(400).json({
-                                                    error: {
-                                                        codice: 51,
-                                                        info: "Riscontrati problemi con il database, dati carta non aggiornati."
-                                                    }
-                                                });
-                                            else
-                                                res.json({
-                                                    successful: {
-                                                        codice: 210,
-                                                        info: "I dati utente e della carta sono stati aggiornati correttamente."
-                                                    }
-                                                });
+                            if (!req.body.autista.carta_di_credito.pin || !req.body.autista.carta_di_credito.numero_carta || !req.body.autista.carta_di_credito.dataDiScadenza)
+                                res.json({
+                                    successful: {
+                                        codice: 210,
+                                        info: "I dati utente sono stati aggiornati correttamente."
+                                    }
+                                });
+                            else
+                                Carta.getCartaFromIdUtente(req.body.autista.id, function (err, rows) {
+                                    if (err)
+                                        res.status(400).json({
+                                            error: {
+                                                codice: 51,
+                                                info: "Riscontrati problemi con il database, dati carta non aggiornati."
+                                            }
                                         });
                                     else
-                                        Carta.updateCarta(req.body.autista, function (err) {
-                                            if (err)
-                                                res.status(400).json({
-                                                    error: {
-                                                        codice: 51,
-                                                        info: "Riscontrati problemi con il database, dati carta non aggiornati."
-                                                    }
-                                                });
-                                            else
-                                                res.json({
-                                                    successful: {
-                                                        codice: 210,
-                                                        info: "I dati utente e della carta sono stati aggiornati correttamente."
-                                                    }
-                                                });
-                                        });
-                            });
+                                        if (rows.length == 0)
+                                            Carta.addCarta(req.body.autista, function (err) {
+                                                if (err)
+                                                    res.status(400).json({
+                                                        error: {
+                                                            codice: 51,
+                                                            info: "Riscontrati problemi con il database, dati carta non aggiornati."
+                                                        }
+                                                    });
+                                                else
+                                                    res.json({
+                                                        successful: {
+                                                            codice: 210,
+                                                            info: "I dati utente e della carta sono stati aggiornati correttamente."
+                                                        }
+                                                    });
+                                            });
+                                        else
+                                            Carta.updateCarta(req.body.autista, function (err) {
+                                                if (err)
+                                                    res.status(400).json({
+                                                        error: {
+                                                            codice: 51,
+                                                            info: "Riscontrati problemi con il database, dati carta non aggiornati."
+                                                        }
+                                                    });
+                                                else
+                                                    res.json({
+                                                        successful: {
+                                                            codice: 210,
+                                                            info: "I dati utente e della carta sono stati aggiornati correttamente."
+                                                        }
+                                                    });
+                                            });
+                                });
+                });
             });
         }
         else

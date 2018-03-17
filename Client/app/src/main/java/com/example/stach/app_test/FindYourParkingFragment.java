@@ -2,8 +2,13 @@ package com.example.stach.app_test;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.location.Location;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,30 +16,31 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.common.GooglePlayServicesNotAvailableException;
-import com.google.android.gms.common.GooglePlayServicesRepairableException;
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.places.PlaceDetectionClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.PlaceLikelihoodBufferResponse;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.OnSuccessListener;
+
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class FindYourParkingFragment extends Fragment {
-
+    private int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
+    //location provider
+    private FusedLocationProviderClient mFusedLocationClient;
     //questi attributi servono per riconoscere quale da quale activity voglio i risultati con la callback
     //li scrivo nel pacchetto di invio
     int PLACE_PICKER_REQUEST = 1;
     //view del contesto
     private View view;
     //fused location provider
-   // private FusedLocationProviderClient mFusedLocationClient;
-    private PlaceDetectionClient placeDetectionClient;
 
 
     public FindYourParkingFragment() {
@@ -47,6 +53,8 @@ public class FindYourParkingFragment extends Fragment {
                              Bundle savedInstanceState) {
         //get layout
         view = inflater.inflate(R.layout.fragment_find_your_parking, container, false);
+        //set fusedLocationClient
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this.getActivity());
         //get buttons from xml
         ImageButton automaticSearch = (ImageButton) view.findViewById(R.id.btnAutomaticLocation);
         ImageButton inputSearch = (ImageButton) view.findViewById(R.id.btnInputLocation);
@@ -59,16 +67,13 @@ public class FindYourParkingFragment extends Fragment {
             }
         });
         //AUTOMATIC SEARCH
-        //instantiate fused location client
-       // mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this.getContext());
-        placeDetectionClient = Places.getPlaceDetectionClient(this.getContext(), null);
-        //setto le proprietà dei bottoni
         automaticSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 startPlaceAutomaticPickerInputActivity();
             }
         });
+        //instantiate fused location client
         // Inflate the layout for this fragment
         return view;
     }
@@ -93,21 +98,38 @@ public class FindYourParkingFragment extends Fragment {
      */
     private void startPlaceAutomaticPickerInputActivity() {
         //TOFIX: CHECK PERMISSION TO USE THIS THINGS
-        /**
-        Task<PlaceLikelihoodBufferResponse> placeResult = placeDetectionClient.getCurrentPlace(null);
-        placeResult.addOnCompleteListener(new OnCompleteListener<PlaceLikelihoodBufferResponse>() {
-            @Override
-            public void onComplete(@NonNull Task<PlaceLikelihoodBufferResponse> task) {
-                PlaceLikelihoodBufferResponse likelyPlaces = task.getResult();
-                for (PlaceLikelihood placeLikelihood : likelyPlaces) {
-                    Log.i(TAG, String.format("Place '%s' has likelihood: %g",
-                            placeLikelihood.getPlace().getName(),
-                            placeLikelihood.getLikelihood()));
-                }
-                likelyPlaces.release();
-            }
-        });*/
+        Toast.makeText(this.getContext(), "sono dentro", Toast.LENGTH_SHORT).show();
+        if (ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            Toast.makeText(this.getContext(), "permission not granted", Toast.LENGTH_SHORT).show();
+            ActivityCompat.requestPermissions(this.getActivity(),
+                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_FINE_LOCATION);
+        } else {//permission granted
+            Toast.makeText(this.getContext(), "permission granted", Toast.LENGTH_SHORT).show();
+            mFusedLocationClient.getLastLocation()
+                    .addOnSuccessListener(this.getActivity(), new OnSuccessListener<Location>() {
+                        @Override
+                        public void onSuccess(Location location) {
+                            Bundle bundle = new Bundle();
+                            bundle.putString("latitudine", Double.toString(location.getLatitude()));
+                            bundle.putString("longitudine", Double.toString(location.getLongitude()));
+                            //eseguo la transazione
+                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                            //passo i valori
+                            chooseParkingFragment choose_fragment = new chooseParkingFragment();
+                            choose_fragment.setArguments(bundle);
+                            //eseguo la transazione
+                            fragmentTransaction.replace(R.id.fram, choose_fragment);
+                            //uso backstack perchè android in automatico con il tasto indietro si muove tra activity e non tra fragment
+                            //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
+                            //io possa tornare indietro
+                            fragmentTransaction.addToBackStack("Fragment_Decide_Location");
+                            fragmentTransaction.commit();
+                        }
+                    });
+        }
     }
+
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

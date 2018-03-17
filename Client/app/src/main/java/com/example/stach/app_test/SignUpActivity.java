@@ -94,7 +94,7 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
         // Avverto l'utente del tentativo di invio dei dati di login al server
         caricamento = ProgressDialog.show(SignUpActivity.this, "",
                 "Connessione con il server in corso...", true);
-        Connessione conn = new Connessione(postData, "POST",context,activity);
+        Connessione conn = new Connessione(postData, "POST",context,activity, null);
         conn.execute(Parametri.IP + "/signup");
     }
 

@@ -16,6 +16,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -76,11 +78,11 @@ public class LoginActivity extends AppCompatActivity {
                "Connessione con il server in corso...", true);
 
         // Creo ed eseguo una connessione con il server web
-        Connessione conn = new Connessione(postData, "POST",context,activity);
+        Connessione conn = new Connessione(postData, "POST",context,activity, null);
         conn.execute(Parametri.IP + "/login");
 
-        // Ha senso salvare questi dati senza aver verificato che siano corretti ?
-        this.saveData(mail.getText().toString(), password.getText().toString());
+        // Bisogna salvare i dati dentro Connessione dopo aver effettuato il Login con successo
+        //this.saveData(mail.getText().toString(), password.getText().toString());
 
     }
 
@@ -93,8 +95,8 @@ public class LoginActivity extends AppCompatActivity {
         //try to write in file
         try {
             BufferedWriter fos = new BufferedWriter(new FileWriter(login_file.getAbsolutePath()));
-            fos.write(mail + " ");
-            fos.write(password + " ");
+            fos.write(mail + "\n");
+            fos.write(password + "\n");
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();

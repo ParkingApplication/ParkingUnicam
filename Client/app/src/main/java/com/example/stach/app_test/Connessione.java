@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
+import android.support.v4.app.Fragment;
 import android.widget.Toast;
 import org.json.*;
 import java.net.URL;
@@ -15,14 +16,16 @@ public class Connessione extends AsyncTask<String, String, String> {
     String requestType;
     Context context;
     Activity activity;
+    Fragment fragment;
     String responseInfo;
 
     // This is a constructor that allows you to pass in the JSON body
-    public Connessione(JSONObject postData, String requestType, Context context, Activity activity) {
+    public Connessione(JSONObject postData, String requestType, Context context, Activity activity, Fragment fragment) {
 
         this.requestType = requestType;
         this.context =  context;
         this.activity = activity;
+        this.fragment = fragment;
         if (postData != null) {
             this.postData = postData;
         }
@@ -155,7 +158,6 @@ public class Connessione extends AsyncTask<String, String, String> {
                 Parametri.password = autistajs.getString("password");
                 Parametri.saldo = autistajs.getString("saldo");
                 Parametri.telefono = autistajs.getString("telefono");
-
                 message = "Benvenuto " + Parametri.nome + ".";
             } catch (Exception e) {
                 message = "Errore di risposta del server.";
@@ -165,6 +167,9 @@ public class Connessione extends AsyncTask<String, String, String> {
                 context.startActivity(new Intent(context, LoginActivity.class));
                 return;
             }
+
+            // Salvo i dati di login corretti
+            actv.saveData(Parametri.email, Parametri.password);
 
             actv.caricamento.dismiss();
             Toast.makeText(context, message, Toast.LENGTH_LONG).show();
@@ -217,25 +222,26 @@ public class Connessione extends AsyncTask<String, String, String> {
             return;
         }
 
-        /** Da qui bisogna trovare un modo per distinguere i fragment dello stesso activity (del MainActivity)
-         * Es: passare al costruttore di questa classe (Connessione) anche il fragment, se null è stato chiamato
-         * da un activity altrimenti basta confrontarlo qua sotto oltre all' activity.
+        /** DA QUI IN POI CI SONO TUTTI FRAGMENT DI MainActivity, quindi per distinguerli bisogna controllare fragment
         */
 
         //CREDENZIALI 400
-        if (activity instanceof MainActivity && result.equals("400")) {
+        if (activity instanceof MainActivity && result.equals("400") && fragment instanceof Cambia_credenziali) {
             String message = estraiErrore(responseInfo);
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
             return;
         }
 
         //CREDENZIALI 200
-        if (activity instanceof MainActivity && result.equals("200")) {
+        if (activity instanceof MainActivity && result.equals("200") && fragment instanceof Cambia_credenziali) {
             String message = estraiSuccessful(responseInfo);
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
 
             MainActivity actv = (MainActivity)activity;
-            // Qui bisognerebbe estrarre i dati appena aggiornati e aggiornali anche nella classe Parametri <=========================
+
+            // Converto il fragment nel suo tipo corretto ed aggiorno le credenziali in Parametri
+            Cambia_credenziali frag = (Cambia_credenziali) fragment;
+            frag.AggiornaParametri();
 
             // Chiudo il fragment delle credenziali
             actv.onBackPressed();

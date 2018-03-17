@@ -16,7 +16,4 @@ public class Parametri {
     static String data_nascita = null;
     static String telefono = null;
     static String saldo = null;
-
-
-
 }

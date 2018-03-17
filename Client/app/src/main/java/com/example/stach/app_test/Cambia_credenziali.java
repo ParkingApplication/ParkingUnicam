@@ -20,6 +20,14 @@ public class Cambia_credenziali extends Fragment {
     private EditText t_nuova_password;
     private EditText t_username;
 
+    private String nome;
+    private String cognome;
+    private String data;
+    private String telefono;
+    private String email;
+    private String password;
+    private String username;
+
     // è inutile prendere qui context e activity perché avviene prima della creazione della classe stessa e quindi sono sempre NULL
 
     public Cambia_credenziali() {
@@ -49,20 +57,24 @@ public class Cambia_credenziali extends Fragment {
         t_username.setText(Parametri.username);
 
         Button sendCredenziali = (Button) view.findViewById((R.id.nuova_buttonCommit));
+        final Fragment frag = this; // <================= Potrebbe non funzionare
         sendCredenziali.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                String password = Parametri.password;
+                String cur_password;
+                String new_password;
+
+                password = Parametri.password;
 
                 // Prelevo i dati per il login per inviarli al server.
-                String nome = t_nome.getText().toString();
-                String cognome = t_cognome.getText().toString();
-                String data = t_data.getText().toString();
-                String telefono = t_telefono.getText().toString();
-                String email = t_email.getText().toString();
-                String cur_password = t_vecchia_password.getText().toString();
-                String new_password = t_nuova_password.getText().toString();
-                String username = t_username.getText().toString();
+                nome = t_nome.getText().toString();
+                cognome = t_cognome.getText().toString();
+                data = t_data.getText().toString();
+                telefono = t_telefono.getText().toString();
+                email = t_email.getText().toString();
+                cur_password = t_vecchia_password.getText().toString();
+                new_password = t_nuova_password.getText().toString();
+                username = t_username.getText().toString();
 
                 if (new_password.length() > 0 && cur_password.compareTo(password) == 0)
                     password = new_password;
@@ -86,12 +98,21 @@ public class Cambia_credenziali extends Fragment {
                 }
 
                 // Creo ed eseguo una connessione con il server web
-                Connessione conn = new Connessione(postData, "PATCH", getContext(), getActivity());
+                Connessione conn = new Connessione(postData, "PATCH", getContext(), getActivity(), frag);
                 conn.execute(Parametri.IP + "/cambiaCredenziali");
             }
         });
 
         // Inflate the layout for this fragment
         return view;
+    }
+
+    public void AggiornaParametri(){
+        Parametri.nome = nome;
+        Parametri.cognome = cognome;
+        Parametri.data_nascita = data;
+        Parametri.password = password;
+        Parametri.username = username;
+        Parametri.telefono = telefono;
     }
 }

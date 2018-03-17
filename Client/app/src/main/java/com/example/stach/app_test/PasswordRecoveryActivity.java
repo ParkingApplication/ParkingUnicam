@@ -51,7 +51,7 @@ public class PasswordRecoveryActivity extends AppCompatActivity {
         caricamento = ProgressDialog.show(PasswordRecoveryActivity.this, "",
                 "Connessione con il server in corso...", true);
 
-        Connessione conn = new Connessione(postData, "POST",context,activity);
+        Connessione conn = new Connessione(postData, "POST",context,activity,null);
         conn.execute(Parametri.IP + "/resetPassword");
     }
 

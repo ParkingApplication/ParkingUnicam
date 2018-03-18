@@ -1,9 +1,11 @@
 var Datastore = require('nedb')
-    , db = new Datastore();
+    , db = new Datastore({ filename: './app/NeDB/data/database.db'});
 
 var funzionalita = {
     loadPostiLiberiFromServer: function () {
         var Parcheggio = require("../models/parcheggio");
+        db.loadDatabase(); // Elimino i dati precedenti
+        db.remove({});
         // Carico il numero di tutti i posti liberi di ogni parcheggio in memoria da mysql
         Parcheggio.getAllPostiLiberi(function (err, rows) {
             if (err) {

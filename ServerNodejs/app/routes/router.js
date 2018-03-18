@@ -744,7 +744,7 @@ apiRoutes.post('/getParcheggiPerCitta', function (req, res) {
 
                                 if (posti.length > 0)
                                     for (var k = 0; k < posti.length; k++) {
-                                        if (posti[i].id_parcheggio == parcheggio.id)
+                                        if (posti[k].id_parcheggio == parcheggio.id)
                                             switch (posti[k].id_tipo) {
                                                 case TipoPosto.auto:
                                                     parcheggio.postiAuto = posti[k].postiLiberi;

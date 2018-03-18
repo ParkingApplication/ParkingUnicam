@@ -492,6 +492,32 @@ indexApp.controller('gestisciPrenotazioni', function ($scope, $http, $localStora
 
     menuSet(4);
 
+    $http({
+        method: "POST",
+        url: protocol + "://" + ipserver + "/getParcheggiPerCitta",
+        headers: { 'Content-Type': 'application/json' },
+        data: {
+            'token': curToken.value,
+            'citta': "Roma"
+        }
+    }).then(function (response) {
+        if (response.status == 200) {
+            if (response.data.parcheggi) {
+                alert(response.data.parcheggi[0]);
+                $location.path('/home');
+            }
+            else
+                alert("Errore sconosciuto!");
+        }
+        else
+            alert("Errore sconosciuto!");
+    }, function (response) {
+        if (response.data.error)
+            alert(response.data.error.info);
+        else
+            alert("Errore sconosciuto.");
+    });
+
 });
 
 indexApp.controller('gestisciAdmin', function ($scope, $http, $localStorage) {

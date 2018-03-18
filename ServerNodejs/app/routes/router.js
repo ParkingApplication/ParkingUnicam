@@ -11,9 +11,16 @@ var Parcheggio = require("../models/parcheggio");
 var Carta = require("../models/cartaDiCredito");
 var VerificaEmail = require("../models/verificaEmail");
 
+// Database interno per tenere conto del numero dei posti liberi
+var NeDB = require("../NeDB/DB_Connection");
+NeDB.loadPostiLiberiFromServer();
+
 // Servizio posta elettronica
 var EmailSender = require('../EmailSender');
+
+// Configurazioni varie
 var ConfigConnessione = require("../config/configConnessione");
+var TipoPosto = require("../config/configTipoPosto");
 
 //  Verifica del token
 var verifyToken = function (req, res, next) {
@@ -292,11 +299,6 @@ apiRoutes.post('/getAllParcheggi', function (req, res) {
                             x: rows[i].coordinataX,
                             y: rows[i].coordinataY
                         },
-                        nPostiMacchina: rows[i].nPostiMacchina,
-                        nPostiAutobus: rows[i].nPostiAutobus,
-                        nPostiDisabile: rows[i].nPostiDisabile,
-                        nPostiCamper: rows[i].nPostiCamper,
-                        nPostiMoto: rows[i].nPostiMoto,
                         tariffaOrariaLavorativi: rows[i].tariffaOrariaLavorativi,
                         tariffaOrariaFestivi: rows[i].tariffaOrariaFestivi
                     };
@@ -686,6 +688,99 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
                         info: "Privilegi amministratore insufficienti."
                     }
                 });
+});
+
+// Uno o più parcheggi per città ? (probabilmente più di uno)
+apiRoutes.post('/getParcheggiPerCitta', function (req, res) {
+    if (!req.body.citta)
+        res.status(400).json({
+            error: {
+                codice: 7,
+                info: "Devi specificare in quale città."
+            }
+        });
+    else
+        NeDB.getAllPostiLiberi(function (err, doc) {
+            var posti = doc;
+
+            if (err)
+                res.status(400).json({
+                    error: {
+                        codice: 7,
+                        info: "Riscontrati problemi con il database interno."
+                    }
+                });
+            else
+                Parcheggio.getParcheggioFromCitta(req.body.citta, function (err, rows) {
+                    if (err)
+                        res.status(400).json({
+                            error: {
+                                codice: 7,
+                                info: "Riscontrati problemi con il database."
+                            }
+                        });
+                    else
+                        if (rows.length > 0) {
+                            var parcheggi = [];
+                            var l = 0;
+
+                            for (var i = 0; i < rows.length; i++) {
+                                var parcheggio = {
+                                    id: rows[i].idParcheggio,
+                                    indirizzo: {
+                                        citta: rows[i].citta,
+                                        provincia: rows[i].provincia,
+                                        cap: rows[i].cap,
+                                        via: rows[i].via,
+                                        n_civico: rows[i].n_civico
+                                    },
+                                    coordinate: {
+                                        x: rows[i].coordinataX,
+                                        y: rows[i].coordinataY
+                                    },
+                                    tariffaOrariaLavorativi: rows[i].tariffaOrariaLavorativi,
+                                    tariffaOrariaFestivi: rows[i].tariffaOrariaFestivi
+                                };
+
+                                if (posti.length > 0)
+                                    for (var k = 0; k < posti.length; k++) {
+                                        if (posti[i].id_parcheggio == parcheggio.id)
+                                            switch (posti[k].id_tipo) {
+                                                case TipoPosto.auto:
+                                                    parcheggio.postiAuto = posti[k].postiLiberi;
+                                                    break;
+                                                case TipoPosto.autobus:
+                                                    parcheggio.postiAutobus = posti[k].postiLiberi;
+                                                    break;
+                                                case TipoPosto.camper:
+                                                    parcheggio.postiCamper = posti[k].postiLiberi;
+                                                    break;
+                                                case TipoPosto.moto:
+                                                    parcheggio.postiMoto = posti[k].postiLiberi;
+                                                    break;
+                                                case TipoPosto.disabile:
+                                                    parcheggio.postiDisabile = posti[k].postiLiberi;
+                                                    break;
+                                            }
+                                    }
+
+                                parcheggi[l] = parcheggio;
+                                l++;
+                            }
+
+                            res.json({
+                                parcheggi: parcheggi
+                            });
+                        }
+                        else
+                            res.status(400).json({
+                                error: {
+                                    codice: 7,
+                                    info: "Non sono presenti parcheggi in questa città."
+                                }
+                            });
+                });
+        });
 });
 
 module.exports = apiRoutes;

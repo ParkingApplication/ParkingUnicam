@@ -15,7 +15,6 @@ app.use(function allowCrossDomain(req, res, next) {
 
 app.use('/', express.static('sito'));
 
-
 var httpServer = http.createServer(app);
 
 httpServer.listen(80, "172.16.0.212", function () {

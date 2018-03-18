@@ -1,4 +1,4 @@
-var db = require("../DB_Connection");
+var db = require("../mysql/DB_Connection");
 
 var utente = {
     addAutista: function (autista, callback) {

@@ -128,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
-        Toast.makeText(this, "sto in on request", Toast.LENGTH_SHORT).show();
         switch (requestCode) {
             case 1: {
                 // If request is cancelled, the result arrays are empty.

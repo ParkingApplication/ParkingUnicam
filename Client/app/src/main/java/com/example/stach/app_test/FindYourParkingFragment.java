@@ -22,6 +22,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlacePicker;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.OnSuccessListener;
 
 import java.util.ArrayList;
@@ -97,14 +98,12 @@ public class FindYourParkingFragment extends Fragment {
      * Questo metodo consente di far partire una activity per scegliere automaticamente la posizione in cui si vuole cercare parcheggio.
      */
     private void startPlaceAutomaticPickerInputActivity() {
-        //TOFIX: CHECK PERMISSION TO USE THIS THINGS
-        Toast.makeText(this.getContext(), "sono dentro", Toast.LENGTH_SHORT).show();
         if (ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             Toast.makeText(this.getContext(), "permission not granted", Toast.LENGTH_SHORT).show();
             ActivityCompat.requestPermissions(this.getActivity(),
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_FINE_LOCATION);
         } else {//permission granted
-            Toast.makeText(this.getContext(), "permission granted", Toast.LENGTH_SHORT).show();
+            //Toast.makeText(this.getContext(), "permission granted", Toast.LENGTH_SHORT).show();
             mFusedLocationClient.getLastLocation()
                     .addOnSuccessListener(this.getActivity(), new OnSuccessListener<Location>() {
                         @Override
@@ -142,10 +141,28 @@ public class FindYourParkingFragment extends Fragment {
                 //prendo i risultati
                 Place place = PlacePicker.getPlace(this.getContext(), data);
                 //da place posso prendere nome, indirizzo, latitudine e tutto quello che mi serve
-                String toastMsg = String.format("Place: %s", place.getName());
-                TextView indirizzo = (TextView) view.findViewById(R.id.indirizzo);
+                //TextView indirizzo = (TextView) view.findViewById(R.id.indirizzo);
+                LatLng latLong = place.getLatLng();
+                String toastMsg2 = String.format("LATLONG: %s", latLong.latitude +" "+ latLong.longitude);
                 //stampo a video indirizzo scelto
-                indirizzo.setText(toastMsg);
+                //indirizzo.setText(toastMsg2);
+                Bundle bundle = new Bundle();
+                bundle.putString("latitudine", Double.toString(latLong.latitude));
+                bundle.putString("longitudine", Double.toString(latLong.longitude));
+                //eseguo la transazione
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                //passo i valori
+                chooseParkingFragment choose_fragment = new chooseParkingFragment();
+                choose_fragment.setArguments(bundle);
+                //eseguo la transazione
+                fragmentTransaction.replace(R.id.fram, choose_fragment);
+                //uso backstack perchè android in automatico con il tasto indietro si muove tra activity e non tra fragment
+                //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
+                //io possa tornare indietro
+                fragmentTransaction.addToBackStack("Fragment_Decide_Location");
+                fragmentTransaction.commit();
+
             }
         }
     }

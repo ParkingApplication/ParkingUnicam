@@ -117,7 +117,7 @@ apiRoutes.post('/signup', function (req, res) {
 // TEST
 apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
     if (!req.body.QRCODE)
-        res.status(237).json({
+        res.status(400).json({
             error: {
                 codice: 7,
                 info: "Campi mancanti."
@@ -133,19 +133,18 @@ apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
                 }
             });
         else
-            if (!req.body.QRCODE)
-                res.status(237).json({
-                    error: {
-                        codice: 7,
-                        info: "QRcode non esistente."
-                    }
-                });
+            res.status(400).json({
+                error: {
+                    codice: 7,
+                    info: "QRcode non esistente."
+                }
+            });
     }
 });
 
 apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
     if (!req.body.QRCODE)
-        res.status(237).json({
+        res.status(400).json({
             error: {
                 codice: 7,
                 info: "Campi mancanti."
@@ -161,13 +160,12 @@ apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
                 }
             });
         else
-            if (!req.body.QRCODE)
-                res.status(237).json({
-                    error: {
-                        codice: 7,
-                        info: "QRcode non esistente."
-                    }
-                });
+            res.status(400).json({
+                error: {
+                    codice: 7,
+                    info: "QRcode non esistente."
+                }
+            });
     }
 });
 
@@ -842,7 +840,6 @@ apiRoutes.post('/getParcheggiPerCitta', function (req, res) {
                 });
         });
 });
-
 
 /*
 apiRoutes.post('/effettuaPrenotazione', function (req, res) {

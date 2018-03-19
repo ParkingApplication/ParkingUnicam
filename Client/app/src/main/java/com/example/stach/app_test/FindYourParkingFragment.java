@@ -89,7 +89,7 @@ public class FindYourParkingFragment extends Fragment {
         //check if gps is enabled
         String locationProviders = Settings.Secure.getString(this.getActivity().getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
         //se il gps non è attivo
-        if (locationProviders == null || locationProviders.equals("")) {
+        if ( !(locationProviders.contains("gps")) || locationProviders == null || locationProviders.equals("")) {
             AlertDialog alertDialog = new AlertDialog.Builder(this.getContext()).create();
             alertDialog.setTitle("Attiva il gps");
             alertDialog.setMessage("Per cercare un parcheggio è necessario attivare la localizzazione automatica di android, clicca su \"AttivaGPS\" per abilitare il gps");

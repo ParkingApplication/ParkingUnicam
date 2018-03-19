@@ -70,7 +70,6 @@ public class chooseParkingFragment extends Fragment {
      * for get parking in certain citY
      */
     public void sendDataForViewPark() {
-
         TextView località = (TextView) view.findViewById(R.id.resultFromGPS);
         // Prelevo i dati per il login per inviarli al server.
         String citta = località.getText().toString();
@@ -87,6 +86,5 @@ public class chooseParkingFragment extends Fragment {
         // Creo ed eseguo una connessione con il server web
         Connessione conn = new Connessione(postData, "POST",this.getContext(),this.getActivity(), null);
         conn.execute(Parametri.IP + "/login");
-
     }
 }

@@ -44,8 +44,7 @@ public class chooseParkingFragment extends Fragment {
         String latitudine = bundle.getString("latitudine");
         String longitudine = bundle.getString("longitudine");
         //ASSEGNO I VALORI ALLE TEXT VIEW
-        TextView località = (TextView) view.findViewById(R.id.resultFromGPS);
-        località.setText(getCityFromLatLong(latitudine,longitudine));
+        sendDataForViewPark(getCityFromLatLong(latitudine,longitudine));
         return view;
     }
 
@@ -69,22 +68,16 @@ public class chooseParkingFragment extends Fragment {
     /**Method to call server
      * for get parking in certain citY
      */
-    public void sendDataForViewPark() {
-        TextView località = (TextView) view.findViewById(R.id.resultFromGPS);
-        // Prelevo i dati per il login per inviarli al server.
-        String citta = località.getText().toString();
-        // Inserisco i dati del login in un HashMap così da poterli convertire facilmente in JSonObject in seguito
+    public void sendDataForViewPark(String citta) {
         JSONObject postData = new JSONObject();
         try {
             postData.put("città", citta);
         }catch (Exception e){}
-
         // Avverto l'utente del tentativo di invio dei dati di login al server
         caricamento = ProgressDialog.show(this.getActivity(), "",
                 "Connessione con il server in corso...", true);
-
         // Creo ed eseguo una connessione con il server web
         Connessione conn = new Connessione(postData, "POST",this.getContext(),this.getActivity(), null);
-        conn.execute(Parametri.IP + "/login");
+        conn.execute(Parametri.IP + "/getParcheggiPerCitta");
     }
 }

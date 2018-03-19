@@ -86,20 +86,26 @@ public class FindYourParkingFragment extends Fragment {
                 startPlaceAutomaticPickerInputActivity();
             }
         });
-        //check if gps is enabled
         String locationProviders = Settings.Secure.getString(this.getActivity().getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        //se il gps non è attivo
-        if ( !(locationProviders.contains("gps")) || locationProviders == null || locationProviders.equals("")) {
+        if (!(locationProviders.contains("gps")) || locationProviders == null || locationProviders.equals("")) {
             AlertDialog alertDialog = new AlertDialog.Builder(this.getContext()).create();
             alertDialog.setTitle("Attiva il gps");
             alertDialog.setMessage("Per cercare un parcheggio è necessario attivare la localizzazione automatica di android, clicca su \"AttivaGPS\" per abilitare il gps");
             alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Attiva GPS",
-                    new DialogInterface.OnClickListener(){
+                    new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
                         }
                     });
             alertDialog.show();
+            //quando utente clicca indietro nell'alert dialog
+            alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    startActivity(new Intent(getContext(),MainActivity.class));
+                    getActivity().finish();
+                }
+            });
         }
         //instantiate fused location client
         // Inflate the layout for this fragment
@@ -120,6 +126,7 @@ public class FindYourParkingFragment extends Fragment {
         }
 
     }
+
 
     /**
      * Questo metodo consente di far partire una activity per scegliere automaticamente la posizione in cui si vuole cercare parcheggio.
@@ -170,7 +177,7 @@ public class FindYourParkingFragment extends Fragment {
                 //da place posso prendere nome, indirizzo, latitudine e tutto quello che mi serve
                 //TextView indirizzo = (TextView) view.findViewById(R.id.indirizzo);
                 LatLng latLong = place.getLatLng();
-                String toastMsg2 = String.format("LATLONG: %s", latLong.latitude +" "+ latLong.longitude);
+                String toastMsg2 = String.format("LATLONG: %s", latLong.latitude + " " + latLong.longitude);
                 //stampo a video indirizzo scelto
                 //indirizzo.setText(toastMsg2);
                 Bundle bundle = new Bundle();

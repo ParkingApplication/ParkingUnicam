@@ -19,8 +19,10 @@ public class serverParcheggio {
 			
 			try {			
 				String line = buffer.readLine();
-				System.out.println("Inserire il QRCode");
+				
+				System.out.println("Inserire il QRCode per Accedere al Parcheggio :");
 				String lineQRCode = buffer.readLine();
+				
 			
 				char level = line.charAt(0);
 				 
@@ -36,10 +38,9 @@ public class serverParcheggio {
 		            System.out.println("Wait while exit");
 		            break;
 		         default :
-		            System.out.println("Invalid Input");
+		            System.out.println("Non è Stato Selezionato un Corretto Input");
 		      }
 				
-		      System.out.println("Your solution is: " + level);
 		   }
 			catch(IOException e) { 
 					System.out.println(e.getMessage());

@@ -70,7 +70,6 @@ public String inviaQRCode(String qrCode, String path)  {
      		}
 		}
 		catch(Exception e){
-		System.out.println("PIPPO");
 	}
 	
 	return result;

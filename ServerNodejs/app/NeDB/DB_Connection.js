@@ -32,6 +32,9 @@ var funzionalita = {
     getAllPostiLiberi: function (callback) {
         db.loadDatabase();
         return db.find({}, callback);
+    },
+    updatePostiLiberi: function (old, nuvo, callback) {
+        db.update(old, nuovo, {}, callback);
     }
 };
 

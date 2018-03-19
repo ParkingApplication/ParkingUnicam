@@ -10,6 +10,7 @@ var Utente = require("../models/utente");
 var Parcheggio = require("../models/parcheggio");
 var Carta = require("../models/cartaDiCredito");
 var VerificaEmail = require("../models/verificaEmail");
+var Prenotazione = require("../models/prenotazione");
 
 // Database interno per tenere conto del numero dei posti liberi
 var NeDB = require("../NeDB/DB_Connection");
@@ -841,7 +842,6 @@ apiRoutes.post('/getParcheggiPerCitta', function (req, res) {
         });
 });
 
-/*
 apiRoutes.post('/effettuaPrenotazione', function (req, res) {
     if (!req.body.idParcheggio || !req.body.tipoParcheggio)
         res.status(400).json({
@@ -855,9 +855,56 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
             var posti = doc;
 
             for (var k = 0; k < posti.length; k++) {
-                if (posti[k].id_parcheggio == parcheggio.id)
-                   if (posti[k].)
+                if (posti[k].id_parcheggio == req.body.idParcheggio && posti[k].id_tipo == req.body.tipoParcheggio)
+                    if (posti[k].postiLiberi > 0) {
+                        // Genero il codice da cui creare il QRCode
+                        var datetime = new Date();
+                        var data = datetime.getMilliseconds() + result.insertId;
+                        var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
+                        var scadenza = datetime.getFullYear() + "-" + datetime.getMonth() + "-" + datetime.getDate() +
+                            " " + datetime.getHours() + "-" + (datetime.getMinutes() + 20) + "-00"; // Secondi settati a zero per comodità
+
+                        Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
+                            function (err) {
+                                if (err)
+                                    res.status(400).json({
+                                        error: {
+                                            codice: 98,
+                                            info: "Riscontrati errori con il database."
+                                        }
+                                    });
+                                else { // Rispondo col il codice del qrcode
+                                    res.json({
+                                        QR_Code: codice
+                                    });
+
+                                    // Aggiorno il numero di posti liberi
+                                    var nuovo = posti[k];
+                                    nuovo.postiLiberi--;
+
+                                    NeDB.updatePostiLiberi(posti[k], nuovo, function (err) {
+                                        if (err)
+                                            console.log("Errore nell' aggiornare il numero di posti liberi.");
+                                    });
+                                }
+                            });
+                    }
+                    else
+                        res.status(400).json({
+                            error: {
+                                codice: 88,
+                                info: "Non ci sono posti liberi per questo tipo di veicolo in questo parcheggio."
+                            }
+                        });
+                else
+                    res.status(400).json({
+                        error: {
+                            codice: 87,
+                            info: "Parcheggio o tipo di parcheggio non esistente."
+                        }
+                    });
+            }
         });
-});*/
+});
 
 module.exports = apiRoutes;

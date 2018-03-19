@@ -6,15 +6,12 @@ import java.net.URL;
 import org.json.*;
 
 public class connectionToNode {
-	
 	 HttpURLConnection conn = null;
 	 String url = " ";
-	 
 	 
 public connectionToNode(String stringaUrl) {
 	this.url = stringaUrl;
 }
-
 
 //Funzione del server che controlla i QR code in entrata e chiede l'autenticazione al server
 public String inviaQRCode(String qrCode, String path)  {	
@@ -37,13 +34,10 @@ public String inviaQRCode(String qrCode, String path)  {
          conn.setRequestProperty("Accept", "application/json");
          conn.setRequestMethod("POST");
          
-         
          DataOutputStream dos = new DataOutputStream(conn.getOutputStream());
          dos.writeBytes(jsonObj.toString());
-         dos.close();
          
-         int codice = conn.getResponseCode(); 
-         
+         int codice = conn.getResponseCode();
          
          //controlla il codice nel caso di successo
          if(codice == 200) {
@@ -91,7 +85,7 @@ private String estraiErrore(String data){
 
     try {
         JSONObject response = new JSONObject(data);
-        JSONObject error = new JSONObject(response.getString("error"));
+        JSONObject error = response.getJSONObject("error");
         result = error.getString("info");
     } catch (Exception e) {
         result = "Impossibile leggere la risposta del server.";
@@ -106,12 +100,12 @@ private String estraiSuccessful(String data){
 
     try {
         JSONObject response = new JSONObject(data);
-        JSONObject error = new JSONObject(response.get("succesful"));
-        result = (String) error.get("info");
+        JSONObject successful = response.getJSONObject("successful");
+        result = successful.getString("info");
     } catch (Exception e) {
         result = "Impossibile leggere la risposta del server.";
     }
 
     return result;
-}
+	}
 }

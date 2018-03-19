@@ -113,6 +113,64 @@ apiRoutes.post('/signup', function (req, res) {
         });
 });
 
+
+// TEST
+apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
+    if (!req.body.QRCODE)
+        res.status(400).json({
+            error: {
+                codice: 7,
+                info: "Campi mancanti."
+            }
+        });
+    else {
+        console.log(req.body.QRCODE);
+        if (req.body.QRCODE === "1111")
+            res.json({
+                successful: {
+                    codice: 200,
+                    info: "Sei abilitato ad entrare nel parcheggio."
+                }
+            });
+        else
+            res.status(400).json({
+                error: {
+                    codice: 7,
+                    info: "QRcode non esistente."
+                }
+            });
+    }
+});
+
+apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
+    if (!req.body.QRCODE)
+        res.status(400).json({
+            error: {
+                codice: 7,
+                info: "Campi mancanti."
+            }
+        });
+    else {
+        console.log(req.body.QRCODE);
+        if (req.body.QRCODE === "2222")
+            res.json({
+                successful: {
+                    codice: 200,
+                    info: "Sei abilitato ad uscire dal parcheggio."
+                }
+            });
+        else
+            res.status(400).json({
+                error: {
+                    codice: 7,
+                    info: "QRcode non esistente."
+                }
+            });
+    }
+});
+
+// ENDTEST
+
 // Verifica email (acceduta solo da browser, risponde con status 200 e con pagine html)
 apiRoutes.get('/verify', function (req, res) {
     if (!req.query.code)
@@ -782,5 +840,25 @@ apiRoutes.post('/getParcheggiPerCitta', function (req, res) {
                 });
         });
 });
+
+
+/*
+apiRoutes.post('/effettuaPrenotazione', function (req, res) {
+    if (!req.body.idParcheggio || !req.body.tipoParcheggio)
+        res.status(400).json({
+            error: {
+                codice: 77,
+                info: "Dati mancanti per procedere con la richiesta."
+            }
+        });
+    else
+        NeDB.getAllPostiLiberi(function (err, doc) {
+            var posti = doc;
+
+            for (var k = 0; k < posti.length; k++) {
+                if (posti[k].id_parcheggio == parcheggio.id)
+                   if (posti[k].)
+        });
+});*/
 
 module.exports = apiRoutes;

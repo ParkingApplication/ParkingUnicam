@@ -93,7 +93,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Carta");
             fragmentTransaction.addToBackStack("Card_Fragment");
             fragmentTransaction.commit();
-
         } else if (id == R.id.nav_findPark) {
             setTitle("Trova il parcheggio");
             FindYourParkingFragment fragment = new FindYourParkingFragment();

@@ -28,12 +28,14 @@ public class serverParcheggio {
 				 
 				switch(level) {
 		         case '1' :
-		            System.out.println("Enter the parking"); 
+		            
 		            rispostaPerTest = cToNode.inviaQRCode(lineQRCode, "/parcheggio/entrataAutomobilista");
+		            System.out.println("Enter the parking"); 
 		            break;
 		         case '2' :
-		            System.out.println("Wait while exit");
+		            
 		            rispostaPerTest = cToNode.inviaQRCode(lineQRCode, "/parcheggio/uscitaAutomobilista");
+		            System.out.println("Wait while exit");
 		            break;
 		         default :
 		            System.out.println("Invalid Input");

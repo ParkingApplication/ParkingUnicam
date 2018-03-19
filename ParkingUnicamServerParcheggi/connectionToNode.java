@@ -60,7 +60,7 @@ public String inviaQRCode(String qrCode, String path)  {
          
          
          //controlla il codice nel caso di fallimento
-         if (codice == 237) {
+         if (codice == 400) {
         	 BufferedReader br = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
              StringBuilder sb = new StringBuilder();
              String line;

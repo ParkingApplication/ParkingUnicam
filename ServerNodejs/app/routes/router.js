@@ -907,4 +907,85 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
         });
 });
 
+apiRoutes.delete('/deletePrenotazione', function (req, res) {
+    //controllo che l'utente abbia mandato l'id della prenotazione da cancellare
+    if (!req.body.idPrenotazione)
+        res.status(400).json({
+            error: {
+                codice: 7,
+                info: "Campi mancanti."
+            }
+        });
+    else
+    //se l'utente ha mandato l'id della prenotazione da cancellare, procedo con la cancellazione e attendo la risposta
+                Prenotazione.delPrenotazione(req.body.idPrenotazione, function (err) {
+                    //se l'operazione non è andata a buon fine ritorno un errore
+                    if (err)
+                        res.status(400).json({
+                            error: {
+                                codice: 53,
+                                info: "Riscontrati problemi con il database."
+                            }
+                        });
+                    else
+                    //se l'operazione è andata a buon fine mando un succesful
+                        res.json({
+                            successful: {
+                                codice: 210,
+                                info: "La prenotazione è stata cancellata correttamente."
+                            }
+                        });
+                });
+});
+
+
+
+apiRoutes.post('/resetQRCode', function (req, res) {
+    if (!req.body.idPrenotazione)
+        res.status(400).json({
+            error: {
+                codice: 17,
+                info: "Campi mancanti per l'aggiornamento del QRCODE della prenotazione."
+            }
+        });
+    
+    
+    //controllo per vedere che chi ha chiamato la funzione sia un amministratore di sistema
+    //su visual paradigm c'era scritto che la poteva esclusivamente fare l'amministratore
+    /*
+    if(req.body.Utente.abilitato != 1)
+        res.status(400).json({
+            error: {
+                codice: 21,
+                info: "Non si possiede i diritti necessari per effettuare questa azione"
+            }
+        });
+    */
+    
+         // Genero il codice da cui creare il QRCode
+        var datetime = new Date();
+        var data = datetime.getMilliseconds() + result.insertId;
+        var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
+    
+        Prenotazione.setNewQRCODE(req.body.idPrenotazione, codice, function (err) {
+        //se l'operazione non è andata a buon fine ritorno un errore
+            if (err)
+                res.status(400).json({
+                    error: {
+                        codice: 53,
+                        info: "Riscontrati problemi con il database."
+                    }
+                });
+            else
+        //se l'operazione è andata a buon fine mando un succesful
+                res.json({
+                    successful: {
+                        QRCODE : codice,
+                        info: "Il QRCODE è stato rigenerato correttamente."
+                    }
+                });
+        });
+    
+});
+
 module.exports = apiRoutes;

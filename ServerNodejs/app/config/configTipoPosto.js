@@ -1,5 +1,3 @@
-// Sarebbe meglio caricarli da db(mysql)
-
 module.exports = {
     'auto': 0,
     'moto': 2,

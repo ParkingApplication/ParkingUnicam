@@ -7,8 +7,11 @@ var prenotazione = {
     getPrenotazioniFromUtente: function (idUtente, callback) {
         return db.query("SELECT * FROM prenotazioni_in_atto WHERE id_utente=? ORDER BY data_scadenza ASC;", [idUtente], callback);
     },
-    setNewQRCODE: function (idPrenotazione, QRCODE, callback) {
-        return db.query("UPDATE prenotazioni_in_atto SET 'codice`=? WHERE idPrenotazione=?;", [QRCODE, idPrenotazione], callback);
+    updateQRCODE: function (idPrenotazione, QRCODE, callback) {
+        return db.query("UPDATE prenotazioni_in_atto SET codice=? WHERE id_prenotazione=?;", [QRCODE, idPrenotazione], callback);
+    },
+    getPrenotazioneUtente: function (idUtente, idPrenotazione, callback) {
+        return db.query("SELECT * FROM prenotazioni_in_atto WHERE id_utente=? AND id_prenotazione=?;", [idUtente, idPrenotazione], callback);
     },
     delPrenotazione: function (idPrentoazione, callback) {
         return db.query("DELETE FROM prenotazioni_in_atto WHERE id_prenotazione=?; ", [idPrentoazione], callback);

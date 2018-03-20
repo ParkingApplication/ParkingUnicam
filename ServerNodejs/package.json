@@ -1,7 +1,7 @@
 {
-  "name": "server_parking_app",
+  "name": "server_parking",
   "version": "1.0.0",
-  "description": "Server per sito/clientAndroid dell' applicazione parcheggio.",
+  "description": "Server per sito/clientAndroid dell' applicazione ParkingUnicam.",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,13 +18,12 @@
   "homepage": "https://github.com/ParkingApplication/ParkingUnicam#readme",
   "dependencies": {
     "body-parser": "^1.18.2",
-    "connect-multiparty": "^2.0.0",
     "dateformat": "^3.0.3",
     "express": "^4.16.0",
     "http": "0.0.0",
     "jsonwebtoken": "^8.0.1",
     "mysql": "^2.15.0",
-    "nedb": "^1.8.0",
+    "node-persist": "^2.1.0",
     "nodemailer": "^4.6.3"
   }
 }

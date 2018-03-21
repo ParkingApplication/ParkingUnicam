@@ -1128,4 +1128,165 @@ apiRoutes.path('/resetQRCode', function (req, res) {
         }
 });
 
+
+//funzione che ritorna la lista delle prenotazioni pagate per id utente
+apiRoutes.post('/getPrenotazioniPagatePerIdUtente', function (req, res) {
+    if (!req.body.idUtente) {
+        Prenotazione.getPrenotazioniFromUtente(req.user.id, function (err, rows) {
+            if (err)
+                res.status(400).json({
+                    error: {
+                        codice: 53,
+                        info: "Riscontrati problemi con il database."
+                    }
+                });
+
+            else {
+                j = 0;
+                for (var i = 0; i < rows.length; i++) {
+
+                    prenotazionePagata = {
+                        idPrenotazione: rows[i].idPrenotazione,
+                        idUtente: rows[i].idUtente,
+                        idParcheggio: rows[i].idParcheggio,
+                        data: rows[i].dataPrenotazione,
+                        orePermanenza: rows[i].orePermanenza,
+                        tipoParcheggio: rows[i].tipoParcheggio
+                    }
+                    prenotazioni[j] = prenotazionePagata
+                    j++;
+                }
+                res.json({
+                    prenotazionePagata: prenotazioni
+                });
+            }
+        });
+
+    }
+
+
+    else {
+        if ((req.user.livelloAmministrazione > 0)) {
+            Prenotazione.getPrenotazioniFromUtente(req.body.idUtente, function (err, rows) {
+                if (err)
+                    res.status(400).json({
+                        error: {
+                            codice: 53,
+                            info: "Riscontrati problemi con il database."
+                        }
+                    });
+
+                else {
+                    j = 0;
+                    for (var i = 0; i < rows.length; i++) {
+
+                        prenotazionePagata = {
+                            idPrenotazione: rows[i].idPrenotazione,
+                            idUtente: rows[i].idUtente,
+                            idParcheggio: rows[i].idParcheggio,
+                            data: rows[i].dataPrenotazione,
+                            orePermanenza: rows[i].orePermanenza,
+                            tipoParcheggio: rows[i].tipoParcheggio
+                        }
+                        prenotazioni[j] = prenotazionePagata
+                        j++;
+                    }
+                    res.json({
+                        prenotazionePagata: prenotazioni
+                    });
+                }
+            });
+        }
+        else {
+            res.status(400).json({
+                error: {
+                    codice: 500,
+                    info: "Privilegi amministratore insufficienti."
+                }
+            });
+        }
+    }
+
+});
+
+
+//funzione che ritorna tutte le prenotazioni in atto
+apiRoutes.post('/getAllPrenotazioniInAtto', function (req, res){
+    if (!req.body.idUtente) {
+        Prenotazione.getPrenotazioniFromUtente(req.user.id, function (err, rows) {
+            if (err)
+                res.status(400).json({
+                    error: {
+                        codice: 53,
+                        info: "Riscontrati problemi con il database."
+                    }
+                });
+
+            else {
+                j = 0;
+                for (var i = 0; i < rows.length; i++) {
+
+                    prenotazioneInAtto = {
+                        idPrenotazione: rows[i].idPrenotazione,
+                        idUtente: rows[i].idUtente,
+                        idParcheggio: rows[i].idParcheggio,
+                        idPosto : rows[i].idPosto,
+                        data: rows[i].dataPrenotazione,
+                        codice : rows[i].codice
+                    }
+                    prenotazioni[j] = prenotazioneInAtto
+                    j++;
+                }
+                res.json({
+                    prenotazioneInAtto : prenotazioni
+                });
+            }
+        });
+
+    }
+
+
+    else {
+        if ((req.user.livelloAmministrazione > 0)) {
+            Prenotazione.getPrenotazioniFromUtente(req.body.idUtente, function (err, rows) {
+                if (err)
+                    res.status(400).json({
+                        error: {
+                            codice: 53,
+                            info: "Riscontrati problemi con il database."
+                        }
+                    });
+
+                else {
+                    j = 0;
+                    for (var i = 0; i < rows.length; i++) {
+
+                        prenotazioneInAtto = {
+                            idPrenotazione: rows[i].idPrenotazione,
+                            idUtente: rows[i].idUtente,
+                            idParcheggio: rows[i].idParcheggio,
+                            idPosto : rows[i].idPosto,
+                            data: rows[i].dataPrenotazione,
+                            codice : rows[i].codice
+                        }
+                        prenotazioni[j] = prenotazioneInAtto
+                        j++;
+                    }
+                    res.json({
+                        prenotazioneInAtto : prenotazioni
+                    });
+                }
+            });
+        }
+        else {
+            res.status(400).json({
+                error: {
+                    codice: 500,
+                    info: "Privilegi amministratore insufficienti."
+                }
+            });
+        }
+    }
+});
+
 module.exports = apiRoutes;

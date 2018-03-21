@@ -1,0 +1,30 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.stach.app_test.Visualizza_parcheggi">
+
+    <LinearLayout
+        android:id="@+id/linearLayoutVisualizza"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="left|center"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <TextView
+            android:id="@+id/provaJson"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Lista parcheggi" />
+
+        <TextView
+            android:id="@+id/provaScritta"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="" />
+
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

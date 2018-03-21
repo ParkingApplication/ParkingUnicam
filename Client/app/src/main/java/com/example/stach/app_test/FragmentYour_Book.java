@@ -40,7 +40,6 @@ public class FragmentYour_Book extends Fragment {
         //array di buttons
         Button buttonsPrenotazioni[] = new Button[prenotazioni.length];
         //array di linear Layout
-        //View linearLayoutArray []= new View[prenotazioni.length];
         for (int i = 0; i < prenotazioni.length; i++) {
             //index is the solution
             final int index=i;
@@ -49,7 +48,7 @@ public class FragmentYour_Book extends Fragment {
             //creo la text view
             buttonsPrenotazioni[index] = new Button(view.getContext());
             //ritorno la stringa da stampare
-            buttonsPrenotazioni[index].setText(prenotazioni[index].getNomeParcheggio().substring(0,10)+"...  >");
+            buttonsPrenotazioni[index].setText(prenotazioni[index].getNomeParcheggio().substring(0,10));
             //Setto i parametri della text view
             buttonsPrenotazioni[index].setId(index);
             //scrivo le risorse background
@@ -88,12 +87,8 @@ public class FragmentYour_Book extends Fragment {
                     LinearLayout.LayoutParams.WRAP_CONTENT
             ));
             //aggiungo la lineaar layout personalizzata al linear layout master
-            // ((LinearLayout)  linearLayout).addView((LinearLayout) linearLayoutArray[i]);
             //aggiungo la text view al layout personale della prenotazione
             ((LinearLayout) linearLayout).addView(buttonsPrenotazioni[i]);
-            //TO FIX, AGGIUNGI BUTTON
-
-
             //TEXT VIEW PADDING LINEAR GENERALE
             //aggiungo text view per padding al layout generale
             padding = new TextView(view.getContext());

@@ -1088,7 +1088,7 @@ apiRoutes.delete('/deletePrenotazione', function (req, res) {
         });
 });
 
-apiRoutes.post('/resetQRCode', function (req, res) {
+apiRoutes.path('/resetQRCode', function (req, res) {
     if (!req.body.idPrenotazione)
         res.status(400).json({
             error: {

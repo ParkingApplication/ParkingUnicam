@@ -2,8 +2,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.stach.app_test.chooseParkingFragment"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    tools:context="com.example.stach.app_test.chooseParkingFragment">
 
     <Button
         android:id="@+id/vaiAVisualizzazioneParcheggi"
@@ -14,6 +14,12 @@
     <TextView
         android:id="@+id/resultFromGPS"
         android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+    <!--
+    <RelativeLayout
+        android:layout_width="match_parent"
         android:layout_height="match_parent"
-        />
+        android:text="@string/hello_blank_fragment" />
+    android:layout_height="match_parent">
+    </RelativeLayout>-->
 </LinearLayout>

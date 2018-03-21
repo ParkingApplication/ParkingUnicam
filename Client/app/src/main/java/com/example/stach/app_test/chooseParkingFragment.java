@@ -32,9 +32,6 @@ public class chooseParkingFragment extends Fragment {
     private View view;
     static ProgressDialog caricamento = null;
 
-    public chooseParkingFragment() {
-        // Required empty public constructor
-    }
 
 
     @Override
@@ -55,10 +52,10 @@ public class chooseParkingFragment extends Fragment {
             }
         });
         //ASSEGNO I VALORI ALLE TEXT VIEW
-        sendDataForViewPark(getCityFromLatLong(latitudine,longitudine));
+        //sendDataForViewPark(getCityFromLatLong(latitudine,longitudine));
 
-
-        RelativeLayout layout = new RelativeLayout( this.getContext());
+    /**
+        RelativeLayout layout = new RelativeLayout(this.getContext());
         getActivity().setContentView(layout, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
 
         //STACCHIO NON LO TOCCA SENNO' TE ACCOLTELLO
@@ -88,7 +85,7 @@ public class chooseParkingFragment extends Fragment {
             }
             layout.addView(button, params);
 
-        }
+        }*/
         return view;
     }
 

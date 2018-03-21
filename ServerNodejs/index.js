@@ -22,5 +22,5 @@ app.use('/', router);
 var httpServer = http.createServer(app);
 
 httpServer.listen(ConfigConnessione.portInternal, ConfigConnessione.ipInternal, function () {
-    console.log("\nServer started on " + ConfigConnessione.ipInternal + ":" + ConfigConnessione.portInternal + ".\n");
+        console.log("\nServer in ascolto su: " + ConfigConnessione.ipInternal + ":" + ConfigConnessione.portInternal);
 });

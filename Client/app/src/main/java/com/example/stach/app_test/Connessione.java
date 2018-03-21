@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.widget.Toast;
 import org.json.*;
 import java.net.URL;
@@ -47,7 +48,7 @@ public class Connessione extends AsyncTask<String, String, String> {
             urlConnection.setRequestProperty("Content-Type", "application/json; charset= utf-8");
             urlConnection.setRequestProperty("Accept", "application/json");
             urlConnection.setRequestMethod(requestType);
-
+            urlConnection.setConnectTimeout(7000);
             // Send the post body
             if (this.postData != null) {
                 OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
@@ -116,7 +117,13 @@ public class Connessione extends AsyncTask<String, String, String> {
             Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
             return;
         }
-
+        //Frammento scelta parcheggio di main activity (non cade in credenziali e carta perché ha caricamento.dismiss)
+        if (result == null && activity instanceof MainActivity && fragment instanceof chooseParkingFragment) {
+            chooseParkingFragment frag = (chooseParkingFragment)fragment;
+            Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+            frag.caricamento.dismiss();
+            return;
+        }
         //CREDENZIALI E CARTA (qui cadranno in automatico tutti i fragment di main activity, non serve riscriverlo per ogni fragment)
         if (result == null && activity instanceof MainActivity) {
             Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
@@ -237,7 +244,13 @@ public class Connessione extends AsyncTask<String, String, String> {
 
         /** DA QUI IN POI CI SONO TUTTI FRAGMENT DI MainActivity, quindi per distinguerli bisogna controllare fragment
         */
-
+        if ( result.equals("400") && fragment instanceof chooseParkingFragment) {
+            chooseParkingFragment frag = (chooseParkingFragment) fragment;
+            frag.caricamento.dismiss();
+            String message = estraiErrore(responseInfo);
+            Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
+            return;
+        }
         //CREDENZIALI E CARTA 400 #(stesso discorso di sopra, la risposta di errore è formatata ugualmente per ogni fragment del MainActivity)
         if (activity instanceof MainActivity && result.equals("400")) {
             String message = estraiErrore(responseInfo);
@@ -276,7 +289,23 @@ public class Connessione extends AsyncTask<String, String, String> {
             actv.onBackPressed();
             return;
         }
+        //CARTA 200
+        if (activity instanceof MainActivity && result.equals("200") && fragment instanceof chooseParkingFragment) {
+            chooseParkingFragment frag = (chooseParkingFragment) fragment;
+            frag.caricamento.dismiss();
+            try {
+                JSONObject ris = new JSONObject(responseInfo);
+                Parametri.parcheggi = ris.getJSONArray("parcheggi");
 
+
+            }catch (Exception e){
+
+            }
+
+
+
+            return;
+        }
     }
 
     /**

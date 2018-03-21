@@ -9,8 +9,11 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONObject;
 
@@ -45,6 +48,39 @@ public class chooseParkingFragment extends Fragment {
         String longitudine = bundle.getString("longitudine");
         //ASSEGNO I VALORI ALLE TEXT VIEW
         sendDataForViewPark(getCityFromLatLong(latitudine,longitudine));
+
+
+        RelativeLayout layout = new RelativeLayout( this.getContext());
+        getActivity().setContentView(layout, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+
+        //STACCHIO NON LO TOCCA SENNO' TE ACCOLTELLO
+        for(int i = 0; i< Parametri.parcheggi.length(); i++) {
+            JSONObject parcheggio = null;
+            try {
+                 parcheggio = Parametri.parcheggi.getJSONObject(i);
+            }
+            catch(Exception e)
+            {}
+            TextView tv = new TextView(getContext());
+            Button button = new Button(getContext());
+            int id = i+1000;
+            int id_v = i+100;
+            button.setId(id);
+            tv.setId(id_v);
+            button.setText("Prenota " + i);
+            try {
+                tv.setText(parcheggio.getString("id"));
+            }catch(Exception e)
+            {}
+            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
+            if(i==0) {
+                params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
+            } else {
+                params.addRule(RelativeLayout.BELOW, id-1);
+            }
+            layout.addView(button, params);
+
+        }
         return view;
     }
 
@@ -71,13 +107,15 @@ public class chooseParkingFragment extends Fragment {
     public void sendDataForViewPark(String citta) {
         JSONObject postData = new JSONObject();
         try {
-            postData.put("città", citta);
+            postData.put("citta", "Roma");
+            postData.put("token", Parametri.Token);
         }catch (Exception e){}
         // Avverto l'utente del tentativo di invio dei dati di login al server
         caricamento = ProgressDialog.show(this.getActivity(), "",
                 "Connessione con il server in corso...", true);
         // Creo ed eseguo una connessione con il server web
-        Connessione conn = new Connessione(postData, "POST",this.getContext(),this.getActivity(), null);
+        Connessione conn = new Connessione(postData, "POST",this.getContext(),this.getActivity(), this);
         conn.execute(Parametri.IP + "/getParcheggiPerCitta");
+
     }
 }

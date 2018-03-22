@@ -12,6 +12,9 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 
@@ -24,17 +27,25 @@ public class Visualizza_parcheggi extends Fragment {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_visualizza_parcheggi, container, false);
         View linearLayout = view.findViewById(R.id.linearLayoutVisualizza);
-        final ArrayList<Parcheggi> listParcheggi = (ArrayList<Parcheggi>) getArguments().getSerializable("listParking");
-        TextView[] textParcheggi = new TextView[listParcheggi.size()];
-        for (Parcheggi p: listParcheggi){
+        TextView[] textParcheggi = new TextView[Parametri.parcheggi.length()];
+        for (int i = 0; i < Parametri.parcheggi.length(); i++) {
+            JSONObject parcheggio = null;
+            try {
+                parcheggio = Parametri.parcheggi.getJSONObject(i);
+            } catch (Exception e) {
+            }
             //index is the solution
-            final int index=listParcheggi.indexOf(p);
+            final int index = i;
             //LAYOUT PERSONALE PRENOTAZIONE
             //TEXT VIEW
             //creo la text view
             textParcheggi[index] = new TextView(view.getContext());
             //ritorno la stringa da stampare
-            textParcheggi[index].setText(listParcheggi.get(index).getNome()+" "+listParcheggi.get(index).getId());
+            try {
+                textParcheggi[index].setText(parcheggio.getString("id"));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             //Setto i parametri della text view
             textParcheggi[index].setId(index);
             //scrivo le risorse background
@@ -50,7 +61,6 @@ public class Visualizza_parcheggi extends Fragment {
 
 
             //LE TEXT VIEW CI SONO MA NON SI VEDONO
-
 
 
             //aggiunto text a layout

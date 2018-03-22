@@ -2,10 +2,13 @@ package com.example.stach.app_test;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -37,14 +40,20 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 
+import org.json.JSONObject;
+
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 
 /**
  * A simple {@link Fragment} subclass.
  */
 public class FindYourParkingFragment extends Fragment {
+    //progressbar
+    static ProgressDialog caricamento = null;
     private int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
     //location provider
     private FusedLocationProviderClient mFusedLocationClient;
@@ -142,6 +151,10 @@ public class FindYourParkingFragment extends Fragment {
                     .addOnSuccessListener(this.getActivity(), new OnSuccessListener<Location>() {
                         @Override
                         public void onSuccess(Location location) {
+                            String locality = getCityFromLatLong(Double.toString(location.getLatitude()),
+                                    Double.toString(location.getLongitude()));
+                            sendDataForViewPark(locality);
+                            /**
                             Bundle bundle = new Bundle();
                             bundle.putString("latitudine", Double.toString(location.getLatitude()));
                             bundle.putString("longitudine", Double.toString(location.getLongitude()));
@@ -157,12 +170,46 @@ public class FindYourParkingFragment extends Fragment {
                             //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
                             //io possa tornare indietro
                             fragmentTransaction.addToBackStack("Fragment_Decide_Location");
-                            fragmentTransaction.commit();
+                            fragmentTransaction.commit();*/
+
                         }
                     });
         }
     }
 
+    private String getCityFromLatLong(String lat, String lng) {
+        Geocoder gcd = new Geocoder(this.getContext(), Locale.getDefault());
+        List<Address> addresses = null;
+        try {
+            addresses = gcd.getFromLocation(Double.parseDouble(lat), Double.parseDouble(lng), 1);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        if (addresses.size() > 0) {
+            return addresses.get(0).getLocality();
+        } else {
+            System.out.print("Non ci sono parametri validi per trovare la città");
+            return "No city";
+        }
+    }
+    /**
+     * Method to call server
+     * for get parking in certain citY
+     */
+    public void sendDataForViewPark(String citta) {
+        JSONObject postData = new JSONObject();
+        try {
+            postData.put("citta", "Roma");
+            postData.put("token", Parametri.Token);
+        } catch (Exception e) {
+        }
+        // Avverto l'utente del tentativo di invio dei dati di login al server
+        caricamento = ProgressDialog.show(this.getActivity(), "",
+                "Connessione con il server in corso...", true);
+        // Creo ed eseguo una connessione con il server web
+        Connessione conn = new Connessione(postData, "POST", this.getContext(), this.getActivity(), this);
+        conn.execute(Parametri.IP + "/getParcheggiPerCitta");
+    }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {

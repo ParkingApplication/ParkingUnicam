@@ -11,16 +11,11 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
-import android.widget.Toast;
+
 
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
@@ -33,7 +28,6 @@ public class chooseParkingFragment extends Fragment {
     static ProgressDialog caricamento = null;
 
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,48 +38,10 @@ public class chooseParkingFragment extends Fragment {
         //prendo i miei valori
         String latitudine = bundle.getString("latitudine");
         String longitudine = bundle.getString("longitudine");
-        Button visualizzaParcheggi = view.findViewById(R.id.vaiAVisualizzazioneParcheggi);
-        visualizzaParcheggi.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                sendInformationToView(v);
-            }
-        });
+
         //ASSEGNO I VALORI ALLE TEXT VIEW
-        //sendDataForViewPark(getCityFromLatLong(latitudine,longitudine));
+        sendDataForViewPark(getCityFromLatLong(latitudine, longitudine));
 
-    /**
-        RelativeLayout layout = new RelativeLayout(this.getContext());
-        getActivity().setContentView(layout, new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-
-        //STACCHIO NON LO TOCCA SENNO' TE ACCOLTELLO
-        for(int i = 0; i< Parametri.parcheggi.length(); i++) {
-            JSONObject parcheggio = null;
-            try {
-                 parcheggio = Parametri.parcheggi.getJSONObject(i);
-            }
-            catch(Exception e)
-            {}
-            TextView tv = new TextView(getContext());
-            Button button = new Button(getContext());
-            int id = i+1000;
-            int id_v = i+100;
-            button.setId(id);
-            tv.setId(id_v);
-            button.setText("Prenota " + i);
-            try {
-                tv.setText(parcheggio.getString("id"));
-            }catch(Exception e)
-            {}
-            RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT);
-            if(i==0) {
-                params.addRule(RelativeLayout.ALIGN_PARENT_TOP);
-            } else {
-                params.addRule(RelativeLayout.BELOW, id-1);
-            }
-            layout.addView(button, params);
-
-        }*/
         return view;
     }
 
@@ -114,41 +70,17 @@ public class chooseParkingFragment extends Fragment {
         try {
             postData.put("citta", "Roma");
             postData.put("token", Parametri.Token);
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
         // Avverto l'utente del tentativo di invio dei dati di login al server
         caricamento = ProgressDialog.show(this.getActivity(), "",
                 "Connessione con il server in corso...", true);
         // Creo ed eseguo una connessione con il server web
-        Connessione conn = new Connessione(postData, "POST",this.getContext(),this.getActivity(), this);
+        Connessione conn = new Connessione(postData, "POST", this.getContext(), this.getActivity(), this);
         conn.execute(Parametri.IP + "/getParcheggiPerCitta");
-
     }
 
-    /**
-     * This methos it's used to send information about parking to another activity
-     */
-    public void sendInformationToView(View view) {
-        ArrayList<Parcheggi> parcheggi = new ArrayList<Parcheggi>();
-        //Set di bundle per visualizzazione parcheggi
-        parcheggi.add(new Parcheggi());
-        parcheggi.add(new Parcheggi());
-        parcheggi.add(new Parcheggi());
-        //define bundles
-        Bundle args = new Bundle();
-        args.putSerializable("listParking", parcheggi);
-        //eseguo la transazione
-        FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        //passo i valori
-        Visualizza_parcheggi visualizza_parcheggi = new Visualizza_parcheggi();
-        visualizza_parcheggi.setArguments(args);
-        //eseguo la transazione
-        fragmentTransaction.replace(R.id.fram, visualizza_parcheggi);
-        //uso backstack perchè android in automatico con il tasto indietro si muove tra activity e non tra fragment
-        //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
-        //io possa tornare indietro
-        fragmentTransaction.commit();
-    }
+
 
 }
 

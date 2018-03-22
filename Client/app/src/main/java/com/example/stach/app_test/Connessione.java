@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.util.Log;
 import android.widget.Toast;
 import org.json.*;
@@ -296,8 +298,17 @@ public class Connessione extends AsyncTask<String, String, String> {
             try {
                 JSONObject ris = new JSONObject(responseInfo);
                 Parametri.parcheggi = ris.getJSONArray("parcheggi");
-
-
+                //eseguo la transazione
+                FragmentManager fragmentManager = fragment.getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                //passo i valori
+                Visualizza_parcheggi visualizza_parcheggi = new Visualizza_parcheggi();
+                //eseguo la transazione
+                fragmentTransaction.replace(R.id.fram, visualizza_parcheggi);
+                //uso backstack perchè android in automatico con il tasto indietro si muove tra activity e non tra fragment
+                //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
+                //io possa tornare indietro
+                fragmentTransaction.commit();
             }catch (Exception e){
 
             }

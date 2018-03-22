@@ -9,7 +9,7 @@
         android:id="@+id/linearLayoutVisualizza"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:gravity="left|center"
+        android:gravity="left"
         android:orientation="vertical"
         android:paddingLeft="16dp"
         android:paddingRight="16dp">
@@ -18,13 +18,11 @@
             android:id="@+id/provaJson"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Lista parcheggi" />
+            android:text="Lista parcheggi:"
+            android:textSize="24sp"
+            android:textStyle="normal|bold" />
 
-        <TextView
-            android:id="@+id/provaScritta"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="" />
+
 
     </LinearLayout>
 </android.support.design.widget.CoordinatorLayout>

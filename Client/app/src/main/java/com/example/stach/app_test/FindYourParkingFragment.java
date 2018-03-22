@@ -154,26 +154,11 @@ public class FindYourParkingFragment extends Fragment {
                             String locality = getCityFromLatLong(Double.toString(location.getLatitude()),
                                     Double.toString(location.getLongitude()));
                             sendDataForViewPark(locality);
-                            /**
-                            Bundle bundle = new Bundle();
-                            bundle.putString("latitudine", Double.toString(location.getLatitude()));
-                            bundle.putString("longitudine", Double.toString(location.getLongitude()));
-                            //eseguo la transazione
-                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                            //passo i valori
-                            chooseParkingFragment choose_fragment = new chooseParkingFragment();
-                            choose_fragment.setArguments(bundle);
-                            //eseguo la transazione
-                            fragmentTransaction.replace(R.id.fram, choose_fragment);
-                            //uso backstack perchè android in automatico con il tasto indietro si muove tra activity e non tra fragment
-                            //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
-                            //io possa tornare indietro
-                            fragmentTransaction.addToBackStack("Fragment_Decide_Location");
-                            fragmentTransaction.commit();*/
+
 
                         }
                     });
+
         }
     }
 
@@ -205,7 +190,7 @@ public class FindYourParkingFragment extends Fragment {
         }
         // Avverto l'utente del tentativo di invio dei dati di login al server
         caricamento = ProgressDialog.show(this.getActivity(), "",
-                "Connessione con il server in corso...", true);
+                "Ricerca parcheggi in corso...", true);
         // Creo ed eseguo una connessione con il server web
         Connessione conn = new Connessione(postData, "POST", this.getContext(), this.getActivity(), this);
         conn.execute(Parametri.IP + "/getParcheggiPerCitta");
@@ -224,25 +209,11 @@ public class FindYourParkingFragment extends Fragment {
                 //da place posso prendere nome, indirizzo, latitudine e tutto quello che mi serve
                 //TextView indirizzo = (TextView) view.findViewById(R.id.indirizzo);
                 LatLng latLong = place.getLatLng();
-                String toastMsg2 = String.format("LATLONG: %s", latLong.latitude + " " + latLong.longitude);
-                //stampo a video indirizzo scelto
-                //indirizzo.setText(toastMsg2);
-                Bundle bundle = new Bundle();
-                bundle.putString("latitudine", Double.toString(latLong.latitude));
-                bundle.putString("longitudine", Double.toString(latLong.longitude));
-                //eseguo la transazione
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                //passo i valori
-                chooseParkingFragment choose_fragment = new chooseParkingFragment();
-                choose_fragment.setArguments(bundle);
-                //eseguo la transazione
-                fragmentTransaction.replace(R.id.fram, choose_fragment);
-                //uso backstack perchè android in automatico con il tasto indietro si muove tra activity e non tra fragment
-                //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
-                //io possa tornare indietro
-                fragmentTransaction.addToBackStack("Fragment_Decide_Location");
-                fragmentTransaction.commit();
+
+                String locality = getCityFromLatLong(Double.toString(latLong.latitude),
+                        Double.toString(latLong.latitude));
+                sendDataForViewPark(locality);
+
 
             }
         }

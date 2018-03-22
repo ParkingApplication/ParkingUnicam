@@ -120,8 +120,8 @@ public class Connessione extends AsyncTask<String, String, String> {
             return;
         }
         //Frammento scelta parcheggio di main activity (non cade in credenziali e carta perché ha caricamento.dismiss)
-        if (result == null && activity instanceof MainActivity && fragment instanceof chooseParkingFragment) {
-            chooseParkingFragment frag = (chooseParkingFragment)fragment;
+        if (result == null && activity instanceof MainActivity && fragment instanceof FindYourParkingFragment) {
+            FindYourParkingFragment frag = (FindYourParkingFragment) fragment;
             Toast.makeText(context, "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
             frag.caricamento.dismiss();
             return;
@@ -246,8 +246,8 @@ public class Connessione extends AsyncTask<String, String, String> {
 
         /** DA QUI IN POI CI SONO TUTTI FRAGMENT DI MainActivity, quindi per distinguerli bisogna controllare fragment
         */
-        if ( result.equals("400") && fragment instanceof chooseParkingFragment) {
-            chooseParkingFragment frag = (chooseParkingFragment) fragment;
+        if ( result.equals("400") && fragment instanceof FindYourParkingFragment) {
+            FindYourParkingFragment frag = (FindYourParkingFragment) fragment;
             frag.caricamento.dismiss();
             String message = estraiErrore(responseInfo);
             Toast.makeText(activity, message, Toast.LENGTH_LONG).show();
@@ -292,8 +292,8 @@ public class Connessione extends AsyncTask<String, String, String> {
             return;
         }
         //CARTA 200
-        if (activity instanceof MainActivity && result.equals("200") && fragment instanceof chooseParkingFragment) {
-            chooseParkingFragment frag = (chooseParkingFragment) fragment;
+        if (activity instanceof MainActivity && result.equals("200") && fragment instanceof FindYourParkingFragment) {
+            FindYourParkingFragment frag = (FindYourParkingFragment) fragment;
             frag.caricamento.dismiss();
             try {
                 JSONObject ris = new JSONObject(responseInfo);

@@ -6,6 +6,7 @@ import org.json.JSONObject;
 public class Parcheggio {
     private int id;
     private String indirizzo;
+    private String indirizzo_format;
     private LatLng coordinate;
     private int[] postiTotali;
     private int[] postiLiberi;
@@ -82,6 +83,10 @@ public class Parcheggio {
         this.postiTotali[TipoPosto.MOTO] = jobj.getInt("nPostiMoto");
         this.postiTotali[TipoPosto.DISABILE] = jobj.getInt("nPostiDisabile");
 
+        //Setto i parcheggi per farli vedere più sexy
+        this.indirizzo_format = "Città: " + indr.getString("citta") + "\n" +"Provincia: "+ indr.getString("provincia")
+                + "\n" + "Via: "+ indr.getString("via") + "\n" + "CAP: " + indr.getString("cap") ;
+
     }
 
     public int getId() {
@@ -117,4 +122,6 @@ public class Parcheggio {
     public double getPrezzoLavorativi() {
         return prezzoLavorativi;
     }
+
+    public String getIndirizzo_format(){return indirizzo_format;}
 }

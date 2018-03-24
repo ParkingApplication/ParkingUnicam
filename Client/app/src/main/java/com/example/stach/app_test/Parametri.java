@@ -25,4 +25,5 @@ public class Parametri {
     static String data_di_scadenza = null;
     static String pin = null;
     static List<Parcheggio> parcheggi = null;
+    static List<Parcheggio> parcheggi_vicini = null;
 }

@@ -38,97 +38,111 @@
             android:id="@+id/radioButtonAuto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
             android:layout_marginTop="24dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.607"
-            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/PostiAuto"
             app:layout_constraintTop_toBottomOf="@+id/textViewViaParcheggio" />
 
         <RadioButton
             android:id="@+id/radioButtonCamper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.6"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radioButtonAuto" />
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toEndOf="@+id/PostiCamper"
+            app:layout_constraintTop_toBottomOf="@+id/PostiAuto" />
 
         <RadioButton
             android:id="@+id/radioButtonMoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.61"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/radioButtonCamper" />
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toEndOf="@+id/PostiMoto"
+            app:layout_constraintTop_toBottomOf="@+id/PostiCamper" />
 
         <RadioButton
             android:id="@+id/radioButtonAutobus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="138dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            tools:layout_editor_absoluteY="338dp" />
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toEndOf="@+id/PostiAutobus"
+            app:layout_constraintTop_toBottomOf="@+id/PostiMoto" />
 
         <RadioButton
             android:id="@+id/radioButtonDisabile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:layout_editor_absoluteX="217dp"
-            tools:layout_editor_absoluteY="407dp" />
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            app:layout_constraintStart_toEndOf="@+id/PostiDisabile"
+            app:layout_constraintTop_toBottomOf="@+id/PostiAutobus" />
 
         <TextView
-            android:id="@+id/textView4"
+            android:id="@+id/PostiAuto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="190dp"
             android:layout_marginTop="24dp"
             android:text="Posti auto:"
             android:textAlignment="textEnd"
             android:textColor="@color/black"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.399"
-            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textViewViaParcheggio" />
 
         <TextView
-            android:id="@+id/textView5"
+            android:id="@+id/PostiCamper"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="190dp"
+            android:layout_marginTop="16dp"
             android:text="Posti camper:"
+            android:textAlignment="textEnd"
+            android:textColor="@color/black"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.399"
-            app:layout_constraintStart_toStartOf="parent"
-            tools:layout_editor_absoluteY="268dp" />
+            app:layout_constraintTop_toBottomOf="@+id/PostiAuto" />
 
         <TextView
-            android:id="@+id/textView6"
+            android:id="@+id/PostiMoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
+            android:layout_marginEnd="190dp"
+            android:layout_marginTop="16dp"
             android:text="Posti moto:"
+            android:textAlignment="textEnd"
+            android:textColor="@color/black"
+            android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.381"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textView5" />
+            app:layout_constraintTop_toBottomOf="@+id/PostiCamper" />
 
         <TextView
-            android:id="@+id/textView7"
-            android:layout_width="0dp"
+            android:id="@+id/PostiAutobus"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="190dp"
+            android:layout_marginTop="16dp"
             android:text="Posti autobus:"
-            tools:layout_editor_absoluteX="107dp"
-            tools:layout_editor_absoluteY="384dp" />
+            android:textAlignment="textEnd"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/PostiMoto" />
 
         <TextView
-            android:id="@+id/textView8"
-            android:layout_width="0dp"
+            android:id="@+id/PostiDisabile"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="190dp"
+            android:layout_marginTop="16dp"
             android:text="Posti disabile:"
-            tools:layout_editor_absoluteX="107dp"
-            tools:layout_editor_absoluteY="420dp" />
+            android:textAlignment="textEnd"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/PostiAutobus" />
 
     </android.support.constraint.ConstraintLayout>
 </android.support.design.widget.CoordinatorLayout>

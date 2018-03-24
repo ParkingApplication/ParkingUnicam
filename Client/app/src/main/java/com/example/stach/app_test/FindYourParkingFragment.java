@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
@@ -58,8 +59,10 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
             public void onClick(View view) {
                 if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
                     checkLocationPermission();
-                else if (gpsTracker.isGPSon())
+                else if (gpsTracker.isGPSon()) {
                     gpsTracker.StartToGetLocation();
+                    Send_Data();
+                }
                 else
                     checkGPS();
             }
@@ -284,4 +287,75 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
             }
         }
     };
+
+    public void Send_Data()
+    {
+        // Avverto l'utente del tentativo di ricezione dei dati per i parcheggi
+        caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggi",
+                "Ricerca Parcheggi vicini in corso...", true);
+
+        JSONObject postData = new JSONObject();
+        try {
+            postData.put("lat",  curLocation.getLatitude());
+            postData.put("long",  curLocation.getLongitude());
+            postData.put("token", Parametri.Token);
+        }catch (Exception e){}
+        Connessione conn = new Connessione(postData, "POST");
+        conn.addListener(ListenerParcheggiVicini);
+        conn.execute(Parametri.IP + "/getParcheggiFromCoordinate");
+
+    }
+
+
+    private ConnessioneListener ListenerParcheggiVicini = new ConnessioneListener() {
+        @Override
+        public void ResultResponse(String responseCode, String result) {
+            if (responseCode == null) {
+                caricamento.dismiss();
+                Toast.makeText(getContext(), "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (responseCode.equals("400")) {
+                caricamento.dismiss();
+                String message = Connessione.estraiErrore(result);
+                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (responseCode.equals("200")) {
+                // Estraggo i dati dei parcheggi restituiti dal server
+                ArrayList<Parcheggio> par = new ArrayList<>();
+
+                try {
+                    JSONObject allparcheggi = new JSONObject(result);
+                    JSONArray parcheggi  = allparcheggi.getJSONArray("parcheggi");
+
+                    for (int i = 0; i < parcheggi.length(); i++)
+                        par.add(new Parcheggio(parcheggi.getJSONObject(i).toString()));
+                    Parametri.parcheggi_vicini = par;
+                } catch (Exception e) {
+                    caricamento.dismiss();
+                    Toast.makeText(getContext(), "Errore di risposta del server.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // Lascio estrarre la lista dei parcheggi alla MapActivity (si potrebbe pure fare qua senza passarglierli, per ora lascio così)
+                caricamento.dismiss();
+                // Invio i dati tramite intent
+                CallFragment();
+                return;
+            }
+
+        }
+
+    };
+    public void CallFragment()
+    {
+        Visualizza_parcheggi fragment = new Visualizza_parcheggi();
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fram, fragment, "Visualizza_parcheggi");
+        fragmentTransaction.addToBackStack("Visualizza_parcheggi");
+        fragmentTransaction.commit();
+    }
 }

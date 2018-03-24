@@ -16,7 +16,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class SignUpActivity extends AppCompatActivity implements TextWatcher {
+public class SignUpActivity extends AppCompatActivity implements TextWatcher, ConnessioneListener {
 
     Context context = SignUpActivity.this;
     Activity activity = SignUpActivity.this;
@@ -94,7 +94,8 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
         // Avverto l'utente del tentativo di invio dei dati di login al server
         caricamento = ProgressDialog.show(SignUpActivity.this, "",
                 "Connessione con il server in corso...", true);
-        Connessione conn = new Connessione(postData, "POST",context,activity, null);
+        Connessione conn = new Connessione(postData, "POST");
+        conn.addListener(this);
         conn.execute(Parametri.IP + "/signup");
     }
 
@@ -154,5 +155,30 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher {
             } while(two_halfs++ < 1);
         }
         return buf.toString();
+    }
+
+    @Override
+    public void ResultResponse(String responseCode, String result) {
+        if (responseCode == null) {
+            caricamento.dismiss();
+            Toast.makeText(getApplicationContext(), "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (responseCode.equals("400")) {
+            String message = Connessione.estraiErrore(result);
+            caricamento.dismiss();
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (responseCode.equals("200")) {
+            String message = Connessione.estraiSuccessful(result);
+            caricamento.dismiss();
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            finish();
+            return;
+        }
     }
 }

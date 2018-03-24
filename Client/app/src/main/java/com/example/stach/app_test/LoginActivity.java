@@ -1,10 +1,8 @@
 package com.example.stach.app_test;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -16,17 +14,12 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.StringTokenizer;
 import org.json.*;
-import java.util.*;
-import android.app.AlertDialog.Builder;
-
-public class LoginActivity extends AppCompatActivity {
+public class LoginActivity extends AppCompatActivity implements  ConnessioneListener {
     //text file for save login in local file
     File login_file;
     static ProgressDialog caricamento = null;
@@ -78,7 +71,8 @@ public class LoginActivity extends AppCompatActivity {
                "Connessione con il server in corso...", true);
 
         // Creo ed eseguo una connessione con il server web
-        Connessione conn = new Connessione(postData, "POST",context,activity, null);
+        Connessione conn = new Connessione(postData, "POST");
+        conn.addListener(this);
         conn.execute(Parametri.IP + "/login");
 
         // Bisogna salvare i dati dentro Connessione dopo aver effettuato il Login con successo
@@ -105,6 +99,7 @@ public class LoginActivity extends AppCompatActivity {
 
     public void backdoor(View view){
         startActivity(new Intent(context, MainActivity.class));
+        finish();
     }
     /**
      * This method is use to recruit user data before login, to allow user to overdrop the login activity if is logged yet.
@@ -159,7 +154,9 @@ public class LoginActivity extends AppCompatActivity {
      */
     public void goToMap(View view) {
         startActivity(new Intent(LoginActivity.this, MapActivity.class));
+        finish();
     }
+
     //Criptazione SHA1
     public static String SHA1(String text) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest md = MessageDigest.getInstance("SHA-1");
@@ -184,5 +181,74 @@ public class LoginActivity extends AppCompatActivity {
             } while(two_halfs++ < 1);
         }
         return buf.toString();
+    }
+
+    @Override
+    public void ResultResponse(String responseCode, String result) {
+        if (responseCode == null) {
+            caricamento.dismiss();
+            Toast.makeText(getApplicationContext(), "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (responseCode.equals("400")) {
+            String message = Connessione.estraiErrore(result);
+            caricamento.dismiss();
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if(responseCode.equals("200")) {
+            String message = "";
+
+            // Estraggo i miei dati restituiti dal server
+            try {
+                JSONObject token = new JSONObject(result);
+                JSONObject autistajs = new JSONObject(token.getString("autista"));
+                JSONObject carta = null;
+
+                Parametri.Token = token.getString("token");
+                Parametri.id = autistajs.getString("id");
+                Parametri.username = autistajs.getString("username");
+                Parametri.nome = autistajs.getString("nome");
+                Parametri.cognome = autistajs.getString("cognome");
+                Parametri.data_nascita = autistajs.getString("dataDiNascita");
+                Parametri.email = autistajs.getString("email");
+                Parametri.password = autistajs.getString("password");
+                Parametri.saldo = autistajs.getString("saldo");
+                Parametri.telefono = autistajs.getString("telefono");
+
+                message = "Benvenuto " + Parametri.nome + ".";
+
+                // Tento l'estrazione dei dati della carta di credito
+                if (autistajs.has("carta_di_credito")) {
+                    carta = new JSONObject(autistajs.getString("carta_di_credito"));
+
+                    if (carta.has("numero_carta"))
+                        Parametri.numero_carta = carta.getString("numero_carta");
+                    if (carta.has("dataDiScadenza"))
+                        Parametri.data_di_scadenza = carta.getString("dataDiScadenza");
+                    if (carta.has("pin"))
+                        Parametri.pin = carta.getString("pin");
+                }
+
+            } catch (Exception e) {
+                message = "Errore di risposta del server.";
+
+                caricamento.dismiss();
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                context.startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+                return;
+            }
+
+            // Salvo i dati di login corretti (da fixare)
+            saveData(Parametri.email, Parametri.password);
+
+            caricamento.dismiss();
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            startActivity(new Intent(getApplicationContext(), MainActivity.class));
+            finish();
+            return;
+        }
     }
 }

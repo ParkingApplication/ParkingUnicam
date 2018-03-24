@@ -10,7 +10,7 @@ import android.support.v4.app.Fragment;
 import android.widget.Toast;
 import org.json.JSONObject;
 
-public class Cambia_credenziali extends Fragment {
+public class Cambia_credenziali extends Fragment implements ConnessioneListener {
     private EditText t_nome;
     private EditText t_cognome;
     private EditText t_data;
@@ -57,7 +57,7 @@ public class Cambia_credenziali extends Fragment {
         t_username.setText(Parametri.username);
 
         Button sendCredenziali = (Button) view.findViewById((R.id.nuova_buttonCommit));
-        final Fragment frag = this;
+        final ConnessioneListener me = this;
         sendCredenziali.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -98,7 +98,8 @@ public class Cambia_credenziali extends Fragment {
                 }
 
                 // Creo ed eseguo una connessione con il server web
-                Connessione conn = new Connessione(postData, "PATCH", getContext(), getActivity(), frag);
+                Connessione conn = new Connessione(postData, "PATCH");
+                conn.addListener(me);
                 conn.execute(Parametri.IP + "/cambiaCredenziali");
             }
         });
@@ -107,12 +108,35 @@ public class Cambia_credenziali extends Fragment {
         return view;
     }
 
-    public void AggiornaParametri(){
+    private void AggiornaParametri(){
         Parametri.nome = nome;
         Parametri.cognome = cognome;
         Parametri.data_nascita = data;
         Parametri.password = password;
         Parametri.username = username;
         Parametri.telefono = telefono;
+    }
+
+    @Override
+    public void ResultResponse(String responseCode, String result) {
+        if (responseCode == null) {
+            Toast.makeText(getContext(), "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (responseCode.equals("400")) {
+            String message = Connessione.estraiErrore(result);
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (responseCode.equals("200")) {
+            String message = Connessione.estraiSuccessful(result);
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
+            AggiornaParametri();
+            getActivity().onBackPressed();
+            return;
+        }
     }
 }

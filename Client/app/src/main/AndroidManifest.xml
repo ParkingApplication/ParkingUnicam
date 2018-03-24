@@ -21,7 +21,7 @@
         android:theme="@style/AppTheme">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyDy_J3B1DNgpfgTPRAashcSh-LGKbZ49Hk" />
+            android:value="AIzaSyAYbVdx3sGEOCtdZA_xEieDQE8P3Pcwogc" />
 
         <activity
             android:name=".StartActivity"
@@ -46,12 +46,17 @@
         <activity
             android:name=".MapActivity"
             android:label="@string/title_activity_map"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".MainActivity"
             android:label="@string/title_activity_main"
-            android:theme="@style/AppTheme.NoActionBar" />
-        <activity android:name=".PasswordRecoveryActivity"></activity>
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".PasswordRecoveryActivity"
+            android:screenOrientation="portrait" >
+        </activity>
     </application>
 
 </manifest>

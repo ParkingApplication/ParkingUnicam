@@ -2,12 +2,9 @@ package com.example.stach.app_test;
 
 
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
@@ -17,10 +14,6 @@ import android.support.v4.app.Fragment;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
-
-
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -28,7 +21,7 @@ import java.util.ArrayList;
 
 
 public class Visualizza_parcheggi extends Fragment {
-
+/*
     private TextView padding;
     int i;
     @Override
@@ -161,9 +154,6 @@ public class Visualizza_parcheggi extends Fragment {
         // Inflate the layout for this fragment
         return view;
     }
-
+*/
 
 }
-
-
-

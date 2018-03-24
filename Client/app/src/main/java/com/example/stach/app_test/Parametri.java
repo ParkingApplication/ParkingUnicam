@@ -1,6 +1,6 @@
 package com.example.stach.app_test;
 
-import org.json.JSONArray;
+import java.util.List;
 
 /**
  * Created by maras on 28/02/2018.
@@ -24,5 +24,5 @@ public class Parametri {
     static String numero_carta = null;
     static String data_di_scadenza = null;
     static String pin = null;
-    static JSONArray parcheggi = null;
+    static List<Parcheggio> parcheggi = null;
 }

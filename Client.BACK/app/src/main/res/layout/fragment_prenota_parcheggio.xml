@@ -1,0 +1,52 @@
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.example.stach.app_test.PrenotaParcheggio">
+
+    <LinearLayout
+        android:id="@+id/linearLayoutVisualizza"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp">
+
+        <ImageView
+            android:layout_width="278dp"
+            android:layout_height="153dp"
+            android:src="@mipmap/ic_logo_park" />
+
+        <TextView
+            android:id="@+id/nome_parcheggio"
+            android:layout_width="match_parent"
+            android:background="@drawable/roundedbutton"
+            android:layout_height="wrap_content"
+            android:text="Nome parcheggio:" />
+        <!--padding-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <TextView
+            android:id="@+id/indirizzo_parcheggio"
+            android:background="@drawable/roundedbutton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Indirizzo:" />
+        <!--padding-->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
+        <Button
+            android:id="@+id/buttonPrenota"
+            android:background="@drawable/roundedbutton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Prenota questo parcheggio" />
+
+    </LinearLayout>
+</android.support.design.widget.CoordinatorLayout>

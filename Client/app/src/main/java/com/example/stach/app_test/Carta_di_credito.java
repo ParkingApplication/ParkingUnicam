@@ -13,7 +13,7 @@ import android.widget.Toast;
 import org.json.JSONObject;
 
 
-public class Carta_di_credito extends Fragment {
+public class Carta_di_credito extends Fragment implements ConnessioneListener {
     private EditText t_numero;
     private EditText t_data;
     private EditText t_pin;
@@ -45,7 +45,7 @@ public class Carta_di_credito extends Fragment {
             t_pin.setText(Parametri.pin);
 
         Button sendDatiCarta = (Button) view.findViewById((R.id.buttonAggiornaCarta));
-        final Fragment frag = this;
+        final ConnessioneListener me = this;
         sendDatiCarta.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -78,7 +78,8 @@ public class Carta_di_credito extends Fragment {
                 }
 
                 // Creo ed eseguo una connessione con il server web
-                Connessione conn = new Connessione(postData, "PATCH", getContext(), getActivity(), frag);
+                Connessione conn = new Connessione(postData, "PATCH");
+                conn.addListener(me);
                 conn.execute(Parametri.IP + "/cambiaCredenziali");
             }
         });
@@ -90,5 +91,29 @@ public class Carta_di_credito extends Fragment {
         Parametri.numero_carta = numero;
         Parametri.data_di_scadenza = data;
         Parametri.pin = pin;
+    }
+
+    @Override
+    public void ResultResponse(String responseCode, String result) {
+        if (responseCode == null) {
+            Toast.makeText(getContext(), "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (responseCode.equals("400")) {
+            String message = Connessione.estraiErrore(result);
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (responseCode.equals("200")) {
+            String message = Connessione.estraiSuccessful(result);
+            Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+
+
+            AggiornaParametri();
+            getActivity().onBackPressed();
+            return;
+        }
     }
 }

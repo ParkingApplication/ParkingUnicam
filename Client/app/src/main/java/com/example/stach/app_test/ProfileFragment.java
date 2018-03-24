@@ -11,8 +11,6 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-
-
 /**
  * A simple {@link Fragment} subclass.
  */

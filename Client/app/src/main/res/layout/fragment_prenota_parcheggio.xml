@@ -5,48 +5,130 @@
     android:layout_height="match_parent"
     tools:context="com.example.stach.app_test.PrenotaParcheggio">
 
-    <LinearLayout
-        android:id="@+id/linearLayoutVisualizza"
+    <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
+        android:layout_height="match_parent">
 
         <ImageView
-            android:layout_width="278dp"
-            android:layout_height="153dp"
-            android:src="@mipmap/ic_logo_park" />
+            android:id="@+id/imageViewLogoUnicam"
+            android:layout_width="170dp"
+            android:layout_height="170dp"
+            android:src="@drawable/unicam_park"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/nome_parcheggio"
-            android:layout_width="match_parent"
-            android:background="@drawable/roundedbutton"
+            android:id="@+id/textViewViaParcheggio"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Nome parcheggio:" />
-        <!--padding-->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_marginEnd="24dp"
+            android:layout_marginStart="24dp"
+            android:background="@drawable/roundedtextbox"
+            android:gravity="center"
+            android:textAlignment="center"
+            android:textColor="@android:color/black"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/imageViewLogoUnicam" />
 
-        <TextView
-            android:id="@+id/indirizzo_parcheggio"
-            android:background="@drawable/roundedbutton"
-            android:layout_width="match_parent"
+        <RadioButton
+            android:id="@+id/radioButtonAuto"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Indirizzo:" />
-        <!--padding-->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_marginTop="24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.607"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewViaParcheggio" />
 
-        <Button
-            android:id="@+id/buttonPrenota"
-            android:background="@drawable/roundedbutton"
-            android:layout_width="match_parent"
+        <RadioButton
+            android:id="@+id/radioButtonCamper"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Prenota questo parcheggio" />
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.6"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radioButtonAuto" />
 
-    </LinearLayout>
+        <RadioButton
+            android:id="@+id/radioButtonMoto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.61"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radioButtonCamper" />
+
+        <RadioButton
+            android:id="@+id/radioButtonAutobus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="138dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:layout_editor_absoluteY="338dp" />
+
+        <RadioButton
+            android:id="@+id/radioButtonDisabile"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            tools:layout_editor_absoluteX="217dp"
+            tools:layout_editor_absoluteY="407dp" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:text="Posti auto:"
+            android:textAlignment="textEnd"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.399"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textViewViaParcheggio" />
+
+        <TextView
+            android:id="@+id/textView5"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Posti camper:"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.399"
+            app:layout_constraintStart_toStartOf="parent"
+            tools:layout_editor_absoluteY="268dp" />
+
+        <TextView
+            android:id="@+id/textView6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Posti moto:"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.381"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+        <TextView
+            android:id="@+id/textView7"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Posti autobus:"
+            tools:layout_editor_absoluteX="107dp"
+            tools:layout_editor_absoluteY="384dp" />
+
+        <TextView
+            android:id="@+id/textView8"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="Posti disabile:"
+            tools:layout_editor_absoluteX="107dp"
+            tools:layout_editor_absoluteY="420dp" />
+
+    </android.support.constraint.ConstraintLayout>
 </android.support.design.widget.CoordinatorLayout>

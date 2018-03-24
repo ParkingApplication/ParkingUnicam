@@ -1,8 +1,6 @@
 package com.example.stach.app_test;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.content.Intent;
@@ -11,11 +9,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 import org.json.JSONObject;
 
-public class PasswordRecoveryActivity extends AppCompatActivity {
-
-    Context context = PasswordRecoveryActivity.this;
-    Activity activity = PasswordRecoveryActivity.this;
-    static ProgressDialog caricamento = null;
+public class PasswordRecoveryActivity extends AppCompatActivity implements ConnessioneListener {
+    ProgressDialog caricamento = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +46,8 @@ public class PasswordRecoveryActivity extends AppCompatActivity {
         caricamento = ProgressDialog.show(PasswordRecoveryActivity.this, "",
                 "Connessione con il server in corso...", true);
 
-        Connessione conn = new Connessione(postData, "POST",context,activity,null);
+        Connessione conn = new Connessione(postData, "POST");
+        conn.addListener(this);
         conn.execute(Parametri.IP + "/resetPassword");
     }
 
@@ -62,5 +58,32 @@ public class PasswordRecoveryActivity extends AppCompatActivity {
     public void onBackPressed() {
         startActivity(new Intent(PasswordRecoveryActivity.this, LoginActivity.class));
         finish();
+    }
+
+    @Override
+    public void ResultResponse(String responseCode, String result) {
+        if (responseCode == null) {
+            caricamento.dismiss();
+            Toast.makeText(getApplicationContext(), "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (responseCode.equals("400")) {
+            String message = Connessione.estraiErrore(result);
+
+            caricamento.dismiss();
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        if (responseCode.equals("200")) {
+            String message = Connessione.estraiSuccessful(result);
+
+            caricamento.dismiss();
+            Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+            startActivity(new Intent(getApplicationContext(), LoginActivity.class));
+            finish();
+            return;
+        }
     }
 }

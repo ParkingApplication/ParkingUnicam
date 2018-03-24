@@ -1,223 +1,287 @@
 package com.example.stach.app_test;
 
-import android.Manifest;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.location.Address;
-import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.Manifest;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.places.PlaceDetectionClient;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.places.Place;
-import com.google.android.gms.location.places.Places;
-import com.google.android.gms.location.places.ui.PlacePicker;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-
+import org.json.JSONArray;
 import org.json.JSONObject;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 
-/**
- * A simple {@link Fragment} subclass.
- */
-public class FindYourParkingFragment extends Fragment {
-    //progressbar
-    static ProgressDialog caricamento = null;
-    private int MY_PERMISSIONS_REQUEST_FINE_LOCATION = 1;
-    //location provider
-    private FusedLocationProviderClient mFusedLocationClient;
-    //questi attributi servono per riconoscere quale da quale activity voglio i risultati con la callback
-    //li scrivo nel pacchetto di invio
-    int PLACE_PICKER_REQUEST = 1;
-    //view del contesto
+public class FindYourParkingFragment extends Fragment implements GpsChangeListener {
+    // Locaizone corrente
+    private Location curLocation = null;
+    // GPSTracker personalizzato
+    private GPSTracker gpsTracker;
+    // View corrente
     private View view;
-    //fused location provider
 
+    ProgressDialog caricamento = null;
 
     public FindYourParkingFragment() {
-        // Required empty public constructor
+
     }
 
-
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
-        //get layout
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_find_your_parking, container, false);
-        //set fusedLocationClient
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this.getActivity());
-        //get buttons from xml
-        ImageButton automaticSearch = (ImageButton) view.findViewById(R.id.btnAutomaticLocation);
-        ImageButton inputSearch = (ImageButton) view.findViewById(R.id.btnInputLocation);
-        //INPUT SEARCH
+
+        ImageButton automaticSearch = view.findViewById(R.id.btnAutomaticLocation);
+        ImageButton inputSearch = view.findViewById(R.id.btnInputLocation);
+
+        // Ricerca manuale tra tutti i parcheggi presenti nel database (recuperati dal server ovviamente)
         inputSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //call method
-                startPlacePickerInputActivity();
+                LanciaMappe();
             }
         });
-        //AUTOMATIC SEARCH
+
+        // Ricerca automatica della posizione corrente
         automaticSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startPlaceAutomaticPickerInputActivity();
+                if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+                    checkLocationPermission();
+                else if (gpsTracker.isGPSon())
+                    gpsTracker.StartToGetLocation();
+                else
+                    checkGPS();
             }
         });
-        String locationProviders = Settings.Secure.getString(this.getActivity().getContentResolver(), Settings.Secure.LOCATION_PROVIDERS_ALLOWED);
-        if (!(locationProviders.contains("gps")) || locationProviders == null || locationProviders.equals("")) {
-            AlertDialog alertDialog = new AlertDialog.Builder(this.getContext()).create();
-            alertDialog.setTitle("Attiva il gps");
-            alertDialog.setMessage("Per cercare un parcheggio è necessario attivare la localizzazione automatica di android, clicca su \"AttivaGPS\" per abilitare il gps");
-            alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "Attiva GPS",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
-                        }
-                    });
-            alertDialog.show();
-            //quando utente clicca indietro nell'alert dialog
-            alertDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                @Override
-                public void onCancel(DialogInterface dialog) {
-                    startActivity(new Intent(getContext(),MainActivity.class));
-                    getActivity().finish();
-                }
-            });
-        }
-        //instantiate fused location client
-        // Inflate the layout for this fragment
+
         return view;
     }
 
-    /**
-     * Questo metodo consente di far partire una activity per scegliere manualmente la posizione in cui si vuole cercare parcheggio.
-     */
-    private void startPlacePickerInputActivity() {
-        PlacePicker.IntentBuilder intentBuilder = new PlacePicker.IntentBuilder();
-        try {
-            Intent intent = intentBuilder.build((MainActivity) getActivity());
-            //restituisco i risultati all'activity
-            startActivityForResult(intent, PLACE_PICKER_REQUEST);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    @Override
+    public void onStart() {
+        super.onStart();
+        // Creo il GPSTracker e mi metto in ascolto sul mio evento GpsLocationChange
+        gpsTracker = new GPSTracker(getContext());
+        gpsTracker.addListener(this);
 
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            checkLocationPermission();
+        else if (gpsTracker.isGPSon())
+            gpsTracker.StartToGetLocation();
+        else
+            checkGPS();
     }
 
+    // Serve a distinguere i contorlli di vari permessi (in questo caso ne abbiamo solo uno per il gps)
+    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 4;
 
-    /**
-     * Questo metodo consente di far partire una activity per scegliere automaticamente la posizione in cui si vuole cercare parcheggio.
-     */
-    private void startPlaceAutomaticPickerInputActivity() {
-        if (ActivityCompat.checkSelfPermission(this.getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            Toast.makeText(this.getContext(), "permission not granted", Toast.LENGTH_SHORT).show();
-            ActivityCompat.requestPermissions(this.getActivity(),
-                    new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_FINE_LOCATION);
-        } else {//permission granted
-            //Toast.makeText(this.getContext(), "permission granted", Toast.LENGTH_SHORT).show();
-            mFusedLocationClient.getLastLocation()
-                    .addOnSuccessListener(this.getActivity(), new OnSuccessListener<Location>() {
-                        @Override
-                        public void onSuccess(Location location) {
-                            String locality = getCityFromLatLong(Double.toString(location.getLatitude()),
-                                    Double.toString(location.getLongitude()));
-                            sendDataForViewPark(locality);
-
-
-                        }
-                    });
-
-        }
-    }
-
-    private String getCityFromLatLong(String lat, String lng) {
-        Geocoder gcd = new Geocoder(this.getContext(), Locale.getDefault());
-        List<Address> addresses = null;
-        try {
-            addresses = gcd.getFromLocation(Double.parseDouble(lat), Double.parseDouble(lng), 1);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        if (addresses.size() > 0) {
-            return addresses.get(0).getLocality();
+    // Richiedo i permessi per accedere alla posizione
+    private void checkLocationPermission() {
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.ACCESS_FINE_LOCATION)) {
+                new AlertDialog.Builder(getContext())
+                        .setTitle("Attiva i permessi per il GPS")
+                        .setMessage("Per cercare un parcheggio è necessario autorizzare quest' applicaizone all' accesso della posizione corrente.")
+                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                //Prompt the user once explanation has been shown
+                                ActivityCompat.requestPermissions(getActivity(),
+                                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                                        MY_PERMISSIONS_REQUEST_LOCATION);
+                            }
+                        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                        dialog.cancel();
+                        // Se l'utente preme indietro baro in stile stacchio
+                        /**
+                         * startActivity(new Intent(getContext(), MainActivity.class));
+                         * getActivity().finish();
+                         */
+                    }
+                }).create().show();
+            } else {
+                ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
+            }
         } else {
-            System.out.print("Non ci sono parametri validi per trovare la città");
-            return "No city";
+            gpsTracker.StartToGetLocation();
         }
     }
-    /**
-     * Method to call server
-     * for get parking in certain citY
-     */
-    public void sendDataForViewPark(String citta) {
-        JSONObject postData = new JSONObject();
-        try {
-            postData.put("citta", "Roma");
-            postData.put("token", Parametri.Token);
-        } catch (Exception e) {
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_LOCATION: {
+                if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    // Permessi garantiti
+                    if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                        // Controllo che il GPS sia acceso
+                        if (!gpsTracker.isGPSon())
+                            checkGPS();
+                        else
+                            gpsTracker.StartToGetLocation();
+                    }
+                } else {
+                    // Permessi negati, disabilitare qui le funzioni per il gps
+                    Toast.makeText(getContext(), "Permessi negati.\nNon puoi utilizzare correttamente quest applicazione", Toast.LENGTH_LONG).show();
+                    checkLocationPermission();
+                }
+            }
         }
-        // Avverto l'utente del tentativo di invio dei dati di login al server
-        caricamento = ProgressDialog.show(this.getActivity(), "",
-                "Ricerca parcheggi in corso...", true);
-        // Creo ed eseguo una connessione con il server web
-        Connessione conn = new Connessione(postData, "POST", this.getContext(), this.getActivity(), this);
-        conn.execute(Parametri.IP + "/getParcheggiPerCitta");
+    }
+
+    // Serve a distinguere i contorlli di varie azioni (in questo caso ne abbiamo solo una per l'attivazione del gps)
+    private final int ACTION_LOCATION_SETTING = 100;
+    // Controlla se il GPS è accesso
+    private void checkGPS() {
+        if (!gpsTracker.isGPSon()) {
+            new AlertDialog.Builder(getContext())
+                    .setTitle("Devi attivare il GPS")
+                    .setMessage("Per cercare un parcheggio è necessario attivare la localizzazione automatica.")
+                    .setPositiveButton("Attiva GPS",
+                            new DialogInterface.OnClickListener() {
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Intent locationSettingIntent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+                                    startActivityForResult(locationSettingIntent, ACTION_LOCATION_SETTING);
+                                }
+                            }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                @Override
+                public void onCancel(DialogInterface dialog) {
+                    dialog.cancel();
+                    // Se l'utente preme indietro baro in stile stacchio
+                    /**
+                     * startActivity(new Intent(getContext(), MainActivity.class));
+                     * getActivity().finish();
+                     */
+                }
+            }).create().show();
+        } else
+            gpsTracker.StartToGetLocation();
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        getActivity();
-        //Toast.makeText(this.getContext(), "fuori", Toast.LENGTH_LONG).show();
-        if (requestCode == PLACE_PICKER_REQUEST) {
-            //Toast.makeText(this.getContext(), "stoQUadientro", Toast.LENGTH_LONG).show();
-            if (resultCode == MainActivity.RESULT_OK) {
-                //prendo i risultati
-                Place place = PlacePicker.getPlace(this.getContext(), data);
-                //da place posso prendere nome, indirizzo, latitudine e tutto quello che mi serve
-                //TextView indirizzo = (TextView) view.findViewById(R.id.indirizzo);
-                LatLng latLong = place.getLatLng();
-
-                String locality = getCityFromLatLong(Double.toString(latLong.latitude),
-                        Double.toString(latLong.latitude));
-                sendDataForViewPark(locality);
-
-
-            }
+        switch (requestCode) {
+            case ACTION_LOCATION_SETTING:
+                if (!gpsTracker.isGPSon()) {
+                    Toast.makeText(getContext(), "GPS spento.\nNon puoi utilizzare correttamente quest applicazione", Toast.LENGTH_LONG).show();
+                    checkGPS();
+                } else
+                    gpsTracker.StartToGetLocation();
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
     }
 
+    private void AggiornaIndirizzo() {
+        TextView t_indirizzo = view.findViewById(R.id.indirizzo);
+        // Ricavo la via dalle coordinate con il Codificatore
+        CodificatoreIndirizzi cod = new CodificatoreIndirizzi(getContext());
+        t_indirizzo.setText(cod.getIndirizzoFromLocation(curLocation));
 
+    }
+
+    private void LanciaMappe() {
+        // Avverto l'utente del tentativo di ricezione dei dati per i parcheggi
+        caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggi",
+                "Connessione con il server in corso...", true);
+
+        JSONObject postData = new JSONObject();
+        Connessione conn = new Connessione(postData, "POST");
+        conn.addListener(ListenerLanciaMappe);
+        conn.execute(Parametri.IP + "/getAllParcheggi");
+    }
+
+    public void StopGPS() {
+        gpsTracker.StopGPS();
+    }
+
+    @Override
+    public void GpsLocationChange(Location location) {
+        curLocation = location;
+        if (curLocation != null)
+            AggiornaIndirizzo();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        StopGPS();
+    }
+
+    /**
+     * Va sistemato perché danno problemi quando si passa da un activity o fragment all' altro
+     *
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+            checkLocationPermission();
+        else {
+            if (gpsTracker.isGPSon()) {
+                gpsTracker.StartToGetLocation();
+            } else
+                checkGPS();
+        }
+    }
+    */
+
+    // Listener con funzione per la ricezione dei risultati della Connessione con il server (per avere la lista dei parcheggi nella mappa)
+    private ConnessioneListener ListenerLanciaMappe = new ConnessioneListener() {
+        @Override
+        public void ResultResponse(String responseCode, String result) {
+            if (responseCode == null) {
+                caricamento.dismiss();
+                Toast.makeText(getContext(), "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (responseCode.equals("400")) {
+                caricamento.dismiss();
+                String message = Connessione.estraiErrore(result);
+                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (responseCode.equals("200")) {
+                // Estraggo i dati dei parcheggi restituiti dal server
+                ArrayList<String> par = new ArrayList<String>();
+                try {
+                    JSONObject allparcheggi = new JSONObject(result);
+                    JSONArray parcheggi  = allparcheggi.getJSONArray("parcheggi");
+
+                    for (int i = 0; i < parcheggi.length(); i++)
+                        par.add(parcheggi.getJSONObject(i).toString());
+
+                } catch (Exception e) {
+                    caricamento.dismiss();
+                    Toast.makeText(getContext(), "Errore di risposta del server.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // Lascio estrarre la lista dei parcheggi alla MapActivity (si potrebbe pure fare qua senza passarglierli, per ora lascio così)
+                caricamento.dismiss();
+                // Invio i dati tramite intent
+                Intent intent = new Intent(getContext(), MapActivity.class);
+                intent.putStringArrayListExtra("parcheggi", par);
+                startActivity(intent);
+                return;
+            }
+        }
+    };
 }

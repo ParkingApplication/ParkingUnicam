@@ -7,11 +7,11 @@ var parcheggio = {
     getNumeroPostiTotaliParcheggio: function (idParcheggio, callback) { // Inutilizzata
         return db.query("SELECT id_parcheggio, nome, numero_posti FROM posti_parcheggio, tipo_parcheggio WHERE tipo_parcheggio.idTipo_parcheggio = posti_parcheggio.id_tipo WHERE id_parcheggio=? ORDER BY id_parcheggio, id_tipo;", [idParcheggio], callback);
     },
-    getAllPostiLiberi: function (callback) { // La view che utilizza è molto lenta e pesante
+    getAllPostiLiberi: function (callback) {
         return db.query("SELECT * FROM posti_parcheggio_liberi_view;", callback);
     },
-    getParcheggioFromCitta: function (citta, callback) {
-        return db.query("SELECT * FROM parkingdb.parcheggi WHERE citta=?;", [citta], callback);
+    getParcheggioFromID: function (id, callback) {
+        return db.query("SELECT * FROM parcheggi WHERE idParcheggio=?;", [id], callback);
     }
 };
 

@@ -3,6 +3,7 @@ package com.example.stach.app_test;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -16,6 +17,8 @@ import android.support.v4.app.Fragment;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -61,7 +64,7 @@ public class Visualizza_parcheggi extends Fragment {
             default:
                 AlertDialog alertDialog = new AlertDialog.Builder(this.getContext()).create();
                 alertDialog.setTitle("Congratulazioni");
-                alertDialog.setMessage("Sono stati trovati" + Parametri.parcheggi_vicini.size() + " parcheggi nelle vicinanze!");
+                alertDialog.setMessage("Sono stati trovati " + Parametri.parcheggi_vicini.size() + " parcheggi nelle vicinanze!");
                 alertDialog.setButton(AlertDialog.BUTTON_POSITIVE, "OK",
                         new DialogInterface.OnClickListener() {
                             public void onClick(DialogInterface dialog, int which) {
@@ -116,41 +119,72 @@ public class Visualizza_parcheggi extends Fragment {
                 public void onClick(View arg0) {
 
                     SetColor(arg0);
-                   /* //passo le informazioni relative alla mia prenotazione
-                    //genero il bundle
-                    Bundle bundle = new Bundle();
-                    bundle.putSerializable("InformazioniParcheggio", listaInformazioniParcheggio);
-                    //eseguo la transazione
-                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                    //passo i valori
-                    PrenotaParcheggio prenotaParcheggio = new PrenotaParcheggio();
-                    prenotaParcheggio.setArguments(bundle);
-                    //eseguo la transazione
-                    fragmentTransaction.replace(R.id.fram, prenotaParcheggio);
-                    //uso backstack perchè android in automatico con il tasto indietro si muove tra activity e non tra fragment
-                    //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
-                    //io possa tornare indietro
-                    fragmentTransaction.addToBackStack("Fragment_Visualizza_parcheggi");
-                    fragmentTransaction.commit();
-                    //Prenotazione(i-1);*/
+
                 }
             });
         }
         Button btn = new Button(view.getContext());
         btn.setText("Conferma Prenotazione");
+        ((LinearLayout) linearLayout).addView(btn);
+
+        btn.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View arg0) {
+
+                ConfermaPrenotazione();
+
+            }
+        });
         // Inflate the layout for this fragment
         return view;
     }
     private void SetColor(View tw)
     {
+        if (tw.getBackground() instanceof ColorDrawable) {
+            ColorDrawable cd = (ColorDrawable) tw.getBackground();
+            int colorCode = cd.getColor();
+            if(colorCode == Color.parseColor("#5FFF6A"))
+            {
+                tw.setBackgroundColor(Color.parseColor("#FFFFFF"));
+                return;
+            }
+        }
         for(int j = 0; j < Parametri.parcheggi_vicini.size(); j++)
         {
             TextView pr = (TextView)getActivity().findViewById(j);
             pr.setBackgroundColor(Color.parseColor("#FFFFFF"));
 
         }
-        tw.setBackgroundColor(Color.parseColor("#49FF3C"));
+        tw.setBackgroundColor(Color.parseColor("#5FFF6A"));
+    }
+
+    private void ConfermaPrenotazione()
+    {
+        int index = -1;
+        for(int j = 0; j < Parametri.parcheggi_vicini.size(); j++)
+        {
+            TextView pr = (TextView)getActivity().findViewById(j);
+            if (pr.getBackground() instanceof ColorDrawable) {
+                ColorDrawable cd = (ColorDrawable) pr.getBackground();
+                int colorCode = cd.getColor();
+                if(colorCode == Color.parseColor("#5FFF6A"))
+                {
+                    index = j;
+                }
+            }
+        }
+        if (index == -1)
+        {
+            Toast.makeText(this.getContext(),"Selezionare un parcheggio!",Toast.LENGTH_LONG).show();
+            return;
+        }
+        PrenotaParcheggio fragment = PrenotaParcheggio.newInstance(index);
+
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fram, fragment, "PrenotaParcheggio");
+        fragmentTransaction.addToBackStack("PrenotaParcheggio");
+        fragmentTransaction.commit();
+
     }
 
 

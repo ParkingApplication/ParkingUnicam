@@ -70,6 +70,7 @@
     <string name="password_recovery1">Inserisci la tua email di registrazione</string>
     <string name="password_recovery2">ti invieremo una nuova password</string>
     <string name="icon_card">Dati pagamento</string>
+    <string name="posti_moto">Posti moto:</string>
 
 
 </resources>

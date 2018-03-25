@@ -6,6 +6,7 @@
     tools:context="com.example.stach.app_test.PrenotaParcheggio">
 
     <android.support.constraint.ConstraintLayout
+        android:id="@+id/Layout_Parcheggio"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -34,115 +35,118 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/imageViewLogoUnicam" />
 
-        <RadioButton
-            android:id="@+id/radioButtonAuto"
+        <RadioGroup xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/radioGroup"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="24dp"
-            app:layout_constraintStart_toEndOf="@+id/PostiAuto"
-            app:layout_constraintTop_toBottomOf="@+id/textViewViaParcheggio" />
-
-        <RadioButton
-            android:id="@+id/radioButtonCamper"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
+            android:layout_marginEnd="136dp"
             android:layout_marginTop="16dp"
-            app:layout_constraintStart_toEndOf="@+id/PostiCamper"
-            app:layout_constraintTop_toBottomOf="@+id/PostiAuto" />
-
-        <RadioButton
-            android:id="@+id/radioButtonMoto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintStart_toEndOf="@+id/PostiMoto"
-            app:layout_constraintTop_toBottomOf="@+id/PostiCamper" />
-
-        <RadioButton
-            android:id="@+id/radioButtonAutobus"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintStart_toEndOf="@+id/PostiAutobus"
-            app:layout_constraintTop_toBottomOf="@+id/PostiMoto" />
-
-        <RadioButton
-            android:id="@+id/radioButtonDisabile"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="16dp"
-            android:layout_marginTop="16dp"
-            app:layout_constraintStart_toEndOf="@+id/PostiDisabile"
-            app:layout_constraintTop_toBottomOf="@+id/PostiAutobus" />
-
-        <TextView
-            android:id="@+id/PostiAuto"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="190dp"
-            android:layout_marginTop="24dp"
-            android:text="Posti auto:"
-            android:textAlignment="textEnd"
-            android:textColor="@color/black"
-            android:textSize="18sp"
+            android:orientation="vertical"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/textViewViaParcheggio" />
+            app:layout_constraintTop_toBottomOf="@+id/textViewViaParcheggio">
 
-        <TextView
-            android:id="@+id/PostiCamper"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="190dp"
-            android:layout_marginTop="16dp"
-            android:text="Posti camper:"
-            android:textAlignment="textEnd"
-            android:textColor="@color/black"
-            android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/PostiAuto" />
+
+            <RadioButton
+                android:id="@+id/RadioAuto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/RadioCamper"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/RadioMoto"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/RadioAutobus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+            <RadioButton
+                android:id="@+id/RadioDisabile"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content" />
+
+        </RadioGroup>
 
         <TextView
             android:id="@+id/PostiMoto"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="190dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="8dp"
             android:text="Posti moto:"
             android:textAlignment="textEnd"
             android:textColor="@color/black"
             android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/PostiCamper" />
+            app:layout_constraintEnd_toStartOf="@+id/radioGroup"
+            app:layout_constraintTop_toBottomOf="@+id/postiCamper" />
+
+        <TextView
+            android:id="@+id/postiCamper"
+            android:layout_width="wrap_content"
+            android:layout_height="24dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="8dp"
+            android:text="Posti camper:"
+            android:textAlignment="textEnd"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@+id/radioGroup"
+            app:layout_constraintTop_toBottomOf="@+id/PostiAuto" />
+
+        <TextView
+            android:id="@+id/PostiAuto"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="16dp"
+            android:text="Posti Auto:"
+            android:textAlignment="textEnd"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toStartOf="@+id/radioGroup"
+            app:layout_constraintTop_toBottomOf="@+id/textViewViaParcheggio" />
 
         <TextView
             android:id="@+id/PostiAutobus"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="190dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="8dp"
             android:text="Posti autobus:"
             android:textAlignment="textEnd"
             android:textColor="@color/black"
             android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/radioGroup"
             app:layout_constraintTop_toBottomOf="@+id/PostiMoto" />
 
         <TextView
             android:id="@+id/PostiDisabile"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="190dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginEnd="24dp"
+            android:layout_marginTop="8dp"
             android:text="Posti disabile:"
             android:textAlignment="textEnd"
             android:textColor="@color/black"
             android:textSize="18sp"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/radioGroup"
             app:layout_constraintTop_toBottomOf="@+id/PostiAutobus" />
+
+        <Button
+            android:id="@+id/BtnPrenota"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="90dp"
+            android:layout_marginTop="24dp"
+            android:text="Conferma Prenotazione"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/radioGroup" />
 
     </android.support.constraint.ConstraintLayout>
 </android.support.design.widget.CoordinatorLayout>

@@ -72,7 +72,7 @@ var PrenotazioneScaduta = function (idPrenotazione, idUtente) {
                             else
                                 for (var i = 0; i < data.length; i++)
                                     if (data[i].id_parcheggio == idParcheggio) {
-                                        switch (idTipoPosto) {
+                                        switch (data[i].id_tipo_posto) {
                                             case TipoPosto.auto:
                                                 data[i].auto++;
                                                 break;
@@ -905,15 +905,26 @@ apiRoutes.post('/getParcheggiFromCoordinate', function (req, res) {
                                         for (var c = 0; c < bodyg.rows[0].elements.length; c++) {
                                             parcheggi[c].distanzaFisica = bodyg.rows[0].elements[c].distance.text;
                                             parcheggi[c].distanzaTemporale = bodyg.rows[0].elements[c].duration.text
+                                            parcheggi[c].distance = bodyg.rows[0].elements[c].distance.value;
                                         }
 
-                                        // Estrarre qui i primi N parcheggi più vicini. (prendo i primi 5 dati da google)
-                                        /*var parResult = [];
+                                        var l = 0;
+                                        for (var c = 0; c < parcheggi.length - 1; c++)
+                                            for (var k = c + 1; k < parcheggi.length; k++)
+                                                if (parcheggi[c].distance > parcheggi[k].distance) {
+                                                    var app = parcheggi[c];
+                                                    parcheggi[c] = parcheggi[k];
+                                                    parcheggi[k] = app;
+                                                }
+
+                                        var parResult = [];
+
+                                        // Restituisco i 5 più vicini
                                         for (var c = 0; c < 5; c++)
-                                            parResult[c] = parcheggi[c];*/
+                                            parResult[c] = parcheggi[c];
 
                                         res.json({
-                                            parcheggi: parcheggi
+                                            parcheggi: parResult
                                         });
                                     }
                                     else
@@ -1034,11 +1045,12 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
 
                         if (disponibilita > 0) {
                             // Genero il codice da cui creare il QRCode
-                            var datetime = new Date();
+                            var now = new Date();
+                            var datetime = new Date((now.getTime() + 20 * 60 * 1000));
                             var data = datetime.getMilliseconds() + req.user.id;
                             var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
                             var scadenza = datetime.getFullYear() + "-" + datetime.getMonth() + "-" + datetime.getDate() +
-                                " " + datetime.getHours() + "-" + (datetime.getMinutes() + 20) + "-00"; // Secondi settati a zero per comodità
+                                " " + datetime.getHours() + "-" + datetime.getMinutes() + "-00";
 
                             Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
                                 function (err, result) {
@@ -1053,11 +1065,12 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                                     }
                                     else { // Rispondo col il codice del qrcode
                                         res.json({
-                                            QR_Code: codice
+                                            QR_Code: codice,
+                                            scadenza: scadenza
                                         });
 
                                         // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
-                                        setTimeout(PrenotazioneScaduta, (20 * 60 * 1000), result.insertId, req.user.id);
+                                        setTimeout(PrenotazioneScaduta, ((20 + 1) * 60 * 1000), result.insertId, req.user.id);
 
                                         // Aggiorno il numero di posti liberi
                                         switch (req.body.tipoParcheggio) {

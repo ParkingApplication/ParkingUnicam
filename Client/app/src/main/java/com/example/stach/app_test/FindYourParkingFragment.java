@@ -23,6 +23,7 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
 
+import static android.app.Activity.RESULT_OK;
 
 public class FindYourParkingFragment extends Fragment implements GpsChangeListener {
     // Locaizone corrente
@@ -32,7 +33,11 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
     // View corrente
     private View view;
 
-    ProgressDialog caricamento = null;
+    private ProgressDialog caricamento = null;
+
+    // Serve a distinguere i contorlli di varie Activity
+    private final int ACTION_LOCATION_SETTING = 100;
+    private final int ACTION_MAP = 50;
 
     public FindYourParkingFragment() {
 
@@ -61,9 +66,8 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
                     checkLocationPermission();
                 else if (gpsTracker.isGPSon()) {
                     gpsTracker.StartToGetLocation();
-                    Send_Data();
-                }
-                else
+                    SendCoordinateForNearPark();
+                } else
                     checkGPS();
             }
         });
@@ -146,8 +150,6 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
         }
     }
 
-    // Serve a distinguere i contorlli di varie azioni (in questo caso ne abbiamo solo una per l'attivazione del gps)
-    private final int ACTION_LOCATION_SETTING = 100;
     // Controlla se il GPS è accesso
     private void checkGPS() {
         if (!gpsTracker.isGPSon()) {
@@ -185,6 +187,19 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
                 } else
                     gpsTracker.StartToGetLocation();
                 break;
+            case ACTION_MAP:
+                if (resultCode == RESULT_OK) {
+                    String seleziona = data.getStringExtra("selezioneParcheggio");
+
+                    if (seleziona.compareTo("false") == 0) { // Mie coordinate
+                        SendCoordinateForNearPark();
+                    } else if (seleziona.compareTo("true") == 0) { // Parcheggio selezionato
+                        int id = Integer.parseInt(data.getStringExtra("id"));
+                        CallFragmentPrenotaParcheggio(id);
+                    } else
+                        Toast.makeText(getContext(), "Risultato di mappe sconosciuto.", Toast.LENGTH_SHORT).show();
+                }
+                break;
             default:
                 super.onActivityResult(requestCode, resultCode, data);
         }
@@ -193,9 +208,12 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
     private void AggiornaIndirizzo() {
         TextView t_indirizzo = view.findViewById(R.id.indirizzo);
         // Ricavo la via dalle coordinate con il Codificatore
-        CodificatoreIndirizzi cod = new CodificatoreIndirizzi(getContext());
-        t_indirizzo.setText(cod.getIndirizzoFromLocation(curLocation));
-
+        try {
+            CodificatoreIndirizzi cod = new CodificatoreIndirizzi(getContext());
+            t_indirizzo.setText(cod.getIndirizzoFromLocation(curLocation));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void LanciaMappe() {
@@ -209,10 +227,6 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
         conn.execute(Parametri.IP + "/getAllParcheggi");
     }
 
-    public void StopGPS() {
-        gpsTracker.StopGPS();
-    }
-
     @Override
     public void GpsLocationChange(Location location) {
         curLocation = location;
@@ -223,26 +237,26 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
     @Override
     public void onPause() {
         super.onPause();
-        StopGPS();
+        gpsTracker.removeListener(this);
+        gpsTracker.StopGPS();
     }
 
     /**
      * Va sistemato perché danno problemi quando si passa da un activity o fragment all' altro
      *
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            checkLocationPermission();
-        else {
-            if (gpsTracker.isGPSon()) {
-                gpsTracker.StartToGetLocation();
-            } else
-                checkGPS();
-        }
-    }
-    */
+     * @Override public void onResume() {
+     * super.onResume();
+     * <p>
+     * if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+     * checkLocationPermission();
+     * else {
+     * if (gpsTracker.isGPSon()) {
+     * gpsTracker.StartToGetLocation();
+     * } else
+     * checkGPS();
+     * }
+     * }
+     */
 
     // Listener con funzione per la ricezione dei risultati della Connessione con il server (per avere la lista dei parcheggi nella mappa)
     private ConnessioneListener ListenerLanciaMappe = new ConnessioneListener() {
@@ -266,7 +280,7 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
                 ArrayList<String> par = new ArrayList<String>();
                 try {
                     JSONObject allparcheggi = new JSONObject(result);
-                    JSONArray parcheggi  = allparcheggi.getJSONArray("parcheggi");
+                    JSONArray parcheggi = allparcheggi.getJSONArray("parcheggi");
 
                     for (int i = 0; i < parcheggi.length(); i++)
                         par.add(parcheggi.getJSONObject(i).toString());
@@ -279,33 +293,36 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
 
                 // Lascio estrarre la lista dei parcheggi alla MapActivity (si potrebbe pure fare qua senza passarglierli, per ora lascio così)
                 caricamento.dismiss();
+
                 // Invio i dati tramite intent
                 Intent intent = new Intent(getContext(), MapActivity.class);
                 intent.putStringArrayListExtra("parcheggi", par);
-                startActivity(intent);
+                startActivityForResult(intent, ACTION_MAP);
                 return;
             }
         }
     };
 
-    public void Send_Data()
-    {
+    private void SendCoordinateForNearPark() {
+        if (curLocation == null)
+            return;
+
         // Avverto l'utente del tentativo di ricezione dei dati per i parcheggi
         caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggi",
                 "Ricerca Parcheggi vicini in corso...", true);
 
         JSONObject postData = new JSONObject();
         try {
-            postData.put("lat",  curLocation.getLatitude());
-            postData.put("long",  curLocation.getLongitude());
+            postData.put("lat", curLocation.getLatitude());
+            postData.put("long", curLocation.getLongitude());
             postData.put("token", Parametri.Token);
-        }catch (Exception e){}
+        } catch (Exception e) {
+        }
+
         Connessione conn = new Connessione(postData, "POST");
         conn.addListener(ListenerParcheggiVicini);
         conn.execute(Parametri.IP + "/getParcheggiFromCoordinate");
-
     }
-
 
     private ConnessioneListener ListenerParcheggiVicini = new ConnessioneListener() {
         @Override
@@ -326,36 +343,45 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
             if (responseCode.equals("200")) {
                 // Estraggo i dati dei parcheggi restituiti dal server
                 ArrayList<Parcheggio> par = new ArrayList<>();
-
                 try {
                     JSONObject allparcheggi = new JSONObject(result);
-                    JSONArray parcheggi  = allparcheggi.getJSONArray("parcheggi");
+                    JSONArray parcheggi = allparcheggi.getJSONArray("parcheggi");
 
-                    for (int i = 0; i < parcheggi.length(); i++)
+                    for (int i = 0; i < parcheggi.length(); i++) {
                         par.add(new Parcheggio(parcheggi.getJSONObject(i).toString()));
-                    Parametri.parcheggi_vicini = par;
+                        // Estraggo le info di google map
+                        par.get(i).setInfo("Distanza: " + parcheggi.getJSONObject(i).get("distanzaFisica") + "\nTempo: "
+                                + parcheggi.getJSONObject(i).get("distanzaTemporale"));
+                    }
                 } catch (Exception e) {
                     caricamento.dismiss();
                     Toast.makeText(getContext(), "Errore di risposta del server.", Toast.LENGTH_LONG).show();
                     return;
                 }
 
-                // Lascio estrarre la lista dei parcheggi alla MapActivity (si potrebbe pure fare qua senza passarglierli, per ora lascio così)
+                Parametri.parcheggi_vicini = par;
                 caricamento.dismiss();
-                // Invio i dati tramite intent
-                CallFragment();
+                CallFragmentVisualizzaParcheggi();
                 return;
             }
 
         }
 
     };
-    public void CallFragment()
-    {
+
+    private void CallFragmentVisualizzaParcheggi() {
         Visualizza_parcheggi fragment = new Visualizza_parcheggi();
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fram, fragment, "Visualizza_parcheggi");
         fragmentTransaction.addToBackStack("Visualizza_parcheggi");
+        fragmentTransaction.commit();
+    }
+
+    private void CallFragmentPrenotaParcheggio(int id){
+        PrenotaParcheggio fragment = PrenotaParcheggio.newInstance(id);
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fram, fragment, "PrenotaParcheggio");
+        fragmentTransaction.addToBackStack("PrenotaParcheggio");
         fragmentTransaction.commit();
     }
 }

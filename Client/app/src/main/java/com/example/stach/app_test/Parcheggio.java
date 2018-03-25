@@ -6,6 +6,7 @@ import org.json.JSONObject;
 public class Parcheggio {
     private int id;
     private String indirizzo;
+    // Formato indirizzo con stringhe tutte a capo
     private String indirizzo_format;
     private LatLng coordinate;
 
@@ -15,51 +16,26 @@ public class Parcheggio {
     private double prezzoFestivi;
     private double prezzoLavorativi;
 
+    // Info restituite da google map
+    private String info;
+
     // Costruttore parcheggio
-    public Parcheggio(int id, String indirizzo, LatLng coordinate, int[] postiTotali, int[] postiLiberi, double prezzoFestivi, double prezzoLavorativi) {
-
+    public Parcheggio(int id, String indirizzo, LatLng coordinate, int[] postiLiberi, double prezzoFestivi, double prezzoLavorativi) {
         this.postiLiberi = new int[TipoPosto.N_POSTI];
 
-        if (postiTotali.length != TipoPosto.N_POSTI || postiLiberi.length != TipoPosto.N_POSTI)
+        if (postiLiberi.length != TipoPosto.N_POSTI)
             throw new Error("Parametri errati");
 
         this.id = id;
         this.indirizzo = indirizzo;
         this.coordinate = coordinate;
-
-        for (int i = 0; i < TipoPosto.N_POSTI; i++) {
-
-            this.postiLiberi[i] = postiLiberi[i];
-        }
-
         this.prezzoFestivi = prezzoFestivi;
         this.prezzoLavorativi = prezzoLavorativi;
-    }
-
-    // Costruttore parcheggio senza posti liberi
-    public Parcheggio(int id, String indirizzo, LatLng coordinate, int[] postiTotali, double prezzoFestivi, double prezzoLavorativi) {
-
-        this.postiLiberi = new int[TipoPosto.N_POSTI];
-
-        if (postiTotali.length != TipoPosto.N_POSTI || postiLiberi.length != TipoPosto.N_POSTI)
-            throw new Error("Parametri errati");
-
-        this.id = id;
-        this.indirizzo = indirizzo;
-        this.coordinate = coordinate;
-
-        for (int i = 0; i < TipoPosto.N_POSTI; i++) {
-
-            this.postiLiberi[i] = -1;
-        }
-
-        this.prezzoFestivi = prezzoFestivi;
-        this.prezzoLavorativi = prezzoLavorativi;
+        this.info = "";
     }
 
     // Costruttore parcheggio senza posti liberi da stringa formattata in JSon
     public Parcheggio(String JSonobj)throws Exception {
-
         this.postiLiberi = new int[TipoPosto.N_POSTI];
 
         // Estraggo tutti i parcheggi
@@ -75,18 +51,19 @@ public class Parcheggio {
         this.prezzoLavorativi = jobj.getDouble("tariffaOrariaLavorativi");
         this.prezzoFestivi = jobj.getDouble("tariffaOrariaFestivi");
         this.coordinate = new LatLng(x, y);
-        int[] posti = new int[TipoPosto.N_POSTI];
 
+        int[] posti = new int[TipoPosto.N_POSTI];
         this.postiLiberi[TipoPosto.AUTO] = jobj.getInt("nPostiMacchina");
         this.postiLiberi[TipoPosto.AUTOBUS] = jobj.getInt("nPostiAutobus");
         this.postiLiberi[TipoPosto.CAMPER] = jobj.getInt("nPostiCamper");
         this.postiLiberi[TipoPosto.MOTO] = jobj.getInt("nPostiMoto");
         this.postiLiberi[TipoPosto.DISABILE] = jobj.getInt("nPostiDisabile");
 
-        //Setto i parcheggi per farli vedere più sexy
+        // Setting dell' indirizzo con il secondo tipo di formato
         this.indirizzo_format = "Città: " + indr.getString("citta") + "\n" +"Provincia: "+ indr.getString("provincia")
                 + "\n" + "Via: "+ indr.getString("via") + "\n" + "CAP: " + indr.getString("cap") ;
 
+        this.info = "";
     }
 
     public int getId() {
@@ -121,4 +98,12 @@ public class Parcheggio {
     }
 
     public String getIndirizzo_format(){return indirizzo_format;}
+
+    public String getInfo() {
+        return info;
+    }
+
+    public void setInfo(String info) {
+        this.info = info;
+    }
 }

@@ -1,6 +1,5 @@
 package com.example.stach.app_test;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -33,7 +32,6 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.GoogleMap.*;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -44,7 +42,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
     private SupportMapFragment mapFrag;
     private LocationRequest mLocationRequest;
     private LocationManager lmanager;
-    private Location mLastLocation;
     private Marker mCurrLocationMarker;
     private FusedLocationProviderClient mFusedLocationClient;
 
@@ -60,11 +57,9 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
         setContentView(R.layout.activity_map);
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        mapFrag = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
+        mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
         lmanager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
@@ -76,11 +71,9 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
 
         // Estraggo tutti i parcheggi
         try {
-            for (String obj : parcheggi) {
+            for (String obj : parcheggi)
                 this.parcheggi.add(new Parcheggio(obj));
-            }
         } catch (Exception e) {
-            // Gestire l'errore e/o chiudere tutto
             finish();
         }
 
@@ -100,33 +93,29 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
     @Override
     public void onPause() {
         super.onPause();
-
         // Fermo l'aggiornamento della posizione
         if (mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-            mFusedLocationClient = null;
         }
     }
 
-    /** DA PROBLEMI (PARTE POCO PRIMA O POCO DOPO OnStart)
-    @Override
-    public void onResume() {
-        super.onResume();
+     @Override public void onResume() {
+         super.onResume();
 
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            // Controllo che il GPS sia acceso
-            if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false)
-                checkGPS();
-            else {
-                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-                mGoogleMap.setMyLocationEnabled(true);
-            }
+         if (mFusedLocationClient != null)
+             if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                 // Controllo che il GPS sia acceso
+                 if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false)
+                     checkGPS();
+                 else {
+                     mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                     mGoogleMap.setMyLocationEnabled(true);
+                 }
+             } else {
+                 checkLocationPermission();
+             }
+     }
 
-        } else {
-            checkLocationPermission();
-        }
-    }
-*/
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -139,6 +128,8 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
         mLocationRequest.setFastestInterval(1000 * 60 * 1);
         // Precisione gps (consuma troppa batteria ma probabilmente non è inerente alle specifiche del nostro progetto)
         mLocationRequest.setPriority(LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY);
+
+        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             // Controllo che il GPS sia acceso
@@ -170,8 +161,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
         public void onLocationResult(LocationResult locationResult) {
             for (Location location : locationResult.getLocations()) {
                 //Toast.makeText(getApplicationContext(), "Tu sei qui: " + location.getLatitude() + " " + location.getLongitude(), Toast.LENGTH_LONG).show();
-
-                mLastLocation = location;
                 if (mCurrLocationMarker != null) {
                     mCurrLocationMarker.remove();
                 }
@@ -329,8 +318,10 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
                         .setPositiveButton("Cerca posto",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        // QUI ESEGUIRE RICERCA POSTI ETC
-                                        // I dati sono in scelta
+                                        // Ricerco il parcheggio selezionato dall' utente
+                                        for (Parcheggio p : Parametri.parcheggi)
+                                            if (p.getIndirizzo().compareTo(scelta.getTitle()) == 0)
+                                                TerminateAndResponseParkId(p.getId());
                                     }
                                 }).setNegativeButton("No",
                         new DialogInterface.OnClickListener() {
@@ -344,16 +335,14 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
                         dialog.cancel();
                     }
                 }).create().show();
-            }
-            else { // L'utente ha scelto la sua posizione attuale
+            } else { // L'utente ha scelto la sua posizione attuale
                 new AlertDialog.Builder(this)
                         .setTitle("Selezione parcheggio")
                         .setMessage("Vuoi cercare i parcheggi più vicini alla tua posizione in automatico ?")
                         .setPositiveButton("Cerca",
                                 new DialogInterface.OnClickListener() {
                                     public void onClick(DialogInterface dialog, int which) {
-                                        // QUI ESEGUIRE RICERCA POSTI ETC
-                                        // I dati sono in scelta
+                                        TerminateAndResponseMyCoordinate();
                                     }
                                 }).setNegativeButton("No",
                         new DialogInterface.OnClickListener() {
@@ -368,8 +357,22 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
                     }
                 }).create().show();
             }
-        }
-        else
+        } else
             Toast.makeText(getApplicationContext(), "Devi prima selezionare un parcheggio.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void TerminateAndResponseMyCoordinate (){
+        Intent intent = new Intent();
+        intent.putExtra("selezioneParcheggio", "false");
+        setResult(RESULT_OK, intent);
+        finish();
+    }
+
+    private void TerminateAndResponseParkId (int id){
+        Intent intent = new Intent();
+        intent.putExtra("selezioneParcheggio", "true");
+        intent.putExtra("id", String.valueOf(id));
+        setResult(RESULT_OK, intent);
+        finish();
     }
 }

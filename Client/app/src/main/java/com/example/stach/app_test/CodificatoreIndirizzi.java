@@ -12,12 +12,14 @@ import java.util.Locale;
 
 // Codifica delle coordinate in indirizzi
 public class CodificatoreIndirizzi {
-    private final Context mContext;
     private Geocoder geocoder;
 
-    public CodificatoreIndirizzi(Context context) {
-        this.mContext = context;
-        geocoder = new Geocoder(mContext, Locale.getDefault());
+    public CodificatoreIndirizzi(Context context) throws Exception {
+        if (context != null) {
+            geocoder = new Geocoder(context, Locale.getDefault());
+        }
+        else
+            throw new Exception("Context inesistente.");
     }
 
     // Restituisce l'indirizzo ricavato da location

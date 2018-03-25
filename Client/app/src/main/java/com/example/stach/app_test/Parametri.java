@@ -2,13 +2,9 @@ package com.example.stach.app_test;
 
 import java.util.List;
 
-/**
- * Created by maras on 28/02/2018.
- */
-
 public class Parametri {
     // Dati server e connessione
-    static String IP = "http://2.226.207.189";
+    static String IP = "http://2.226.207.189:5666";
     static String Token = null;
     // Dati account utente
     static String id = null;
@@ -26,5 +22,4 @@ public class Parametri {
     static String pin = null;
     static List<Parcheggio> parcheggi = null;
     static List<Parcheggio> parcheggi_vicini = null;
-
 }

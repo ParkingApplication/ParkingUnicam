@@ -82,13 +82,17 @@ public class GPSTracker extends Service {
         listeners.add(x);
     }
 
+    public void removeListener(GpsChangeListener x) {
+                listeners.remove(x);
+    }
+
     // Aggiorno la locazione corrente quando viene rilevato uno spostamento
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             location = locationResult.getLastLocation();
 
-            // non so se ha senso (dovrebbe prendere la posizione più precisa se ce ne sono più di una)
+            // (dovrebbe prendere la posizione più precisa se ce ne sono più di una)
             for (Location loc : locationResult.getLocations())
                 if (loc.getAccuracy() > location.getAccuracy())
                     location = loc;
@@ -112,7 +116,6 @@ public class GPSTracker extends Service {
     public void StopGPS() {
         if (mFusedLocationClient != null) {
             mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-            mFusedLocationClient = null;
             location = null;
         }
     }

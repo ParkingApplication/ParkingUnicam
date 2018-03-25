@@ -5,8 +5,8 @@ public class TipoPosto {
     static int AUTO = 0;
     static int CAMPER = 1;
     static int MOTO = 2;
-    static int AUTOBUS = 0;
-    static int DISABILE = 0;
+    static int AUTOBUS = 3;
+    static int DISABILE = 4;
 
     static int N_POSTI = 5;
 }

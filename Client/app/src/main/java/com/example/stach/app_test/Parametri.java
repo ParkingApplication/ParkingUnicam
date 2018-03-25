@@ -26,4 +26,5 @@ public class Parametri {
     static String pin = null;
     static List<Parcheggio> parcheggi = null;
     static List<Parcheggio> parcheggi_vicini = null;
+
 }

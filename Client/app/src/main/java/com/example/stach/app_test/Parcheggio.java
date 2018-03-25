@@ -8,7 +8,7 @@ public class Parcheggio {
     private String indirizzo;
     private String indirizzo_format;
     private LatLng coordinate;
-    private int[] postiTotali;
+
     private int[] postiLiberi;
 
     // Prezzi orari standard del parcheggio
@@ -17,7 +17,7 @@ public class Parcheggio {
 
     // Costruttore parcheggio
     public Parcheggio(int id, String indirizzo, LatLng coordinate, int[] postiTotali, int[] postiLiberi, double prezzoFestivi, double prezzoLavorativi) {
-        this.postiTotali = new int[TipoPosto.N_POSTI];
+
         this.postiLiberi = new int[TipoPosto.N_POSTI];
 
         if (postiTotali.length != TipoPosto.N_POSTI || postiLiberi.length != TipoPosto.N_POSTI)
@@ -28,7 +28,7 @@ public class Parcheggio {
         this.coordinate = coordinate;
 
         for (int i = 0; i < TipoPosto.N_POSTI; i++) {
-            this.postiTotali[i] = postiTotali[i];
+
             this.postiLiberi[i] = postiLiberi[i];
         }
 
@@ -38,7 +38,7 @@ public class Parcheggio {
 
     // Costruttore parcheggio senza posti liberi
     public Parcheggio(int id, String indirizzo, LatLng coordinate, int[] postiTotali, double prezzoFestivi, double prezzoLavorativi) {
-        this.postiTotali = new int[TipoPosto.N_POSTI];
+
         this.postiLiberi = new int[TipoPosto.N_POSTI];
 
         if (postiTotali.length != TipoPosto.N_POSTI || postiLiberi.length != TipoPosto.N_POSTI)
@@ -49,7 +49,7 @@ public class Parcheggio {
         this.coordinate = coordinate;
 
         for (int i = 0; i < TipoPosto.N_POSTI; i++) {
-            this.postiTotali[i] = postiTotali[i];
+
             this.postiLiberi[i] = -1;
         }
 
@@ -59,7 +59,7 @@ public class Parcheggio {
 
     // Costruttore parcheggio senza posti liberi da stringa formattata in JSon
     public Parcheggio(String JSonobj)throws Exception {
-        this.postiTotali = new int[TipoPosto.N_POSTI];
+
         this.postiLiberi = new int[TipoPosto.N_POSTI];
 
         // Estraggo tutti i parcheggi
@@ -77,11 +77,11 @@ public class Parcheggio {
         this.coordinate = new LatLng(x, y);
         int[] posti = new int[TipoPosto.N_POSTI];
 
-        this.postiTotali[TipoPosto.AUTO] = jobj.getInt("nPostiMacchina");
-        this.postiTotali[TipoPosto.AUTOBUS] = jobj.getInt("nPostiAutobus");
-        this.postiTotali[TipoPosto.CAMPER] = jobj.getInt("nPostiCamper");
-        this.postiTotali[TipoPosto.MOTO] = jobj.getInt("nPostiMoto");
-        this.postiTotali[TipoPosto.DISABILE] = jobj.getInt("nPostiDisabile");
+        this.postiLiberi[TipoPosto.AUTO] = jobj.getInt("nPostiMacchina");
+        this.postiLiberi[TipoPosto.AUTOBUS] = jobj.getInt("nPostiAutobus");
+        this.postiLiberi[TipoPosto.CAMPER] = jobj.getInt("nPostiCamper");
+        this.postiLiberi[TipoPosto.MOTO] = jobj.getInt("nPostiMoto");
+        this.postiLiberi[TipoPosto.DISABILE] = jobj.getInt("nPostiDisabile");
 
         //Setto i parcheggi per farli vedere più sexy
         this.indirizzo_format = "Città: " + indr.getString("citta") + "\n" +"Provincia: "+ indr.getString("provincia")
@@ -101,9 +101,6 @@ public class Parcheggio {
         return coordinate;
     }
 
-    public int[] getPostiTotali() {
-        return postiTotali;
-    }
 
     public int[] getPostiLiberi() {
         return postiLiberi;

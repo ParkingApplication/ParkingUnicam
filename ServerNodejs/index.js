@@ -1,6 +1,6 @@
 var http = require('http');
 var express = require('express');
-var router = require('./app/routes/router');
+var router = require('./app/API/router');
 var ConfigConnessione = require("./app/config/configConnessione");
 
 var app = express();

@@ -10,6 +10,7 @@ var Parcheggio = require("../models/parcheggio");
 var Carta = require("../models/cartaDiCredito");
 var VerificaEmail = require("../models/verificaEmail");
 var Prenotazione = require("../models/prenotazione");
+var PrenotazionePagata = require("../models/prenotazionePagata");
 
 // Localstorage interno per salvare il numero dei posti liberi (senza doverlo ricalcolare da mysql ad ogni richiesta)
 var Storage = require('../storage/Storage');
@@ -57,7 +58,7 @@ var PrenotazioneScaduta = function (idPrenotazione, idUtente) {
     Prenotazione.getPrenotazioneUtente(idUtente, idPrenotazione, function (err, rows) {
         if (err)
             console.log("Impossibile cancellare la prenotazione (id:" + idPrenotazione + ") riscontrati problemi con il database nella ricerca.");
-        else
+        else // Se la prenotazione è ancora nel database
             if (rows.length == 1) {
                 idParcheggio = rows[0].id_parcheggio;
                 Prenotazione.delPrenotazione(idPrenotazione, function (err) {
@@ -109,7 +110,7 @@ apiRoutes.use(bodyParser.urlencoded({ extended: false }));
 apiRoutes.use(bodyParser.json());
 
 apiRoutes.post('/signup', function (req, res) {
-    if (!req.body.autista)
+    if (req.body.autista == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -166,7 +167,7 @@ apiRoutes.post('/signup', function (req, res) {
 
 // TEST
 apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
-    if (!req.body.QRCODE)
+    if (req.body.QRCODE == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -174,7 +175,6 @@ apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
             }
         });
     else {
-        console.log(req.body.QRCODE);
         if (req.body.QRCODE === "1111")
             res.json({
                 successful: {
@@ -193,7 +193,7 @@ apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
 });
 
 apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
-    if (!req.body.QRCODE)
+    if (req.body.QRCODE == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -201,7 +201,6 @@ apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
             }
         });
     else {
-        console.log(req.body.QRCODE);
         if (req.body.QRCODE === "2222")
             res.json({
                 successful: {
@@ -223,7 +222,7 @@ apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
 
 // Verifica email (acceduta solo da browser, risponde con status 200 e con pagine html)
 apiRoutes.get('/verify', function (req, res) {
-    if (!req.query.code)
+    if (req.query.code == undefined)
         res.sendFile(path.join(__dirname, './html/errorRegistrazione.html'));
     else
         VerificaEmail.getEmailCode(req.query.code, function (err, rows) {
@@ -262,7 +261,7 @@ apiRoutes.get('/verify', function (req, res) {
 
 apiRoutes.post('/login', function (req, res) {
     console.log("Login request from: " + req.ip);
-    if (!req.body.username || !req.body.password)
+    if (req.body.username == undefined || req.body.password == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -270,7 +269,7 @@ apiRoutes.post('/login', function (req, res) {
             }
         });
     else
-        if (!req.body.admin)
+        if (req.body.admin == undefined)
             Utente.getAutistaFromUsername(req.body.username, req.body.password, function (err, rows) {
                 if (err)
                     res.status(400).json({
@@ -445,7 +444,7 @@ apiRoutes.post('/getAllParcheggi', function (req, res) {
 });
 
 apiRoutes.post('/resetPassword', function (req, res) {
-    if (!req.body.email)
+    if (req.body.email == undefined)
         res.status(400).json({
             error: {
                 codice: 17,
@@ -525,7 +524,7 @@ apiRoutes.post('/resetPassword', function (req, res) {
 apiRoutes.use(verifyToken);
 
 apiRoutes.post('/getAllAutisti', function (req, res) {
-    if (!req.user.livelloAmministrazione)
+    if (req.user.livelloAmministrazione == undefined)
         res.status(400).json({
             error: {
                 codice: 500,
@@ -606,7 +605,7 @@ apiRoutes.post('/getAllAutisti', function (req, res) {
 });
 
 apiRoutes.delete('/deleteAutista', function (req, res) {
-    if (!req.body.id)
+    if (req.body.id == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -614,7 +613,7 @@ apiRoutes.delete('/deleteAutista', function (req, res) {
             }
         });
     else
-        if (!req.user.livelloAmministrazione)
+        if (req.user.livelloAmministrazione == undefined)
             res.status(400).json({
                 error: {
                     codice: 500,
@@ -650,7 +649,7 @@ apiRoutes.delete('/deleteAutista', function (req, res) {
 });
 
 apiRoutes.patch('/cambiaCredenziali', function (req, res) {
-    if (!req.body.autista)
+    if (req.body.autista == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -658,7 +657,7 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
             }
         });
     else
-        if (!req.user.livelloAmministrazione) { // L'autista ha richiesto la modifica dei propri dati
+        if (req.user.livelloAmministrazione == undefined) { // L'autista ha richiesto la modifica dei propri dati
             // Correggo i dati dell' autista (es: aggiungo i campi mancanti con i dati che già conosco)
             Utente.CorreggiAutista(req.body.autista, req.user, function (resu) {
                 req.body.autista = resu;
@@ -671,7 +670,7 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
                             }
                         });
                     else
-                        if (!req.body.autista.carta_di_credito)
+                        if (req.body.autista.carta_di_credito == undefined)
                             res.json({
                                 successful: {
                                     codice: 210,
@@ -679,7 +678,7 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
                                 }
                             });
                         else
-                            if (!req.body.autista.carta_di_credito.pin || !req.body.autista.carta_di_credito.numero_carta || !req.body.autista.carta_di_credito.dataDiScadenza)
+                            if (req.body.autista.carta_di_credito.pin == undefined || req.body.autista.carta_di_credito.numero_carta == undefined || req.body.autista.carta_di_credito.dataDiScadenza == undefined)
                                 res.json({
                                     successful: {
                                         codice: 210,
@@ -745,7 +744,7 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
                             }
                         });
                     else
-                        if (!req.body.autista.carta_di_credito)
+                        if (req.body.autista.carta_di_credito == undefined)
                             res.json({
                                 successful: {
                                     codice: 210,
@@ -753,7 +752,7 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
                                 }
                             });
                         else
-                            if (!req.body.autista.carta_di_credito.pin || !req.body.autista.carta_di_credito.numero_carta || !req.body.autista.carta_di_credito.dataDiScadenza)
+                            if (req.body.autista.carta_di_credito.pin == undefined || req.body.autista.carta_di_credito.numero_carta == undefined || req.body.autista.carta_di_credito.dataDiScadenza == undefined)
                                 res.json({
                                     successful: {
                                         codice: 210,
@@ -817,7 +816,7 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
 
 // Restituisci i parcheggi più vicini alle coordinate inviate tramite le API di GoogleMap
 apiRoutes.post('/getParcheggiFromCoordinate', function (req, res) {
-    if (!req.body.lat || !req.body.long)
+    if (req.body.lat == undefined || req.body.long == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -946,7 +945,7 @@ apiRoutes.post('/getParcheggiFromCoordinate', function (req, res) {
 });
 
 apiRoutes.post('/getPostiLiberiParcheggio', function (req, res) {
-    if (!req.body.id)
+    if (req.body.id == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -991,7 +990,7 @@ apiRoutes.post('/getPostiLiberiParcheggio', function (req, res) {
 });
 
 apiRoutes.post('/effettuaPrenotazione', function (req, res) {
-    if (!req.body.idParcheggio || !req.body.tipoParcheggio)
+    if (req.body.idParcheggio == undefined || req.body.tipoParcheggio == undefined)
         res.status(400).json({
             error: {
                 codice: 77,
@@ -1043,13 +1042,15 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
 
                             Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
                                 function (err, result) {
-                                    if (err)
+                                    if (err) {
                                         res.status(400).json({
                                             error: {
                                                 codice: 98,
                                                 info: "Riscontrati errori con il database."
                                             }
                                         });
+                                        return;
+                                    }
                                     else { // Rispondo col il codice del qrcode
                                         res.json({
                                             QR_Code: codice
@@ -1106,7 +1107,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
 });
 
 apiRoutes.delete('/deletePrenotazione', function (req, res) {
-    if (!req.body.idPrenotazione)
+    if (req.body.idPrenotazione == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -1128,13 +1129,15 @@ apiRoutes.delete('/deletePrenotazione', function (req, res) {
                     var idTipoPosto = rows[i].id_tipo_posto;
 
                     Prenotazione.delPrenotazione(req.body.idPrenotazione, function (err) {
-                        if (err)
+                        if (err) {
                             res.status(400).json({
                                 error: {
                                     codice: 53,
                                     info: "Riscontrati problemi con il database."
                                 }
                             });
+                            return;
+                        }
                         else {
                             res.json({
                                 successful: {
@@ -1188,7 +1191,7 @@ apiRoutes.delete('/deletePrenotazione', function (req, res) {
 });
 
 apiRoutes.patch('/resetQRCode', function (req, res) {
-    if (!req.body.idPrenotazione)
+    if (req.body.idPrenotazione == undefined)
         res.status(400).json({
             error: {
                 codice: 7,
@@ -1196,7 +1199,7 @@ apiRoutes.patch('/resetQRCode', function (req, res) {
             }
         });
     else
-        if (req.user.livelloAmministrazione < 1)
+        if (req.user.livelloAmministrazione == undefined || req.user.livelloAmministrazione < 1)
             res.status(400).json({
                 error: {
                     codice: 500,
@@ -1228,8 +1231,8 @@ apiRoutes.patch('/resetQRCode', function (req, res) {
 });
 
 apiRoutes.post('/getPrenotazioniPagateUtente', function (req, res) {
-    if (!req.body.idUtente) {
-        Prenotazione.getPrenotazioniFromUtente(req.user.id, function (err, rows) {
+    if (req.body.idUtente == undefined) {
+        PrenotazionePagata.getPrenotazioniFromUtente(req.user.id, function (err, rows) {
             var prenotazioni = [];
             var prenotazionePagata;
 
@@ -1264,8 +1267,8 @@ apiRoutes.post('/getPrenotazioniPagateUtente', function (req, res) {
         });
     }
     else {
-        if (req.user.livelloAmministrazione > 0) {
-            Prenotazione.getPrenotazioniFromUtente(req.body.idUtente, function (err, rows) {
+        if (req.user.livelloAmministrazione != undefined && req.user.livelloAmministrazione > 0) {
+            PrenotazionePagata.getPrenotazioniFromUtente(req.body.idUtente, function (err, rows) {
                 if (err)
                     res.status(400).json({
                         error: {
@@ -1308,7 +1311,7 @@ apiRoutes.post('/getPrenotazioniPagateUtente', function (req, res) {
 });
 
 apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
-    if (!req.body.idUtente) {
+    if (req.body.idUtente == undefined) {
         Prenotazione.getPrenotazioniFromUtente(req.user.id, function (err, rows) {
             var prenotazioni = [];
             var prenotazione;
@@ -1324,11 +1327,11 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
                 var j = 0;
                 for (var i = 0; i < rows.length; i++) {
                     prenotazioneInAtto = {
-                        idPrenotazione: rows[i].idPrenotazione,
-                        idUtente: rows[i].idUtente,
-                        idParcheggio: rows[i].idParcheggio,
-                        idPosto: rows[i].idPosto,
-                        data: rows[i].dataPrenotazione,
+                        idPrenotazione: rows[i].id_prenotazione,
+                        idUtente: rows[i].id_utente,
+                        idParcheggio: rows[i].id_parcheggio,
+                        idPosto: rows[i].id_tipo_posto,
+                        data: rows[i].data_scadenza,
                         codice: rows[i].codice
                     };
 
@@ -1344,7 +1347,7 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
 
     }
     else {
-        if (req.user.livelloAmministrazione > 0) {
+        if (req.user.livelloAmministrazione != undefined && req.user.livelloAmministrazione > 0) {
             Prenotazione.getPrenotazioniFromUtente(req.body.idUtente, function (err, rows) {
                 if (err)
                     res.status(400).json({
@@ -1358,11 +1361,11 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
                     var j = 0;
                     for (var i = 0; i < rows.length; i++) {
                         prenotazioneInAtto = {
-                            idPrenotazione: rows[i].idPrenotazione,
-                            idUtente: rows[i].idUtente,
-                            idParcheggio: rows[i].idParcheggio,
-                            idPosto: rows[i].idPosto,
-                            data: rows[i].dataPrenotazione,
+                            idPrenotazione: rows[i].id_prenotazione,
+                            idUtente: rows[i].id_utente,
+                            idParcheggio: rows[i].id_parcheggio,
+                            idPosto: rows[i].id_tipo_posto,
+                            data: rows[i].data_scadenza,
                             codice: rows[i].codice
                         };
 

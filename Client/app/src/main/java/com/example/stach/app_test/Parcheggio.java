@@ -52,7 +52,6 @@ public class Parcheggio {
         this.prezzoFestivi = jobj.getDouble("tariffaOrariaFestivi");
         this.coordinate = new LatLng(x, y);
 
-        int[] posti = new int[TipoPosto.N_POSTI];
         this.postiLiberi[TipoPosto.AUTO] = jobj.getInt("nPostiMacchina");
         this.postiLiberi[TipoPosto.AUTOBUS] = jobj.getInt("nPostiAutobus");
         this.postiLiberi[TipoPosto.CAMPER] = jobj.getInt("nPostiCamper");

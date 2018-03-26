@@ -24,10 +24,6 @@ public class FragmentYour_Book extends Fragment {
 
 
     public FragmentYour_Book() {
-        //le creo casuali
-        for (int i = 0; i < prenotazioni.length; i++) {
-            prenotazioni[i] = new Prenotazione();
-        }
     }
 
     //FUNZIONA TUTTO I AM A GENIUS
@@ -36,6 +32,8 @@ public class FragmentYour_Book extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_your__book, container, false);
+
+        /*
         View linearLayout = view.findViewById(R.id.linearInternalBook);
         //array di buttons
         Button buttonsPrenotazioni[] = new Button[prenotazioni.length];
@@ -98,7 +96,7 @@ public class FragmentYour_Book extends Fragment {
             ));
             ((LinearLayout) linearLayout).addView(padding);
 
-        }
+        }*/
         return view;
 
     }

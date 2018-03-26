@@ -1,7 +1,10 @@
 package com.example.stach.app_test;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,12 +14,20 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONObject;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 
 public class PrenotaParcheggio extends Fragment {
-    int index;
-    View view;
-    ProgressDialog caricamento;
+    private int index;
+    private int tipo_parcheggio;
+    private View view;
+    private ProgressDialog caricamento;
+
+    // Intervallo ed handler per aggiornare i posti liberi
+    private final int TIMER = 30 * 1000; // 3 secondi
+    private Handler handler = new Handler();
 
     public static PrenotaParcheggio newInstance(int indice) {
         PrenotaParcheggio fragment = new PrenotaParcheggio();
@@ -56,22 +67,31 @@ public class PrenotaParcheggio extends Fragment {
         rd.setText(str);
         Button btn = view.findViewById(R.id.BtnPrenota);
 
-        //Prenoto
+        // Prenoto
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 Prenotazione(view);
             }
         });
+
+        ChiediPostiLiberi();
         return view;
     }
 
-    public void Prenotazione(View view) {
-        // Avverto l'utente del tentativo di ricezione dei dati per i parcheggi
-        caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggi",
-                "Prenotazione in corso...", true);
+    // Funzione per l'aggiornamento automatico dei posti liberi
+    private Runnable runnable = new Runnable() {
+        public void run() {
+            ChiediPostiLiberi();
+        }
+    };
 
-        int tipo_parcheggio = -1;
+    public void Prenotazione(View view) {
+        // Avverto l'utente del tentativo di invio dei dati per la prenotazione
+        caricamento = ProgressDialog.show(getContext(), "Invio prenotazione",
+                "Invio prenotazione in corso...", true);
+
+        tipo_parcheggio = -1;
 
         RadioButton rdAuto = view.findViewById(R.id.RadioAuto);
         RadioButton rdMoto = view.findViewById(R.id.RadioMoto);
@@ -105,6 +125,8 @@ public class PrenotaParcheggio extends Fragment {
             postData.put("tipoParcheggio", tipo_parcheggio);
             postData.put("token", Parametri.Token);
         } catch (Exception e) {
+            Toast.makeText(this.getContext(), "Errore nell' elaborazione dei dati da inviare!", Toast.LENGTH_LONG).show();
+            return;
         }
 
         Connessione conn = new Connessione(postData, "POST");
@@ -129,22 +151,25 @@ public class PrenotaParcheggio extends Fragment {
             }
 
             if (responseCode.equals("200")) {
+                if (Parametri.prenotazioniInCorso == null)
+                    Parametri.prenotazioniInCorso = new ArrayList<>();
+
+                Prenotazione pren = null;
+
                 try {
-                    JSONObject QrCode = new JSONObject(result);
-                    String qr = QrCode.getString("QR_Code");
-                    String data_scadenza = QrCode.getString("scadenza");
-                    Prenotazioni.Qr_code = new ArrayList<>();
-                    Prenotazioni.Data_scadenza = new ArrayList<>();
-                    Prenotazioni.Qr_code.add(qr);
-                    Prenotazioni.Data_scadenza.add(data_scadenza);
+                    JSONObject risp = new JSONObject(result);
+                    String code = risp.getString("QR_Code");
+                    Date data_scadenza = stringToDate(risp.getString("scadenza"), "yyyy-MM-dd HH-mm-ss");
+                    pren = new Prenotazione(data_scadenza, Parametri.parcheggi.get(index).getId(), tipo_parcheggio, code);
                 } catch (Exception e) {
                     caricamento.dismiss();
                     Toast.makeText(getContext(), "Errore di risposta del server.", Toast.LENGTH_LONG).show();
                     return;
                 }
 
-                caricamento.dismiss();
+                Parametri.prenotazioniInCorso.add(pren);
 
+                caricamento.dismiss();
                 Toast.makeText(getContext(), "Prenotazione effettutata con successo!", Toast.LENGTH_LONG).show();
                 getActivity().onBackPressed();
                 return;
@@ -152,4 +177,109 @@ public class PrenotaParcheggio extends Fragment {
         }
 
     };
+
+    private void ChiediPostiLiberi() {
+        // Avverto l'utente del tentativo di ricezione dei dati per i parcheggi
+        caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggio",
+                "Recupero posti liberi in corso...", true);
+
+        JSONObject postData = new JSONObject();
+
+        try {
+            postData.put("id", Parametri.parcheggi.get(index).getId());
+            postData.put("token", Parametri.Token);
+        } catch (Exception e) {
+            Toast.makeText(this.getContext(), "Errore nell' elaborazione dei dati da inviare!", Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        Connessione conn = new Connessione(postData, "POST");
+        conn.addListener(ListenerPostiLiberi);
+        conn.execute(Parametri.IP + "/getPostiLiberiParcheggio");
+    }
+
+    private ConnessioneListener ListenerPostiLiberi = new ConnessioneListener() {
+        @Override
+        public void ResultResponse(String responseCode, String result) {
+            if (responseCode == null) {
+                caricamento.dismiss();
+                Toast.makeText(getContext(), "ERRORE:\nConnessione Assente o server offline.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (responseCode.equals("400")) {
+                caricamento.dismiss();
+                String message = Connessione.estraiErrore(result);
+                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (responseCode.equals("200")) {
+                int[] postiLib = new int[TipoPosto.N_POSTI];
+
+                try {
+                    JSONObject posti = (new JSONObject(result).getJSONObject("postiLiberi"));
+
+                    postiLib[TipoPosto.AUTO] = posti.getInt("nPostiMacchina");
+                    postiLib[TipoPosto.AUTOBUS] = posti.getInt("nPostiAutobus");
+                    postiLib[TipoPosto.CAMPER] = posti.getInt("nPostiCamper");
+                    postiLib[TipoPosto.MOTO] = posti.getInt("nPostiMoto");
+                    postiLib[TipoPosto.DISABILE] = posti.getInt("nPostiDisabile");
+                } catch (Exception e) {
+                    caricamento.dismiss();
+                    Toast.makeText(getContext(), "Errore di risposta del server.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                Parametri.parcheggi.get(index).setPostiLiberi(postiLib);
+                caricamento.dismiss();
+                AggiornaPostiLiberi();
+                return;
+            }
+        }
+
+    };
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        handler.removeCallbacks(runnable);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        handler.postDelayed(runnable, TIMER);
+    }
+
+    private void AggiornaPostiLiberi() {
+        RadioButton rd = view.findViewById(R.id.RadioAuto);
+        String str = String.valueOf(Parametri.parcheggi.get(index).getPostiLiberi()[TipoPosto.AUTO]);
+        rd.setText(str);
+        rd = view.findViewById(R.id.RadioCamper);
+        str = String.valueOf(Parametri.parcheggi.get(index).getPostiLiberi()[TipoPosto.CAMPER]);
+        rd.setText(str);
+        rd = view.findViewById(R.id.RadioMoto);
+        str = String.valueOf(Parametri.parcheggi.get(index).getPostiLiberi()[TipoPosto.MOTO]);
+        rd.setText(str);
+        rd = view.findViewById(R.id.RadioAutobus);
+        str = String.valueOf(Parametri.parcheggi.get(index).getPostiLiberi()[TipoPosto.AUTOBUS]);
+        rd.setText(str);
+        rd = view.findViewById(R.id.RadioDisabile);
+        str = String.valueOf(Parametri.parcheggi.get(index).getPostiLiberi()[TipoPosto.DISABILE]);
+        rd.setText(str);
+
+        Toast.makeText(getContext(), "Posti liberi aggiornati.", Toast.LENGTH_SHORT).show();
+    }
+
+    private Date stringToDate(String data, String format) {
+        if (data == null)
+            return null;
+
+        ParsePosition pos = new ParsePosition(0);
+        SimpleDateFormat simpledateformat = new SimpleDateFormat(format);
+        Date stringDate = simpledateformat.parse(data, pos);
+
+        return stringDate;
+    }
 }

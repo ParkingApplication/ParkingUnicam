@@ -114,7 +114,7 @@ public class Visualizza_parcheggi extends Fragment {
         }
 
         Button btn = new Button(view.getContext());
-        btn.setText("Conferma Prenotazione");
+        btn.setText("SELEZIONA PARCHEGGIO");
         ((LinearLayout) linearLayout).addView(btn);
         // aggiungo text view per padding al layout generale
         padding = new TextView(view.getContext());
@@ -173,9 +173,12 @@ public class Visualizza_parcheggi extends Fragment {
 
         Parametri.parcheggi = Parametri.parcheggi_vicini;
 
+
         PrenotaParcheggio fragment = PrenotaParcheggio.newInstance(id);
-        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        android.support.v4.app.FragmentManager fmanager =  getActivity().getSupportFragmentManager();
+        FragmentTransaction fragmentTransaction = fmanager.beginTransaction();
         fragmentTransaction.replace(R.id.fram, fragment, "PrenotaParcheggio");
+        fmanager.popBackStack();
         fragmentTransaction.addToBackStack("PrenotaParcheggio");
         fragmentTransaction.commit();
     }

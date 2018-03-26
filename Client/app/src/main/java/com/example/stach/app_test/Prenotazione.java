@@ -1,32 +1,38 @@
 package com.example.stach.app_test;
 
-
 import java.util.Date;
 
 public class Prenotazione {
-    static int count;
-    private final String intro = "Parcheggio: ";
-    private Date data;
-    private String nomeParcheggio;
-    private String dataStringa;
+    private Date scadenza;
+    private int idParcheggio;
+    private int idTipo;
+    private String codice;
 
-    public Prenotazione() {
-        this.data = new Date();
-        this.nomeParcheggio = count + "Via Francesco Sforza, MC, 62100";
-        this.dataStringa = "Data:" + this.data.toString();
-        count++;
+    public Prenotazione(Date scadenza, int idParcheggio, int idTipo, String codice) {
+        this.scadenza = scadenza;
+        this.idParcheggio = idParcheggio;
+        this.idTipo = idTipo;
+        this.codice = codice;
     }
 
-    //metto private perchè devo vedere se lo voglio utilizzare
-    public String returnValue() {
-        return this.intro + this.nomeParcheggio + "\n \n" + this.dataStringa;
+    public Date getScadenza() {
+        return scadenza;
     }
 
-    public String getData() {
-        return data.toString();
+    public int getIdParcheggio() {
+        return idParcheggio;
     }
 
-    public String getNomeParcheggio() {
-        return nomeParcheggio;
+    public int getIdTipo() {
+        return idTipo;
+    }
+
+    public String getCodice() {
+        return codice;
+    }
+
+    public long getTempoScadenza() {
+        Date now = new Date();
+        return scadenza.getTime() - now.getTime();
     }
 }

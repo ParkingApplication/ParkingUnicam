@@ -1,18 +1,25 @@
 package com.example.stach.app_test;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    // Timer globali (scadenza prenotazioni)
+    private Handler handler = new Handler();
+    private final int TIMER = 20 * 1000; // 20 secondi
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -33,7 +40,16 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
         fragmentTransaction.commit();
+
+
     }
+
+    // Funzione per l'aggiornamento automatico dei posti liberi
+    private Runnable runnable = new Runnable() {
+        public void run() {
+            ControllaScadenze();
+        }
+    };
 
     @Override
     public void onBackPressed() {
@@ -68,7 +84,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody") // <=========================== Sarebbe meglio evitare e correggere StatementWithEmptyBody
+    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -104,7 +120,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //return to login page
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
-            this.finish();  // <====================== Bisogna chiudere la main activity altrimenti non si è veramente sloggati.
+            this.finish();
         } else if (id == R.id.nav_share) {
             //TODO
         }
@@ -117,5 +133,40 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode,resultCode,data);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnable);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        handler.removeCallbacks(runnable);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        handler.postDelayed(runnable, TIMER);
+    }
+
+    // Ogni tot secondi viene chiamata per controllare le scadenze delle prenotazioni in corso
+    private void ControllaScadenze() {
+        if (Parametri.prenotazioniInCorso != null)
+            for (int i = 0; i < Parametri.prenotazioniInCorso.size(); i++)
+                if (Parametri.prenotazioniInCorso.get(i).getTempoScadenza() <= 0) {
+                    new AlertDialog.Builder(this)
+                            .setTitle("La tua prenotazione è scaduta")
+                            .setMessage("la tua prenotazone nel parcheggio " + Parametri.parcheggi.get(i).getIndirizzo() + " è scaduta.")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                }
+                            }).create().show();
+                    Parametri.prenotazioniInCorso.remove(i);
+                }
     }
 }

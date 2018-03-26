@@ -12,10 +12,14 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONObject;
+
+import java.text.ParseException;
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class PrenotaParcheggio extends Fragment {
     private int index;
@@ -24,7 +28,7 @@ public class PrenotaParcheggio extends Fragment {
     private ProgressDialog caricamento;
 
     // Intervallo ed handler per aggiornare i posti liberi
-    private final int TIMER = 30 * 1000; // 3 secondi
+    private final int TIMER = 5 * 1000; // 5 secondi
     private Handler handler = new Handler();
 
     public static PrenotaParcheggio newInstance(int indice) {
@@ -157,7 +161,7 @@ public class PrenotaParcheggio extends Fragment {
                 try {
                     JSONObject risp = new JSONObject(result);
                     String code = risp.getString("QR_Code");
-                    Date data_scadenza = stringToDate(risp.getString("scadenza"), "yyyy-MM-dd HH-mm-ss");
+                    Date data_scadenza = stringToDate(risp.getString("scadenza"), "yyyy-MM-dd HH:mm:ss");
                     pren = new Prenotazione(data_scadenza, Parametri.parcheggi.get(index).getId(), tipo_parcheggio, code);
                 } catch (Exception e) {
                     caricamento.dismiss();
@@ -177,10 +181,6 @@ public class PrenotaParcheggio extends Fragment {
     };
 
     private void ChiediPostiLiberi() {
-        // Avverto l'utente del tentativo di ricezione dei dati per i parcheggi
-        caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggio",
-                "Recupero posti liberi in corso...", true);
-
         JSONObject postData = new JSONObject();
 
         try {
@@ -194,6 +194,7 @@ public class PrenotaParcheggio extends Fragment {
         Connessione conn = new Connessione(postData, "POST");
         conn.addListener(ListenerPostiLiberi);
         conn.execute(Parametri.IP + "/getPostiLiberiParcheggio");
+        handler.postDelayed(runnable, TIMER);
     }
 
     private ConnessioneListener ListenerPostiLiberi = new ConnessioneListener() {
@@ -230,13 +231,23 @@ public class PrenotaParcheggio extends Fragment {
                 }
 
                 Parametri.parcheggi.get(index).setPostiLiberi(postiLib);
-                caricamento.dismiss();
+
+                if (caricamento != null)
+                    if (caricamento.isShowing())
+                        caricamento.dismiss();
+
                 AggiornaPostiLiberi();
                 return;
             }
         }
 
     };
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        handler.removeCallbacks(runnable);
+    }
 
     @Override
     public void onPause() {
@@ -267,16 +278,25 @@ public class PrenotaParcheggio extends Fragment {
         str = String.valueOf(Parametri.parcheggi.get(index).getPostiLiberi()[TipoPosto.DISABILE]);
         rd.setText(str);
 
-        Toast.makeText(getContext(), "Posti liberi aggiornati.", Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getContext(), "Posti liberi aggiornati.", Toast.LENGTH_SHORT).show();
     }
 
     private Date stringToDate(String data, String format) {
+        Date stringDate = null;
+
         if (data == null)
             return null;
 
-        ParsePosition pos = new ParsePosition(0);
+        Calendar cal = Calendar.getInstance();
+        TimeZone tz = cal.getTimeZone();
         SimpleDateFormat simpledateformat = new SimpleDateFormat(format);
-        Date stringDate = simpledateformat.parse(data, pos);
+        simpledateformat.setTimeZone(tz);
+
+        try {
+            stringDate = simpledateformat.parse(data);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         return stringDate;
     }

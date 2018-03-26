@@ -15,6 +15,9 @@ var prenotazione = {
     },
     delPrenotazione: function (idPrentoazione, callback) {
         return db.query("DELETE FROM prenotazioni_in_atto WHERE id_prenotazione=?; ", [idPrentoazione], callback);
+    },
+    getAllPrenotazioni: function (callback) {
+        return db.query("SELECT * FROM prenotazioni_in_atto ORDER BY data_scadenza ASC;", callback);
     }
 };
 

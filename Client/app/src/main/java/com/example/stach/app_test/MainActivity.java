@@ -1,9 +1,7 @@
 package com.example.stach.app_test;
 
-import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.net.sip.SipSession;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -17,32 +15,29 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import org.json.JSONArray;
 import org.json.JSONObject;
-
 import java.util.ArrayList;
+import java.util.List;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
-    // Timer globali (scadenza prenotazioni)
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+    // Timer scadenza prenotazioni
     private Handler handler = new Handler();
-    private final int TIMER = 20 * 1000; // 20 secondi
+    private final int TIMER = 7 * 1000; // 7 secondi
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        GetPrenotazioni();
-        GetParcheggi();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
         drawer.addDrawerListener(toggle);
         toggle.syncState();
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
+        NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
         //DEFAULT FRAGMENT
         setTitle("Trova parcheggio");
         //assign default fragment
@@ -51,7 +46,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
         fragmentTransaction.commit();
 
-
+        // Recupero i dati delle mie prenotaizoni e dei parcheggi
+        GetPrenotazioni();
+        GetParcheggi();
     }
 
     // Funzione per l'aggiornamento automatico dei posti liberi
@@ -118,15 +115,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             FindYourParkingFragment fragment = new FindYourParkingFragment();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
+            fragmentTransaction.addToBackStack("Fragment_Find_Park");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_your_book) {
-            Parametri.login_file.delete();
             setTitle("Le tue prenotazioni");
             FragmentYour_Book fragment = new FragmentYour_Book();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
+            fragmentTransaction.addToBackStack("Fragment_Book");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_logout) {
+            Parametri.login_file.delete();
             //return to login page
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
@@ -135,7 +134,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             //TODO
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
@@ -178,33 +177,54 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }).create().show();
                     Parametri.prenotazioniInCorso.remove(i);
                 }
+        handler.postDelayed(runnable, TIMER);
     }
 
     public void GetPrenotazioni() {
         JSONObject richiesta = new JSONObject();
+
         try {
             richiesta.put("token", Parametri.Token);
         } catch (Exception e) {
-
+            e.printStackTrace();
+            return;
         }
+
         // Creo ed eseguo una connessione con il server web
         Connessione conn = new Connessione(richiesta, "POST");
         conn.addListener(ListenerGetPrenotazioni);
         conn.execute(Parametri.IP + "/getPrenotazioniInAttoUtente");
     }
+
     private ConnessioneListener ListenerGetPrenotazioni = new ConnessioneListener() {
         @Override
         public void ResultResponse(String responseCode, String result) {
+            if (responseCode == null) {
+                Toast.makeText(getApplicationContext(), "Errore di ricezione delle prenotazioni in corso,\nil server non risponde.", Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-            try {
-                JSONObject prenotazioni = new JSONObject(result);
+            if (responseCode.equals("400")) {
+                String message = Connessione.estraiErrore(result);
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
+                return;
+            }
 
-                JSONArray prenotazioniInAtto = prenotazioni.getJSONArray("prenotazioniInAtto");
-                if (prenotazioniInAtto.length() == 0)
+            if (responseCode.equals("200")) {
+                List<Prenotazione> prenotazioni = new ArrayList<>();
+
+                try {
+                    JSONArray prenotazioniInAtto = (new JSONObject(result).getJSONArray("prenotazioniInAtto"));
+
+                    for (int i = 0; i < prenotazioniInAtto.length(); i++)
+                        prenotazioni.add(new Prenotazione(prenotazioniInAtto.getJSONObject(i).toString()));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
                     return;
-                Prenotazione prenotazione = new Prenotazione(prenotazioniInAtto);
-            } catch (Exception e) {
+                }
 
+                Parametri.prenotazioniInCorso = prenotazioni;
             }
         }
 
@@ -221,38 +241,32 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void ResultResponse(String responseCode, String result) {
             if (responseCode == null) {
-
+                Toast.makeText(getApplicationContext(), "Errore di ricezione dei parcheggi,\nil server non risponde.", Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (responseCode.equals("400")) {
-
                 String message = Connessione.estraiErrore(result);
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
                 return;
             }
 
             if (responseCode.equals("200")) {
-                // Estraggo i dati dei parcheggi restituiti dal server
                 ArrayList<Parcheggio> par = new ArrayList<Parcheggio>();
+
                 try {
                     JSONObject allparcheggi = new JSONObject(result);
                     JSONArray parcheggi = allparcheggi.getJSONArray("parcheggi");
 
-                    for (int i = 0; i < parcheggi.length(); i++) {
-                        Parcheggio p = new Parcheggio(parcheggi.get(i).toString());
-                        par.add(p);
-                    }
-                    Parametri.parcheggi = par;
+                    for (int i = 0; i < parcheggi.length(); i++)
+                        par.add(new Parcheggio(parcheggi.get(i).toString()));
 
                 } catch (Exception e) {
-
-
+                    e.printStackTrace();
                     return;
                 }
 
-                // Lascio estrarre la lista dei parcheggi alla MapActivity (si potrebbe pure fare qua senza passarglierli, per ora lascio così)
-
-                return;
+                Parametri.parcheggi = par;
             }
         }
     };

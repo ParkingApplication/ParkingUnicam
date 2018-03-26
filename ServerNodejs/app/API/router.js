@@ -24,6 +24,8 @@ var DistastanceCalculator = require('../DistanceCalculatorGoogleMap');
 // Configurazioni varie
 var ConfigConnessione = require("../config/configConnessione");
 var TipoPosto = require("../config/configTipoPosto");
+// 20 minuti extra per lo scadere della prenotazione
+var SCADENZA_PRENOTAZIONI = (20 * 60 * 1000);
 
 //  Verifica del token
 var verifyToken = function (req, res, next) {
@@ -65,6 +67,7 @@ var PrenotazioneScaduta = function (idPrenotazione, idUtente) {
                     if (err)
                         console.log("Impossibile cancellare la prenotazione (id:" + idPrenotazione + ") riscontrati problemi con il database nella cancellazione.");
                     else {
+                        console.log("Prenotazione scaduta eliminata con successo (id: " + idPrenotazione + ").");
                         // Aggiorno il numero dei posti liberi
                         Storage.getAllPostiLiberi(function (err, data) {
                             if (err)
@@ -89,6 +92,7 @@ var PrenotazioneScaduta = function (idPrenotazione, idUtente) {
                                                 data[i].disabile++;
                                                 break;
                                         }
+
                                         Storage.updatePostiLiberi(data, function (err) {
                                             if (err)
                                                 console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi (in scrittura).");
@@ -101,6 +105,26 @@ var PrenotazioneScaduta = function (idPrenotazione, idUtente) {
             }
     });
 };
+
+// Ricarico i timer della scadenza di tutte le prenotazoni in atto
+Prenotazione.getAllPrenotazioni(function (err, rows) {
+    if (err)
+        console.log("Errore! Impossibile caricare le prenotazioni in atto.");
+    else
+        for (var i = 0; i < rows.length; i++) {
+            var now = new Date();
+            var datetime = rows[i].data_scadenza.getFullYear() + "-" + (rows[i].data_scadenza.getMonth() + 1) + "-" + rows[i].data_scadenza.getDate() +
+                " " + rows[i].data_scadenza.getHours() + ":" + rows[i].data_scadenza.getMinutes() + ":" + rows[i].data_scadenza.getSeconds();
+
+            var timer = new Date(datetime).getTime() - now.getTime();
+
+            if (timer < 0)
+                timer = 100; // 0.1 secondi
+
+            // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
+            setTimeout(PrenotazioneScaduta, timer, rows[i].id_prenotazione, rows[i].id_utente);
+        }
+});
 
 // API ROUTES -------------------
 var apiRoutes = express.Router();
@@ -752,7 +776,7 @@ apiRoutes.patch('/cambiaCredenziali', function (req, res) {
                                 }
                             });
                         else
-                            if (req.body.autista.carta_di_credito.pin == undefined || req.body.autista.carta_di_credito.numero_carta == undefined || req.body.autista.carta_di_credito.dataDiScadenza == undefined)
+                            if (!req.body.autista.carta_di_credito.pin || !req.body.autista.carta_di_credito.numero_carta || !req.body.autista.carta_di_credito.dataDiScadenza)
                                 res.json({
                                     successful: {
                                         codice: 210,
@@ -906,6 +930,7 @@ apiRoutes.post('/getParcheggiFromCoordinate', function (req, res) {
                                             parcheggi[c].distanzaFisica = bodyg.rows[0].elements[c].distance.text;
                                             parcheggi[c].distanzaTemporale = bodyg.rows[0].elements[c].duration.text
                                             parcheggi[c].distance = bodyg.rows[0].elements[c].distance.value;
+                                            parcheggi[c].temp = bodyg.rows[0].elements[c].duration.value;
                                         }
 
                                         var l = 0;
@@ -976,7 +1001,7 @@ apiRoutes.post('/getPostiLiberiParcheggio', function (req, res) {
                 var posti = null;
 
                 for (var i = 0; i < doc.length; i++)
-                    if (doc[i].id_parcheggio == id)
+                    if (doc[i].id_parcheggio == req.body.id)
                         posti = {
                             nPostiMacchina: doc[i].auto || 0,
                             nPostiAutobus: doc[i].autobus || 0,
@@ -1044,13 +1069,15 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                         }
 
                         if (disponibilita > 0) {
+                            // Controllo se l'utente mi ha inviato la distanza in tempo tra lui ed il parcheggio
+                            var distanzaTemporale = req.body.tempo || 0;
+
                             // Genero il codice da cui creare il QRCode
                             var now = new Date();
-                            var datetime = new Date((now.getTime() + 20 * 60 * 1000));
-                            var data = datetime.getMilliseconds() + req.user.id;
+                            var datetime = new Date((now.getTime() + SCADENZA_PRENOTAZIONI));
+                            var data = now.getMilliseconds() + req.user.id;
                             var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
-                            var scadenza = datetime.getFullYear() + "-" + datetime.getMonth() + "-" + datetime.getDate() +
-                                " " + datetime.getHours() + "-" + datetime.getMinutes() + "-00";
+                            var scadenza = datetime.toLocaleString();
 
                             Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
                                 function (err, result) {
@@ -1070,7 +1097,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                                         });
 
                                         // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
-                                        setTimeout(PrenotazioneScaduta, ((20 + 1) * 60 * 1000), result.insertId, req.user.id);
+                                        setTimeout(PrenotazioneScaduta, SCADENZA_PRENOTAZIONI, result.insertId, req.user.id);
 
                                         // Aggiorno il numero di posti liberi
                                         switch (req.body.tipoParcheggio) {
@@ -1344,7 +1371,7 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
                         idUtente: rows[i].id_utente,
                         idParcheggio: rows[i].id_parcheggio,
                         idPosto: rows[i].id_tipo_posto,
-                        data: rows[i].data_scadenza,
+                        data: (new Date(rows[i].data_scadenza).toLocaleString()),
                         codice: rows[i].codice
                     };
 
@@ -1353,7 +1380,7 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
                 }
 
                 res.json({
-                    prenotazioneInAtto: prenotazioni
+                    prenotazioniInAtto: prenotazioni
                 });
             }
         });
@@ -1387,7 +1414,7 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
                     }
 
                     res.json({
-                        prenotazioneInAtto: prenotazioni
+                        prenotazioniInAtto: prenotazioni
                     });
                 }
             });

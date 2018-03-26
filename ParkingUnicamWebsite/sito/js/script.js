@@ -1,6 +1,6 @@
 // create the module
 var indexApp = angular.module('parkingApp', ['ngRoute', 'ngStorage']);
-var ipserver = "172.16.0.212:5044";
+var ipserver = "2.226.207.189:5666";
 var protocol = "http";
 
 //  variabile contenente il token

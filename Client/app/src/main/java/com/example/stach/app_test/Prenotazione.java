@@ -1,13 +1,11 @@
 package com.example.stach.app_test;
 
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.text.ParsePosition;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 public class Prenotazione {
     private Date scadenza;
@@ -15,33 +13,26 @@ public class Prenotazione {
     private int idTipo;
     private String codice;
 
-    public Prenotazione(Date scadenza, int idParcheggio, int idTipo, String codice) {
+    public Prenotazione(Date scadenza, int idParcheggio, int idTipo, String codice) throws Exception {
+        if (scadenza == null)
+            throw new Exception("Data scadenza non può essere null.");
+
         this.scadenza = scadenza;
         this.idParcheggio = idParcheggio;
         this.idTipo = idTipo;
         this.codice = codice;
     }
-    public Prenotazione(JSONArray prenotazioni) {
-        Parametri.prenotazioniInCorso = new ArrayList<>();
-    for (int i = 0; i < prenotazioni.length();i++) {
-        try {
-            //Estraggo gli oggeti Json contenuti nel Json array
-            JSONObject parametro = prenotazioni.getJSONObject(i);
-            int idParcheggio = parametro.getInt("idParcheggio");
-            int idPosto = parametro.getInt("idPosto");
-            Date data =  stringToDate(parametro.getString("data"), "yyyy-MM-dd HH-mm-ss");
-            String codice = parametro.getString("codice");
-            this.idParcheggio = idParcheggio;
-            this.scadenza = data;
-            this.idTipo = idPosto;
-            this.codice = codice;
-            Parametri.prenotazioniInCorso.add(this);
-        }catch(JSONException js){
 
-        }
+    public Prenotazione(String prenotazione) throws Exception {
+        JSONObject jobj = new JSONObject(prenotazione);
 
-    }
+        this.idParcheggio = jobj.getInt("idParcheggio");
+        this.idTipo = jobj.getInt("idPosto");
+        this.scadenza = stringToDate(jobj.getString("data"), "yyyy-MM-dd HH:mm:ss");
+        if (scadenza == null)
+            throw new Exception("Formato data scadenza prenotazione errato.");
 
+        this.codice = jobj.getString("codice");
     }
 
     public Date getScadenza() {
@@ -64,13 +55,23 @@ public class Prenotazione {
         Date now = new Date();
         return scadenza.getTime() - now.getTime();
     }
+
     private Date stringToDate(String data, String format) {
+        Date stringDate = null;
+
         if (data == null)
             return null;
 
-        ParsePosition pos = new ParsePosition(0);
+        Calendar cal = Calendar.getInstance();
+        TimeZone tz = cal.getTimeZone();
         SimpleDateFormat simpledateformat = new SimpleDateFormat(format);
-        Date stringDate = simpledateformat.parse(data, pos);
+        simpledateformat.setTimeZone(tz);
+
+        try {
+            stringDate = simpledateformat.parse(data);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
 
         return stringDate;
     }

@@ -15,7 +15,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="24dp"
             android:background="@drawable/roundedbutton"
             android:onClick="onClickLogin"
             android:text="@string/btn_login"
@@ -41,23 +41,6 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/btnCredential" />
-
-        <Button
-            android:id="@+id/btn_map"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="16dp"
-            android:background="@drawable/roundedbutton"
-            android:onClick="goToMap"
-            android:text="@string/btn_to_map"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textStyle="normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/signUp" />
 
         <ImageView
             android:id="@+id/unicamPark"
@@ -115,13 +98,18 @@
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="16dp"
             android:background="@android:color/transparent"
             android:onClick="backdoor"
             android:text="backdoor login"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textStyle="normal"
-            app:layout_constraintTop_toBottomOf="@+id/btn_map" />
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/signUp" />
     </android.support.constraint.ConstraintLayout>
 
 </android.support.design.widget.CoordinatorLayout>

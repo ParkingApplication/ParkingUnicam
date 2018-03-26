@@ -1,5 +1,7 @@
 package com.example.stach.app_test;
 
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -11,6 +13,11 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -21,24 +28,39 @@ import java.util.List;
 public class FragmentYour_Book extends Fragment {
     Prenotazione[] prenotazioni = new Prenotazione[3];
     TextView padding;
-
+    private ProgressDialog caricamento = null;
 
     public FragmentYour_Book() {
     }
 
-    //FUNZIONA TUTTO I AM A GENIUS
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
+        GetParcheggi();
+        final List<Parcheggio> parcheggi = null;
+        for (int i = 0; i < Parametri.parcheggi.size();i++)
+        {
+            for (int j = 0; j < Parametri.prenotazioniInCorso.size();j++)
+            {
+                if (Parametri.parcheggi.get(i).getId() == Parametri.prenotazioniInCorso.get(j).getIdParcheggio())
+                {
+
+                    parcheggi.add(Parametri.parcheggi.get(i));
+
+                    break;
+                }
+            }
+        }
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_your__book, container, false);
 
-        /*
-        View linearLayout = view.findViewById(R.id.linearInternalBook);
+
+
         //array di buttons
-        Button buttonsPrenotazioni[] = new Button[prenotazioni.length];
+        Button buttonsPrenotazioni[] = new Button[Parametri.prenotazioniInCorso.size()];
         //array di linear Layout
-        for (int i = 0; i < prenotazioni.length; i++) {
+        for (int i = 0; i < Parametri.prenotazioniInCorso.size(); i++) {
             //index is the solution
             final int index=i;
             //LAYOUT PERSONALE PRENOTAZIONE
@@ -46,7 +68,7 @@ public class FragmentYour_Book extends Fragment {
             //creo la text view
             buttonsPrenotazioni[index] = new Button(view.getContext());
             //ritorno la stringa da stampare
-            buttonsPrenotazioni[index].setText(prenotazioni[index].getNomeParcheggio().substring(0,10));
+            buttonsPrenotazioni[index].setText(parcheggi.get(i).getIndirizzo());
             //Setto i parametri della text view
             buttonsPrenotazioni[index].setId(index);
             //scrivo le risorse background
@@ -62,8 +84,8 @@ public class FragmentYour_Book extends Fragment {
                     //passo le informazioni relative alla mia prenotazione
                     //genero il bundle
                     Bundle bundle = new Bundle();
-                    bundle.putString("NomeParcheggio", prenotazioni[index].getNomeParcheggio());
-                    bundle.putString("oraPrenotazioneParcheggio",  prenotazioni[index].getData());
+                    bundle.putString("NomeParcheggio", parcheggi.get(index).getIndirizzo());
+                    bundle.putString("oraPrenotazioneParcheggio", Parametri.prenotazioniInCorso.get(index).toString());
                     //eseguo la transazione
                     FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                     FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -79,44 +101,62 @@ public class FragmentYour_Book extends Fragment {
                     fragmentTransaction.commit();
                 }
             });
-            //aggiunto text a layout
-            buttonsPrenotazioni[index].setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.FILL_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            ));
-            //aggiungo la lineaar layout personalizzata al linear layout master
-            //aggiungo la text view al layout personale della prenotazione
-            ((LinearLayout) linearLayout).addView(buttonsPrenotazioni[i]);
-            //TEXT VIEW PADDING LINEAR GENERALE
-            //aggiungo text view per padding al layout generale
-            padding = new TextView(view.getContext());
-            padding.setLayoutParams(new LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.FILL_PARENT,
-                    LinearLayout.LayoutParams.WRAP_CONTENT
-            ));
-            ((LinearLayout) linearLayout).addView(padding);
 
-        }*/
+
+        }
         return view;
 
     }
 
-    /**
-     * This method allows to get user books
-     *
-     * @return list of current and recent books
-     */
-    public List<String> showBooks() {
-        return new ArrayList<String>();
-    }
+    public void GetParcheggi()
+    {
 
-    /**
-     * This method allow user to remove a past or current book
-     *
-     * @return true if book was removed
-     */
-    public boolean removeBooks() {
-        return true;
+        // Avverto l'utente del tentativo di ricezione dei dati per i parcheggi
+        caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggi",
+                "Connessione con il server in corso...", true);
+        JSONObject postData = new JSONObject();
+        Connessione conn = new Connessione(postData, "POST");
+        conn.addListener(ListenerGetParcheggi);
+        conn.execute(Parametri.IP + "/getAllParcheggi");
     }
+    private ConnessioneListener ListenerGetParcheggi = new ConnessioneListener() {
+        @Override
+        public void ResultResponse(String responseCode, String result) {
+            if (responseCode == null) {
+                caricamento.dismiss();
+                return;
+            }
+
+            if (responseCode.equals("400")) {
+                caricamento.dismiss();
+                String message = Connessione.estraiErrore(result);
+                return;
+            }
+
+            if (responseCode.equals("200")) {
+                // Estraggo i dati dei parcheggi restituiti dal server
+                ArrayList<Parcheggio> par = new ArrayList<Parcheggio>();
+                try {
+                    JSONObject allparcheggi = new JSONObject(result);
+                    JSONArray parcheggi = allparcheggi.getJSONArray("parcheggi");
+
+                    for (int i = 0; i < parcheggi.length(); i++) {
+                        par.add(new Parcheggio(parcheggi.toString()));
+                    }
+                    Parametri.parcheggi = par;
+
+                } catch (Exception e) {
+                    caricamento.dismiss();
+                    Toast.makeText(getContext(), "Errore di risposta del server.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                // Lascio estrarre la lista dei parcheggi alla MapActivity (si potrebbe pure fare qua senza passarglierli, per ora lascio così)
+                caricamento.dismiss();
+
+               return;
+            }
+        }
+    };
 
 }

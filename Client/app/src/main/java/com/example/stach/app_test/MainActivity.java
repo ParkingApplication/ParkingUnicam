@@ -2,6 +2,7 @@ package com.example.stach.app_test;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.sip.SipSession;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -15,7 +16,10 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
+import org.json.JSONArray;
+import org.json.JSONObject;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , ConnessioneListener {
     // Timer globali (scadenza prenotazioni)
     private Handler handler = new Handler();
     private final int TIMER = 20 * 1000; // 20 secondi
@@ -23,6 +27,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        GetPrenotazioni();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -111,6 +116,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_your_book) {
+            Parametri.login_file.delete();
             setTitle("Le tue prenotazioni");
             FragmentYour_Book fragment = new FragmentYour_Book();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
@@ -168,5 +174,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                             }).create().show();
                     Parametri.prenotazioniInCorso.remove(i);
                 }
+    }
+    public void GetPrenotazioni()
+    {
+        JSONObject richiesta = new JSONObject();
+        try{
+            richiesta.put("token", Parametri.Token);
+        }catch(Exception e)
+        {
+
+        }
+        // Creo ed eseguo una connessione con il server web
+        Connessione conn = new Connessione(richiesta, "POST");
+        conn.addListener(this);
+        conn.execute(Parametri.IP + "/getPrenotazioniInAttoUtente");
+    }
+
+    @Override
+    public void ResultResponse(String responseCode, String result) {
+
+        try {
+            JSONObject prenotazioni = new JSONObject(result);
+
+            JSONArray prenotazioniInAtto = prenotazioni.getJSONArray("prenotazioniInAtto");
+            if (prenotazioniInAtto.length() == 0)
+                return;
+            Prenotazione prenotazione = new Prenotazione(prenotazioniInAtto);
+        }catch(Exception e)
+        {
+
+        }
     }
 }

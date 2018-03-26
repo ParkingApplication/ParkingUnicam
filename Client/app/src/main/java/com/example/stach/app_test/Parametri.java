@@ -2,12 +2,14 @@ package com.example.stach.app_test;
 
 import android.os.Handler;
 
+import java.io.File;
 import java.util.List;
 
 public class Parametri {
     // Dati server e connessione
     static String IP = "http://2.226.207.189:5666";
     static String Token = null;
+    static File login_file;
 
     // Dati account utente
     static String id = null;

@@ -1,6 +1,5 @@
 package com.example.stach.app_test;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
@@ -17,78 +16,79 @@ import java.io.FileWriter;
 import java.io.UnsupportedEncodingException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.StringTokenizer;
 import org.json.*;
+
 public class LoginActivity extends AppCompatActivity implements  ConnessioneListener {
-    //text file for save login in local file
-    File login_file;
     static ProgressDialog caricamento = null;
     Context context = LoginActivity.this;
-    Activity activity = LoginActivity.this;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        Intent intent = getIntent();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        this.recruitData();
+        Parametri.login_file = new File(this.getFilesDir(), "LoginStats.txt");
+
+        if (recruitData())
+            sendDataForLogin();
     }
 
-    /**
-     * This method will send data to server to verify user credentials.
-     */
-    public void sendDataForLogin(View view) {
 
-        EditText mail = (EditText) findViewById(R.id.mail);
-        EditText password = (EditText) findViewById(R.id.pass);
+    private void sendDataForLogin() {
+        // Avverto l'utente del tentativo di invio dei dati di login al server
+        caricamento = ProgressDialog.show(LoginActivity.this, "Login in corso",
+                "Connessione con il server in corso...", true);
+        caricamento.show();
 
-
-        // Prelevo i dati per il login per inviarli al server.
-        String user = mail.getText().toString();
-        String password1 = password.getText().toString();
-        try {
-            password1 = SHA1(password1);
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        // Inserisco i dati del login in un HashMap così da poterli convertire facilmente in JSonObject in seguito
         JSONObject postData = new JSONObject();
         try {
-            postData.put("username", user);
-            postData.put("password", password1);
-        }catch (Exception e){}
+            postData.put("username", Parametri.username);
+            postData.put("password", Parametri.password);
+        }catch (Exception e){
+            caricamento.dismiss();
+            return;
+        }
 
-        // Avverto l'utente del tentativo di invio dei dati di login al server
-        caricamento = ProgressDialog.show(LoginActivity.this, "",
-               "Connessione con il server in corso...", true);
+
 
         // Creo ed eseguo una connessione con il server web
         Connessione conn = new Connessione(postData, "POST");
         conn.addListener(this);
         conn.execute(Parametri.IP + "/login");
-
-        // Bisogna salvare i dati dentro Connessione dopo aver effettuato il Login con successo
-        //this.saveData(mail.getText().toString(), password.getText().toString());
-
     }
 
+
+    public void onClickLogin (View view) {
+        EditText mail = (EditText) findViewById(R.id.mail);
+        EditText password = (EditText) findViewById(R.id.pass);
+
+        // Prelevo i dati per il login per inviarli al server.
+        Parametri.username = mail.getText().toString();
+        String password1 = password.getText().toString();
+
+        try {
+            password1 = SHA1(password1);
+        } catch (NoSuchAlgorithmException e) {
+            e.printStackTrace();
+            return;
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+
+        Parametri.password = password1;
+        sendDataForLogin();
+    }
 
     /**
      * This method is use to save user data after login, to allow user to overdrop the login activity if is logged yet.
      */
     public void saveData(String mail, String password) {
-        login_file = new File(this.getFilesDir(), "LoginStats.txt");
-        //try to write in file
         try {
-            BufferedWriter fos = new BufferedWriter(new FileWriter(login_file.getAbsolutePath()));
+            BufferedWriter fos = new BufferedWriter(new FileWriter(Parametri.login_file.getAbsolutePath()));
             fos.write(mail + "\n");
             fos.write(password + "\n");
             fos.close();
@@ -101,36 +101,36 @@ public class LoginActivity extends AppCompatActivity implements  ConnessioneList
         startActivity(new Intent(context, MainActivity.class));
         finish();
     }
+
     /**
      * This method is use to recruit user data before login, to allow user to overdrop the login activity if is logged yet.
      */
-    public void recruitData() {
-        EditText mail = (EditText) findViewById(R.id.mail);
-        EditText pass = (EditText) findViewById(R.id.pass);
+    public boolean recruitData() {
+        String mailResult = "";
+        String passwordResult = "";
 
-        //try to read in file
         try {
             String appoggio;
-
-            BufferedReader fos1 = new BufferedReader(new FileReader(login_file.getAbsolutePath()));
+            BufferedReader fos1 = new BufferedReader(new FileReader(Parametri.login_file.getAbsolutePath()));
             StringBuilder sb = new StringBuilder();
 
-            while ((appoggio = fos1.readLine()) != null) {
-                sb.append(appoggio);
-            }
+            // Leeggo l'email
+            if ((appoggio = fos1.readLine()) != null)
+                mailResult = appoggio;
+
+            // Leeggo la password
+            if ((appoggio = fos1.readLine()) != null)
+                passwordResult = appoggio;
 
             fos1.close();
-            //tokenize string builder
-            StringTokenizer sT = new StringTokenizer(sb.toString());
-            //assignment
-            String mailResult = sT.nextToken();
-            String passwordResult = sT.nextToken();
-            //put result
-            mail.setText(mailResult);
-            pass.setText(passwordResult);
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
+
+        Parametri.username = mailResult;
+        Parametri.password = passwordResult;
+        return true;
     }
 
     /**

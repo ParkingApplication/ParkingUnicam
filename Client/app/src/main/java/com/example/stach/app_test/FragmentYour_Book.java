@@ -37,8 +37,9 @@ public class FragmentYour_Book extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        GetParcheggi();
-        final List<Parcheggio> parcheggi = null;
+
+
+        final List<Parcheggio> parcheggi = new ArrayList<>();
         for (int i = 0; i < Parametri.parcheggi.size();i++)
         {
             for (int j = 0; j < Parametri.prenotazioniInCorso.size();j++)
@@ -55,6 +56,7 @@ public class FragmentYour_Book extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_your__book, container, false);
 
+        View linearLayout = view.findViewById(R.id.linearLayoutVisualizza);
 
 
         //array di buttons
@@ -101,62 +103,13 @@ public class FragmentYour_Book extends Fragment {
                     fragmentTransaction.commit();
                 }
             });
-
+            ((LinearLayout) linearLayout).addView(buttonsPrenotazioni[index]);
 
         }
         return view;
 
     }
 
-    public void GetParcheggi()
-    {
 
-        // Avverto l'utente del tentativo di ricezione dei dati per i parcheggi
-        caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggi",
-                "Connessione con il server in corso...", true);
-        JSONObject postData = new JSONObject();
-        Connessione conn = new Connessione(postData, "POST");
-        conn.addListener(ListenerGetParcheggi);
-        conn.execute(Parametri.IP + "/getAllParcheggi");
-    }
-    private ConnessioneListener ListenerGetParcheggi = new ConnessioneListener() {
-        @Override
-        public void ResultResponse(String responseCode, String result) {
-            if (responseCode == null) {
-                caricamento.dismiss();
-                return;
-            }
-
-            if (responseCode.equals("400")) {
-                caricamento.dismiss();
-                String message = Connessione.estraiErrore(result);
-                return;
-            }
-
-            if (responseCode.equals("200")) {
-                // Estraggo i dati dei parcheggi restituiti dal server
-                ArrayList<Parcheggio> par = new ArrayList<Parcheggio>();
-                try {
-                    JSONObject allparcheggi = new JSONObject(result);
-                    JSONArray parcheggi = allparcheggi.getJSONArray("parcheggi");
-
-                    for (int i = 0; i < parcheggi.length(); i++) {
-                        par.add(new Parcheggio(parcheggi.toString()));
-                    }
-                    Parametri.parcheggi = par;
-
-                } catch (Exception e) {
-                    caricamento.dismiss();
-                    Toast.makeText(getContext(), "Errore di risposta del server.", Toast.LENGTH_LONG).show();
-                    return;
-                }
-
-                // Lascio estrarre la lista dei parcheggi alla MapActivity (si potrebbe pure fare qua senza passarglierli, per ora lascio così)
-                caricamento.dismiss();
-
-               return;
-            }
-        }
-    };
 
 }

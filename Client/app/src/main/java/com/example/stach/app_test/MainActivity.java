@@ -1,5 +1,6 @@
 package com.example.stach.app_test;
 
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.sip.SipSession;
@@ -15,11 +16,14 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener , ConnessioneListener {
+import java.util.ArrayList;
+
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener{
     // Timer globali (scadenza prenotazioni)
     private Handler handler = new Handler();
     private final int TIMER = 20 * 1000; // 20 secondi
@@ -28,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         GetPrenotazioni();
+        GetParcheggi();
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -61,8 +66,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
-        }
-        else{
+        } else {
             super.onBackPressed();
         }
     }
@@ -138,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode,resultCode,data);
+        super.onActivityResult(requestCode, resultCode, data);
     }
 
     @Override
@@ -175,34 +179,82 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Parametri.prenotazioniInCorso.remove(i);
                 }
     }
-    public void GetPrenotazioni()
-    {
+
+    public void GetPrenotazioni() {
         JSONObject richiesta = new JSONObject();
-        try{
+        try {
             richiesta.put("token", Parametri.Token);
-        }catch(Exception e)
-        {
+        } catch (Exception e) {
 
         }
         // Creo ed eseguo una connessione con il server web
         Connessione conn = new Connessione(richiesta, "POST");
-        conn.addListener(this);
+        conn.addListener(ListenerGetPrenotazioni);
         conn.execute(Parametri.IP + "/getPrenotazioniInAttoUtente");
     }
+    private ConnessioneListener ListenerGetPrenotazioni = new ConnessioneListener() {
+        @Override
+        public void ResultResponse(String responseCode, String result) {
 
-    @Override
-    public void ResultResponse(String responseCode, String result) {
+            try {
+                JSONObject prenotazioni = new JSONObject(result);
 
-        try {
-            JSONObject prenotazioni = new JSONObject(result);
+                JSONArray prenotazioniInAtto = prenotazioni.getJSONArray("prenotazioniInAtto");
+                if (prenotazioniInAtto.length() == 0)
+                    return;
+                Prenotazione prenotazione = new Prenotazione(prenotazioniInAtto);
+            } catch (Exception e) {
 
-            JSONArray prenotazioniInAtto = prenotazioni.getJSONArray("prenotazioniInAtto");
-            if (prenotazioniInAtto.length() == 0)
-                return;
-            Prenotazione prenotazione = new Prenotazione(prenotazioniInAtto);
-        }catch(Exception e)
-        {
-
+            }
         }
+
+    };
+
+    public void GetParcheggi() {
+        JSONObject postData = new JSONObject();
+        Connessione conn = new Connessione(postData, "POST");
+        conn.addListener(ListenerGetParcheggi);
+        conn.execute(Parametri.IP + "/getAllParcheggi");
     }
+
+    private ConnessioneListener ListenerGetParcheggi = new ConnessioneListener() {
+        @Override
+        public void ResultResponse(String responseCode, String result) {
+            if (responseCode == null) {
+
+                return;
+            }
+
+            if (responseCode.equals("400")) {
+
+                String message = Connessione.estraiErrore(result);
+                return;
+            }
+
+            if (responseCode.equals("200")) {
+                // Estraggo i dati dei parcheggi restituiti dal server
+                ArrayList<Parcheggio> par = new ArrayList<Parcheggio>();
+                try {
+                    JSONObject allparcheggi = new JSONObject(result);
+                    JSONArray parcheggi = allparcheggi.getJSONArray("parcheggi");
+
+                    for (int i = 0; i < parcheggi.length(); i++) {
+                        Parcheggio p = new Parcheggio(parcheggi.get(i).toString());
+                        par.add(p);
+                    }
+                    Parametri.parcheggi = par;
+
+                } catch (Exception e) {
+
+
+                    return;
+                }
+
+                // Lascio estrarre la lista dei parcheggi alla MapActivity (si potrebbe pure fare qua senza passarglierli, per ora lascio così)
+
+                return;
+            }
+        }
+    };
+
 }

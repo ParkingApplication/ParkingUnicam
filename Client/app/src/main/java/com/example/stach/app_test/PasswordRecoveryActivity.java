@@ -18,9 +18,6 @@ public class PasswordRecoveryActivity extends AppCompatActivity implements Conne
         setContentView(R.layout.activity_password_recovery);
     }
 
-    /**
-     * This method will send user credentials for registration.
-     */
     public void sendDataForPasswordRecovery(View view){
         //Prendo i dati dalla form:
         EditText email = (EditText) findViewById(R.id.editTextEmail);
@@ -51,9 +48,6 @@ public class PasswordRecoveryActivity extends AppCompatActivity implements Conne
         conn.execute(Parametri.IP + "/resetPassword");
     }
 
-    /**
-     * This method allow user to return to login activity
-     */
     @Override
     public void onBackPressed() {
         startActivity(new Intent(PasswordRecoveryActivity.this, LoginActivity.class));

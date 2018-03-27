@@ -3,30 +3,36 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@drawable/sfondo"
     tools:context="com.example.stach.app_test.Visualizza_parcheggi">
+
     <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:layout_above="@id/img"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true">
-    <LinearLayout
-        android:id="@+id/linearLayoutVisualizza"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="left"
-        android:orientation="vertical"
-        android:paddingLeft="16dp"
-        android:paddingRight="16dp">
 
-        <TextView
-            android:id="@+id/Lista_Parcheggi"
+        <LinearLayout
+            android:id="@+id/linearLayoutVisualizza"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Parcheggi vicini"
-            android:textAlignment="center"
-            android:textSize="24sp"
-            android:textStyle="normal|bold" />
-    </LinearLayout>
+            android:layout_height="match_parent"
+            android:gravity="left"
+            android:orientation="vertical"
+            android:paddingLeft="16dp"
+            android:paddingRight="16dp">
+
+            <TextView
+                android:id="@+id/Lista_Parcheggi"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                android:layout_marginTop="8dp"
+                android:text="Parcheggi vicini"
+                android:textAlignment="center"
+                android:textColor="@color/black"
+                android:textSize="24sp"
+                android:textStyle="normal|bold" />
+        </LinearLayout>
     </ScrollView>
 </android.support.design.widget.CoordinatorLayout>

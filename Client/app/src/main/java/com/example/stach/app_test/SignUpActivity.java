@@ -1,8 +1,6 @@
 package com.example.stach.app_test;
 
-import android.app.Activity;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -17,10 +15,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class SignUpActivity extends AppCompatActivity implements TextWatcher, ConnessioneListener {
-
-    Context context = SignUpActivity.this;
-    Activity activity = SignUpActivity.this;
-    static ProgressDialog caricamento = null;
+    private ProgressDialog caricamento = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,14 +28,14 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher, Co
      */
     public void sendDataForSignUp(View view){
         //Prendo i dati dalla form:
-        EditText nome = (EditText) findViewById(R.id.nome);
-        EditText cognome = (EditText) findViewById(R.id.cognome);
-        EditText dataDinascita = (EditText) findViewById(R.id.data_nascita);
-        EditText telefono = (EditText) findViewById(R.id.telefono);
-        EditText username = (EditText) findViewById(R.id.username);
-        EditText mail = (EditText) findViewById(R.id.email);
-        EditText password = (EditText) findViewById(R.id.password);
-        EditText passwordr = (EditText) findViewById(R.id.repPass);
+        EditText nome = findViewById(R.id.nome);
+        EditText cognome = findViewById(R.id.cognome);
+        EditText dataDinascita = findViewById(R.id.data_nascita);
+        EditText telefono = findViewById(R.id.telefono);
+        EditText username = findViewById(R.id.username);
+        EditText mail = findViewById(R.id.email);
+        EditText password = findViewById(R.id.password);
+        EditText passwordr = findViewById(R.id.repPass);
 
         //Converto i dati in stringa per inviarli al server
         String nomes = nome.getText().toString();

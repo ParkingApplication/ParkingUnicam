@@ -5,18 +5,18 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
 public class FragmentYour_Book extends Fragment {
     // Parcheggi associati alle mie prenotazioni
     private List<Parcheggio> parcheggi = new ArrayList<>();
-    private Button buttonsPrenotazioni[] = null;
 
     public FragmentYour_Book() {
     }
@@ -28,66 +28,83 @@ public class FragmentYour_Book extends Fragment {
         View linearLayout = view.findViewById(R.id.linearInternalBook);
 
         if (Parametri.prenotazioniInCorso != null) {
-            for (int i = 0; i < Parametri.prenotazioniInCorso.size(); i++) {
-                for (int j = 0; j < Parametri.parcheggi.size(); j++) {
-                    if (Parametri.prenotazioniInCorso.get(i).getIdParcheggio() == Parametri.parcheggi.get(j).getId()) {
-                        parcheggi.add(Parametri.parcheggi.get(j));
-                        break;
-                    }
-                }
-            }
+            if (Parametri.prenotazioniInCorso.size() > 0) {
+                TextView[] viewPrenotazioni = new TextView[Parametri.prenotazioniInCorso.size()];
 
-            buttonsPrenotazioni = new Button[Parametri.prenotazioniInCorso.size()];
-
-            //array di linear Layout
-            for (int i = 0; i < Parametri.prenotazioniInCorso.size(); i++) {
-                //LAYOUT PERSONALE PRENOTAZIONE
-                //TEXT VIEW
-                //creo la text view
-                buttonsPrenotazioni[i] = new Button(view.getContext());
-                //ritorno la stringa da stampare
-                buttonsPrenotazioni[i].setText(parcheggi.get(i).getIndirizzo() + "\n" + Parametri.prenotazioniInCorso.get(i).getScadenza().toString());
-                //Setto i parametri della text view
-                buttonsPrenotazioni[i].setId(i);
-                //scrivo le risorse background
-                buttonsPrenotazioni[i].setBackgroundResource(R.drawable.roundedbutton);
-                //setto la dimensione
-                buttonsPrenotazioni[i].setTextSize(19);
-                //colore
-                buttonsPrenotazioni[i].setTextColor(Color.parseColor("#FFFFFF"));
-                //Setto la funzione da chiamare per mostrare i dettagli della prenotazione
-                buttonsPrenotazioni[i].setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        int i;
-                        for (i = 0; i < buttonsPrenotazioni.length; i++)
-                            if (buttonsPrenotazioni.equals(view))
-                                break;
-
-                        if (i < buttonsPrenotazioni.length) {
-                            //passo le informazioni relative alla mia prenotazione
-                            //genero il bundle
-                            Bundle bundle = new Bundle();
-                            bundle.putString("NomeParcheggio", parcheggi.get(i).getIndirizzo());
-                            bundle.putString("oraPrenotazioneParcheggio", Parametri.prenotazioniInCorso.get(i).toString());
-                            //eseguo la transazione
-                            FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                            //passo i valori
-                            Detail_Book detail_book = new Detail_Book();
-                            detail_book.setArguments(bundle);
-                            //eseguo la transazione
-                            fragmentTransaction.replace(R.id.fram, detail_book);
-                            //uso backstack perchè android in automatico con il tasto indietro si muove tra activity e non tra fragment
-                            //quindi aggiungo nella coda del back stack il frammento delle prenotazioni in modo che all'interno dei dettagli
-                            //io possa tornare indietro
-                            fragmentTransaction.addToBackStack("Fragment_book");
-                            fragmentTransaction.commit();
+                // Recupero i parcheggi collegati alle mie prenotazioni
+                for (int i = 0; i < Parametri.prenotazioniInCorso.size(); i++) {
+                    for (int j = 0; j < Parametri.parcheggi.size(); j++) {
+                        if (Parametri.prenotazioniInCorso.get(i).getIdParcheggio() == Parametri.parcheggi.get(j).getId()) {
+                            parcheggi.add(Parametri.parcheggi.get(j));
+                            break;
                         }
                     }
-                });
+                }
 
-                ((LinearLayout) linearLayout).addView(buttonsPrenotazioni[i]);
+                for (int i = 0; i < Parametri.prenotazioniInCorso.size(); i++) {
+                    viewPrenotazioni[i] = new TextView(view.getContext());
+                    viewPrenotazioni[i].setText(parcheggi.get(i).getIndirizzo() + "\nScadenza: " + DateFormat.format("dd MMMM HH:mm", Parametri.prenotazioniInCorso.get(i).getScadenza()).toString());
+                    viewPrenotazioni[i].setId(i);
+                    viewPrenotazioni[i].setBackgroundResource(R.drawable.roundedtextboxactive);
+                    viewPrenotazioni[i].setPaddingRelative(4, 8, 4, 8);
+                    viewPrenotazioni[i].setTextSize(19);
+                    viewPrenotazioni[i].setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                    viewPrenotazioni[i].setTextColor(Color.BLACK);
+
+                    LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+                    param.setMargins(0, 0, 0, 32);
+
+                    viewPrenotazioni[i].setLayoutParams(param);
+
+                    ((LinearLayout) linearLayout).addView(viewPrenotazioni[i]);
+
+                    //Setto la funzione da chiamare per mostrare i dettagli della prenotazione
+                    viewPrenotazioni[i].setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            int index = view.getId();
+
+                            if (index >= 0 && index < Parametri.prenotazioniInCorso.size()) {
+                                //passo le informazioni relative alla mia prenotazione
+                                Bundle bundle = new Bundle();
+                                bundle.putString("indexPrenotazione", String.valueOf(index));
+                                bundle.putString("NomeParcheggio", String.valueOf(parcheggi.get(index).getIndirizzo()));
+                                //eseguo la transazione
+                                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                                //passo i valori
+                                Detail_Book detail_book = new Detail_Book();
+                                detail_book.setArguments(bundle);
+                                //eseguo la transazione
+                                fragmentTransaction.replace(R.id.fram, detail_book);
+                                fragmentTransaction.addToBackStack("Fragment_book");
+                                fragmentTransaction.commit();
+                            }
+                        }
+                    });
+                }
+            } else {
+                TextView viewPrenotazioni = new TextView(view.getContext());
+                viewPrenotazioni.setText("Non hai nessuna prenotaizone in atto al momento.");
+                viewPrenotazioni.setId(0);
+                viewPrenotazioni.setBackgroundResource(R.drawable.roundedtextboxactive);
+                viewPrenotazioni.setPaddingRelative(8, 8, 8, 8);
+                viewPrenotazioni.setTextSize(19);
+                viewPrenotazioni.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                viewPrenotazioni.setTextColor(Color.BLACK);
+
+                LinearLayout.LayoutParams param = new LinearLayout.LayoutParams(
+                        LinearLayout.LayoutParams.MATCH_PARENT,
+                        LinearLayout.LayoutParams.WRAP_CONTENT
+                );
+                param.setMargins(0, 0, 0, 32);
+
+                viewPrenotazioni.setLayoutParams(param);
+
+                ((LinearLayout) linearLayout).addView(viewPrenotazioni);
             }
         }
         return view;

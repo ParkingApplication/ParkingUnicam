@@ -218,8 +218,7 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
 
     private void LanciaMappe() {
         // Avverto l'utente del tentativo di ricezione dei dati per i parcheggi
-        caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggi",
-                "Connessione con il server in corso...", true);
+        caricamento = ProgressDialog.show(getContext(), "Recupero dati parcheggi", "Connessione con il server in corso...", true);
 
         JSONObject postData = new JSONObject();
         Connessione conn = new Connessione(postData, "POST");
@@ -360,13 +359,58 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
                 }
 
                 Parametri.parcheggi_vicini = par;
+
+                if (Parametri.parcheggi != null) {
+                    caricamento.dismiss();
+                    CallFragmentVisualizzaParcheggi();
+                } else {
+                    Connessione connPar = new Connessione(new JSONObject(), "POST");
+                    connPar.addListener(ListenerGetAllParcheggi);
+                    connPar.execute(Parametri.IP + "/getAllParcheggi");
+                }
+                return;
+            }
+        }
+
+    };
+
+    private ConnessioneListener ListenerGetAllParcheggi = new ConnessioneListener() {
+        @Override
+        public void ResultResponse(String responseCode, String result) {
+            if (responseCode == null) {
                 caricamento.dismiss();
-                CallFragmentVisualizzaParcheggi();
+                Toast.makeText(getContext(), "Errore di ricezione dei parcheggi.\nIl server non risponde.", Toast.LENGTH_LONG).show();
                 return;
             }
 
-        }
+            if (responseCode.equals("400")) {
+                caricamento.dismiss();
+                String message = Connessione.estraiErrore(result);
+                Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
+                return;
+            }
 
+            if (responseCode.equals("200")) {
+                ArrayList<Parcheggio> par = new ArrayList<Parcheggio>();
+
+                try {
+                    JSONObject allparcheggi = new JSONObject(result);
+                    JSONArray parcheggi = allparcheggi.getJSONArray("parcheggi");
+
+                    for (int i = 0; i < parcheggi.length(); i++)
+                        par.add(new Parcheggio(parcheggi.get(i).toString()));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "Errore di risposta del server.\nImpossibile recuperare la lista dei parcheggi.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                Parametri.parcheggi = par;
+                caricamento.dismiss();
+                CallFragmentVisualizzaParcheggi();
+            }
+        }
     };
 
     private void CallFragmentVisualizzaParcheggi() {

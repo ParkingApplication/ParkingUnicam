@@ -1,7 +1,6 @@
 package com.example.stach.app_test;
 
-import android.os.Handler;
-
+import android.location.Location;
 import java.io.File;
 import java.util.List;
 
@@ -21,6 +20,7 @@ public class Parametri {
     static String data_nascita = null;
     static String telefono = null;
     static String saldo = null;
+    static Location lastKnowPosition = null;
 
     // Dati carta di credito
     static String numero_carta = null;

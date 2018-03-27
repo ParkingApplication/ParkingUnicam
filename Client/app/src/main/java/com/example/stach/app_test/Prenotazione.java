@@ -9,14 +9,16 @@ import java.util.TimeZone;
 
 public class Prenotazione {
     private Date scadenza;
+    private int id;
     private int idParcheggio;
     private int idTipo;
     private String codice;
 
-    public Prenotazione(Date scadenza, int idParcheggio, int idTipo, String codice) throws Exception {
+    public Prenotazione(int id, Date scadenza, int idParcheggio, int idTipo, String codice) throws Exception {
         if (scadenza == null)
             throw new Exception("Data scadenza non può essere null.");
 
+        this.id = id;
         this.scadenza = scadenza;
         this.idParcheggio = idParcheggio;
         this.idTipo = idTipo;
@@ -26,6 +28,7 @@ public class Prenotazione {
     public Prenotazione(String prenotazione) throws Exception {
         JSONObject jobj = new JSONObject(prenotazione);
 
+        this.id = jobj.getInt("idPrenotazione");
         this.idParcheggio = jobj.getInt("idParcheggio");
         this.idTipo = jobj.getInt("idPosto");
         this.scadenza = stringToDate(jobj.getString("data"), "yyyy-MM-dd HH:mm:ss");
@@ -33,6 +36,10 @@ public class Prenotazione {
             throw new Exception("Formato data scadenza prenotazione errato.");
 
         this.codice = jobj.getString("codice");
+    }
+
+    public int getId() {
+        return id;
     }
 
     public Date getScadenza() {

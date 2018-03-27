@@ -35,9 +35,7 @@ import com.google.android.gms.maps.GoogleMap.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MapActivity extends FragmentActivity implements OnMyLocationButtonClickListener,
-        OnMyLocationClickListener, OnMapReadyCallback, OnMarkerClickListener {
-
+public class MapActivity extends FragmentActivity implements OnMyLocationButtonClickListener, OnMapReadyCallback, OnMarkerClickListener {
     private GoogleMap mGoogleMap;
     private SupportMapFragment mapFrag;
     private LocationRequest mLocationRequest;
@@ -47,9 +45,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
 
     private List<Parcheggio> parcheggi;
     private Marker scelta = null;
-
-    // Per mettere il listener sul mio bottone
-    private ViewGroup infoWindow;
 
     public MapActivity() {
     }
@@ -101,7 +96,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
 
      @Override public void onResume() {
          super.onResume();
-
          if (mFusedLocationClient != null)
              if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                  // Controllo che il GPS sia acceso
@@ -116,6 +110,14 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
              }
      }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // Fermo l'aggiornamento della posizione
+        if (mFusedLocationClient != null) {
+            mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        }
+    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -131,26 +133,26 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
 
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        mGoogleMap.setOnMyLocationButtonClickListener(this);
+        mGoogleMap.setOnMarkerClickListener(this);
+
+        // Metto tutti i parcheggi nella mappa come Marker blu
+        for (Parcheggio p : parcheggi) {
+            MarkerOptions markerOptions = new MarkerOptions();
+            markerOptions.position(p.getCoordinate());
+            markerOptions.title(p.getIndirizzo());
+            markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
+            mGoogleMap.addMarker(markerOptions);
+        }
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             // Controllo che il GPS sia acceso
             if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false)
                 checkGPS();
-
-            mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-            mGoogleMap.setMyLocationEnabled(true);
-            mGoogleMap.setOnMyLocationButtonClickListener(this);
-            mGoogleMap.setOnMyLocationClickListener(this);
-            mGoogleMap.setOnMarkerClickListener(this);
-
-            // Metto tutti i parcheggi nella mappa come Marker blu
-            for (Parcheggio p : parcheggi) {
-                MarkerOptions markerOptions = new MarkerOptions();
-                markerOptions.position(p.getCoordinate());
-                markerOptions.title(p.getIndirizzo());
-                markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE));
-                mGoogleMap.addMarker(markerOptions);
+            else {
+                mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                mGoogleMap.setMyLocationEnabled(true);
             }
-
         } else {
             checkLocationPermission();
         }
@@ -160,7 +162,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
         @Override
         public void onLocationResult(LocationResult locationResult) {
             for (Location location : locationResult.getLocations()) {
-                //Toast.makeText(getApplicationContext(), "Tu sei qui: " + location.getLatitude() + " " + location.getLongitude(), Toast.LENGTH_LONG).show();
                 if (mCurrLocationMarker != null) {
                     mCurrLocationMarker.remove();
                 }
@@ -172,6 +173,8 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
                 markerOptions.title("La tua posizione");
                 markerOptions.icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED));
                 mCurrLocationMarker = mGoogleMap.addMarker(markerOptions);
+
+                Parametri.lastKnowPosition = location;
             }
         }
     };
@@ -205,10 +208,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
             } else {
                 ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
             }
-        } else {
-            // Controllo che il GPS sia acceso
-            if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false)
-                checkGPS();
         }
     }
 
@@ -220,9 +219,7 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
                     // Permessi garantiti
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         // Controllo che il GPS sia acceso
-                        if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false)
-                            checkGPS();
-                        else {
+                        if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                             mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                             mGoogleMap.setMyLocationEnabled(true);
                         }
@@ -230,7 +227,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
                 } else {
                     // Permessi negati, disabilitare qui le funzioni per il gps
                     Toast.makeText(this, "Permessi negati.\nNon puoi utilizzare correttamente quest applicazione", Toast.LENGTH_LONG).show();
-                    checkLocationPermission();
                 }
                 return;
             }
@@ -270,7 +266,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
             case ACTION_LOCATION_SETTING:
                 if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false) {
                     Toast.makeText(this, "GPS spento.\nNon puoi utilizzare correttamente quest applicazione.", Toast.LENGTH_LONG).show();
-                    checkGPS();
                 } else {
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
@@ -289,12 +284,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
     public boolean onMyLocationButtonClick() {
         Toast.makeText(getApplicationContext(), "Tu sei qua.", Toast.LENGTH_SHORT).show();
         return false;
-    }
-
-    // Click sul pallino blu della tua posizione (non il marker, il pallino piccolo di google maps)
-    @Override
-    public void onMyLocationClick(@NonNull Location location) {
-        //Toast.makeText(getApplicationContext(), "Le tue coordinate: " + location.getLatitude() + " " + location.getLongitude(), Toast.LENGTH_SHORT).show();
     }
 
     // Click su un marker qualsiasi presente nella mappa (i marker sono i palloncini colorati che indicano posizioni specifiche sulla mappa)

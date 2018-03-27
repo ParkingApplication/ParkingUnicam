@@ -100,8 +100,6 @@ public class Visualizza_parcheggi extends Fragment {
         android.support.v4.app.FragmentManager fmanager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fmanager.beginTransaction();
         fragmentTransaction.replace(R.id.fram, fragment, "PrenotaParcheggio");
-        fmanager.popBackStack();
-        fragmentTransaction.addToBackStack("PrenotaParcheggio");
         fragmentTransaction.commit();
     }
 }

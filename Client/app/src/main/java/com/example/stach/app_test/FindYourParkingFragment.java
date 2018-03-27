@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
@@ -29,7 +30,7 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
     // Locaizone corrente
     private Location curLocation = null;
     // GPSTracker personalizzato
-    private GPSTracker gpsTracker;
+    private GPSTracker gpsTracker = null;
     // View corrente
     private View view;
 
@@ -47,8 +48,8 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_find_your_parking, container, false);
 
-        ImageButton automaticSearch = view.findViewById(R.id.btnAutomaticLocation);
-        ImageButton inputSearch = view.findViewById(R.id.btnInputLocation);
+        ConstraintLayout automaticSearch = view.findViewById(R.id.CercaParcheggiVicini);
+        ConstraintLayout inputSearch = view.findViewById(R.id.RicercaParcheggiManuale);
 
         // Ricerca manuale tra tutti i parcheggi presenti nel database (recuperati dal server ovviamente)
         inputSearch.setOnClickListener(new View.OnClickListener() {
@@ -65,7 +66,6 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
                 if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
                     checkLocationPermission();
                 else if (gpsTracker.isGPSon()) {
-                    gpsTracker.StartToGetLocation();
                     SendCoordinateForNearPark();
                 } else
                     checkGPS();
@@ -76,18 +76,10 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
     }
 
     @Override
-    public void onStart() {
-        super.onStart();
-        // Creo il GPSTracker e mi metto in ascolto sul mio evento GpsLocationChange
-        gpsTracker = new GPSTracker(getContext());
-        gpsTracker.addListener(this);
-
-        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-            checkLocationPermission();
-        else if (gpsTracker.isGPSon())
-            gpsTracker.StartToGetLocation();
-        else
-            checkGPS();
+    public void onDestroy() {
+        super.onDestroy();
+        gpsTracker.removeListener(this);
+        gpsTracker.StopGPS();
     }
 
     // Serve a distinguere i contorlli di vari permessi (in questo caso ne abbiamo solo uno per il gps)
@@ -122,29 +114,23 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
             } else {
                 ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSIONS_REQUEST_LOCATION);
             }
-        } else {
-            gpsTracker.StartToGetLocation();
         }
     }
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // Permessi garantiti
                     if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                         // Controllo che il GPS sia acceso
-                        if (!gpsTracker.isGPSon())
-                            checkGPS();
-                        else
+                        if (gpsTracker.isGPSon())
                             gpsTracker.StartToGetLocation();
                     }
                 } else {
                     // Permessi negati, disabilitare qui le funzioni per il gps
                     Toast.makeText(getContext(), "Permessi negati.\nNon puoi utilizzare correttamente quest applicazione", Toast.LENGTH_LONG).show();
-                    checkLocationPermission();
                 }
             }
         }
@@ -183,7 +169,6 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
             case ACTION_LOCATION_SETTING:
                 if (!gpsTracker.isGPSon()) {
                     Toast.makeText(getContext(), "GPS spento.\nNon puoi utilizzare correttamente quest applicazione", Toast.LENGTH_LONG).show();
-                    checkGPS();
                 } else
                     gpsTracker.StartToGetLocation();
                 break;
@@ -229,8 +214,10 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
     @Override
     public void GpsLocationChange(Location location) {
         curLocation = location;
-        if (curLocation != null)
+        if (curLocation != null) {
+            Parametri.lastKnowPosition = location;
             AggiornaIndirizzo();
+        }
     }
 
     @Override
@@ -240,22 +227,24 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
         gpsTracker.StopGPS();
     }
 
-    /**
-     * Va sistemato perché danno problemi quando si passa da un activity o fragment all' altro
-     *
-     * @Override public void onResume() {
-     * super.onResume();
-     * <p>
-     * if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
-     * checkLocationPermission();
-     * else {
-     * if (gpsTracker.isGPSon()) {
-     * gpsTracker.StartToGetLocation();
-     * } else
-     * checkGPS();
-     * }
-     * }
-     */
+
+     @Override public void onResume() {
+         super.onResume();
+
+         if (gpsTracker == null) {
+             gpsTracker = new GPSTracker(getContext());
+             gpsTracker.addListener(this);
+         }
+         else
+             gpsTracker.addListener(this);
+
+         if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED)
+             checkLocationPermission();
+         else if (gpsTracker.isGPSon())
+             gpsTracker.StartToGetLocation();
+         else
+             checkGPS();
+     }
 
     // Listener con funzione per la ricezione dei risultati della Connessione con il server (per avere la lista dei parcheggi nella mappa)
     private ConnessioneListener ListenerLanciaMappe = new ConnessioneListener() {

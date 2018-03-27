@@ -70,7 +70,7 @@ public class FragmentYour_Book extends Fragment {
                             if (index >= 0 && index < Parametri.prenotazioniInCorso.size()) {
                                 //passo le informazioni relative alla mia prenotazione
                                 Bundle bundle = new Bundle();
-                                bundle.putString("indexPrenotazione", String.valueOf(index));
+                                bundle.putString("idPrenotazione", String.valueOf(Parametri.prenotazioniInCorso.get(index).getId()));
                                 bundle.putString("NomeParcheggio", String.valueOf(parcheggi.get(index).getIndirizzo()));
                                 //eseguo la transazione
                                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();

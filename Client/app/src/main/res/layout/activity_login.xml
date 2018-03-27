@@ -32,6 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
+            android:layout_marginTop="4dp"
             android:background="@drawable/roundedbutton"
             android:onClick="goToSignUp"
             android:text="@string/btn_to_signUp"
@@ -47,6 +48,8 @@
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginTop="24dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:srcCompat="@mipmap/ic_logo_park" />
 
@@ -60,6 +63,7 @@
             android:backgroundTint="@color/blue"
             android:hint="username o email"
             android:inputType="textEmailAddress"
+            android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/unicamPark" />
@@ -69,6 +73,7 @@
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
             android:background="@android:color/transparent"
             android:onClick="goToPasswordRecovery"
             android:text="@string/btn_credentials"
@@ -89,6 +94,7 @@
             android:backgroundTint="@color/blue"
             android:hint="@string/prompt_password"
             android:inputType="textPassword"
+            android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/mail" />

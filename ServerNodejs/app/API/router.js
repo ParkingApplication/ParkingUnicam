@@ -930,7 +930,6 @@ apiRoutes.post('/getParcheggiFromCoordinate', function (req, res) {
                                             parcheggi[c].distanzaFisica = bodyg.rows[0].elements[c].distance.text;
                                             parcheggi[c].distanzaTemporale = bodyg.rows[0].elements[c].duration.text
                                             parcheggi[c].distance = bodyg.rows[0].elements[c].distance.value;
-                                            parcheggi[c].temp = bodyg.rows[0].elements[c].duration.value;
                                         }
 
                                         var l = 0;
@@ -1069,61 +1068,131 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                         }
 
                         if (disponibilita > 0) {
-                            // Controllo se l'utente mi ha inviato la distanza in tempo tra lui ed il parcheggio
-                            var distanzaTemporale = req.body.tempo || 0;
+                            if (req.body.partenza == undefined || req.body.destinazione == undefined) {
+                                // Genero il codice da cui creare il QRCode
+                                var now = new Date();
+                                var datetime = new Date((now.getTime() + SCADENZA_PRENOTAZIONI));
+                                var data = now.getMilliseconds() + req.user.id;
+                                var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
+                                var scadenza = datetime.toLocaleString();
 
-                            // Genero il codice da cui creare il QRCode
-                            var now = new Date();
-                            var datetime = new Date((now.getTime() + SCADENZA_PRENOTAZIONI));
-                            var data = now.getMilliseconds() + req.user.id;
-                            var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
-                            var scadenza = datetime.toLocaleString();
+                                Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
+                                    function (err, result) {
+                                        if (err) {
+                                            res.status(400).json({
+                                                error: {
+                                                    codice: 98,
+                                                    info: "Riscontrati errori con il database."
+                                                }
+                                            });
+                                            return;
+                                        }
+                                        else {
+                                            res.json({
+                                                idPrenotazione: result.insertId,
+                                                QR_Code: codice,
+                                                scadenza: scadenza
+                                            });
 
-                            Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
-                                function (err, result) {
-                                    if (err) {
+                                            // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
+                                            setTimeout(PrenotazioneScaduta, SCADENZA_PRENOTAZIONI, result.insertId, req.user.id);
+
+                                            // Aggiorno il numero di posti liberi
+                                            switch (req.body.tipoParcheggio) {
+                                                case TipoPosto.auto:
+                                                    posti[k].auto--;
+                                                    break;
+                                                case TipoPosto.autobus:
+                                                    posti[k].autobus--;
+                                                    break;
+                                                case TipoPosto.camper:
+                                                    posti[k].camper--;
+                                                    break;
+                                                case TipoPosto.moto:
+                                                    posti[k].moto--;
+                                                    break;
+                                                case TipoPosto.disabile:
+                                                    posti[k].disabile--;
+                                                    break;
+                                            }
+
+                                            Storage.updatePostiLiberi(posti, function (err) {
+                                                if (err)
+                                                    console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi.");
+                                            });
+                                        }
+                                    });
+                            }
+                            else {
+                                var dest = req.body.destinazione.lat + "," + req.body.destinazione.long;
+                                DistastanceCalculator.sendDistanceRequest(req.body.partenza, dest, function (error, response, bodyg) {
+                                    bodyg = JSON.parse(bodyg);
+                                    if (!error && response.statusCode == 200 && bodyg.rows != undefined) {
+                                        var tempoArrivo = bodyg.rows[0].elements[0].duration.value * 1000; // google risponde in secondi
+
+                                        // Genero il codice da cui creare il QRCode
+                                        var now = new Date();
+                                        var datetime = new Date((now.getTime() + SCADENZA_PRENOTAZIONI + tempoArrivo));
+                                        var data = now.getMilliseconds() + req.user.id;
+                                        var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
+                                        var scadenza = datetime.toLocaleString();
+
+                                        Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
+                                            function (err, result) {
+                                                if (err) {
+                                                    res.status(400).json({
+                                                        error: {
+                                                            codice: 98,
+                                                            info: "Riscontrati errori con il database."
+                                                        }
+                                                    });
+                                                    return;
+                                                }
+                                                else {
+                                                    res.json({
+                                                        idPrenotazione: result.insertId,
+                                                        QR_Code: codice,
+                                                        scadenza: scadenza
+                                                    });
+
+                                                    // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
+                                                    setTimeout(PrenotazioneScaduta, SCADENZA_PRENOTAZIONI + tempoArrivo, result.insertId, req.user.id);
+
+                                                    // Aggiorno il numero di posti liberi
+                                                    switch (req.body.tipoParcheggio) {
+                                                        case TipoPosto.auto:
+                                                            posti[k].auto--;
+                                                            break;
+                                                        case TipoPosto.autobus:
+                                                            posti[k].autobus--;
+                                                            break;
+                                                        case TipoPosto.camper:
+                                                            posti[k].camper--;
+                                                            break;
+                                                        case TipoPosto.moto:
+                                                            posti[k].moto--;
+                                                            break;
+                                                        case TipoPosto.disabile:
+                                                            posti[k].disabile--;
+                                                            break;
+                                                    }
+
+                                                    Storage.updatePostiLiberi(posti, function (err) {
+                                                        if (err)
+                                                            console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi.");
+                                                    });
+                                                }
+                                            });
+                                    }
+                                    else
                                         res.status(400).json({
                                             error: {
-                                                codice: 98,
-                                                info: "Riscontrati errori con il database."
+                                                codice: 9,
+                                                info: "Riscontrati problemi nella comunicazione con google. (output errato)"
                                             }
                                         });
-                                        return;
-                                    }
-                                    else { // Rispondo col il codice del qrcode
-                                        res.json({
-                                            QR_Code: codice,
-                                            scadenza: scadenza
-                                        });
-
-                                        // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
-                                        setTimeout(PrenotazioneScaduta, SCADENZA_PRENOTAZIONI, result.insertId, req.user.id);
-
-                                        // Aggiorno il numero di posti liberi
-                                        switch (req.body.tipoParcheggio) {
-                                            case TipoPosto.auto:
-                                                posti[k].auto--;
-                                                break;
-                                            case TipoPosto.autobus:
-                                                posti[k].autobus--;
-                                                break;
-                                            case TipoPosto.camper:
-                                                posti[k].camper--;
-                                                break;
-                                            case TipoPosto.moto:
-                                                posti[k].moto--;
-                                                break;
-                                            case TipoPosto.disabile:
-                                                posti[k].disabile--;
-                                                break;
-                                        }
-
-                                        Storage.updatePostiLiberi(posti, function (err) {
-                                            if (err)
-                                                console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi.");
-                                        });
-                                    }
                                 });
+                            }
                         }
                         else {
                             res.status(400).json({
@@ -1165,8 +1234,8 @@ apiRoutes.delete('/deletePrenotazione', function (req, res) {
                 });
             else
                 if (rows.length == 1) {
-                    var idParcheggio = rows[i].id_parcheggio;
-                    var idTipoPosto = rows[i].id_tipo_posto;
+                    var idParcheggio = rows[0].id_parcheggio;
+                    var idTipoPosto = rows[0].id_tipo_posto;
 
                     Prenotazione.delPrenotazione(req.body.idPrenotazione, function (err) {
                         if (err) {

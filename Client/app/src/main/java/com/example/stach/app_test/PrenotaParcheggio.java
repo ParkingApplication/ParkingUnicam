@@ -3,6 +3,8 @@ package com.example.stach.app_test;
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,8 +40,7 @@ public class PrenotaParcheggio extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         view = inflater.inflate(R.layout.fragment_prenota_parcheggio, container, false);
 
         int id = getArguments().getInt("ID", -1);
@@ -49,7 +50,8 @@ public class PrenotaParcheggio extends Fragment {
                 break;
 
         TextView informazioni = view.findViewById(R.id.textViewViaParcheggio);
-        informazioni.setText(Parametri.parcheggi.get(index).getIndirizzo());
+        informazioni.setText(Parametri.parcheggi.get(index).getIndirizzo() + "\n\nTariffe orarie:\nLavorativi: "
+                + Parametri.parcheggi.get(index).getPrezzoLavorativi() + "€\nFestivi: " + Parametri.parcheggi.get(index).getPrezzoFestivi() + "€");
         RadioButton rd = view.findViewById(R.id.RadioAuto);
         String str = String.valueOf(Parametri.parcheggi.get(index).getPostiLiberi()[TipoPosto.AUTO]);
         rd.setText(str);
@@ -124,6 +126,19 @@ public class PrenotaParcheggio extends Fragment {
             postData.put("idParcheggio", Parametri.parcheggi.get(index).getId());
             postData.put("tipoParcheggio", tipo_parcheggio);
             postData.put("token", Parametri.Token);
+
+            // Se conosco la mia posizione attuale la invio al server insieme a quella della mia destinazione
+            if (Parametri.lastKnowPosition != null) {
+                JSONObject pos = new JSONObject();
+                pos.put("lat", Parametri.lastKnowPosition.getLatitude());
+                pos.put("long", Parametri.lastKnowPosition.getLongitude());
+                postData.put("partenza", pos);
+                pos = new JSONObject();
+                pos.put("lat", Parametri.parcheggi.get(index).getCoordinate().latitude);
+                pos.put("long", Parametri.parcheggi.get(index).getCoordinate().longitude);
+                postData.put("destinazione", pos);
+            }
+
         } catch (Exception e) {
             Toast.makeText(this.getContext(), "Errore nell' elaborazione dei dati da inviare!", Toast.LENGTH_LONG).show();
             return;
@@ -160,7 +175,8 @@ public class PrenotaParcheggio extends Fragment {
                     JSONObject risp = new JSONObject(result);
                     String code = risp.getString("QR_Code");
                     Date data_scadenza = stringToDate(risp.getString("scadenza"), "yyyy-MM-dd HH:mm:ss");
-                    pren = new Prenotazione(data_scadenza, Parametri.parcheggi.get(index).getId(), tipo_parcheggio, code);
+                    int id = risp.getInt("idPrenotazione");
+                    pren = new Prenotazione(id, data_scadenza, Parametri.parcheggi.get(index).getId(), tipo_parcheggio, code);
                 } catch (Exception e) {
                     caricamento.dismiss();
                     Toast.makeText(getContext(), "Errore di risposta del server.", Toast.LENGTH_LONG).show();
@@ -168,10 +184,23 @@ public class PrenotaParcheggio extends Fragment {
                 }
 
                 Parametri.prenotazioniInCorso.add(pren);
-
                 caricamento.dismiss();
                 Toast.makeText(getContext(), "Prenotazione effettutata con successo!", Toast.LENGTH_LONG).show();
-                getActivity().onBackPressed();
+
+                //passo le informazioni relative alla mia prenotazione
+                Bundle bundle = new Bundle();
+                bundle.putString("idPrenotazione", String.valueOf(pren.getId()));
+                bundle.putString("NomeParcheggio", String.valueOf(Parametri.parcheggi.get(index).getIndirizzo()));
+                //eseguo la transazione
+                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                //passo i valori
+                Detail_Book detail_book = new Detail_Book();
+                detail_book.setArguments(bundle);
+                //eseguo la transazione
+                fragmentTransaction.replace(R.id.fram, detail_book);
+                fragmentTransaction.commit();
+
                 return;
             }
         }
@@ -275,8 +304,6 @@ public class PrenotaParcheggio extends Fragment {
         rd = view.findViewById(R.id.RadioDisabile);
         str = String.valueOf(Parametri.parcheggi.get(index).getPostiLiberi()[TipoPosto.DISABILE]);
         rd.setText(str);
-
-        //Toast.makeText(getContext(), "Posti liberi aggiornati.", Toast.LENGTH_SHORT).show();
     }
 
     private Date stringToDate(String data, String format) {

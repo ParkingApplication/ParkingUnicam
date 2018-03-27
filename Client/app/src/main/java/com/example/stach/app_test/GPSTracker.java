@@ -32,7 +32,7 @@ public class GPSTracker extends Service {
 
     public GPSTracker(Context context) {
         this.mContext = context;
-        listeners = new ArrayList<GpsChangeListener>();
+        listeners = new ArrayList<>();
         mFusedLocationClient = null;
         location = null;
     }
@@ -79,7 +79,8 @@ public class GPSTracker extends Service {
 
     // Permetto a chi vuole di mettersi in ascolto sul evento onLocationChanged tramite il GpsChangeListener
     public void addListener(GpsChangeListener x) {
-        listeners.add(x);
+        if (!listeners.contains(x))
+            listeners.add(x);
     }
 
     public void removeListener(GpsChangeListener x) {

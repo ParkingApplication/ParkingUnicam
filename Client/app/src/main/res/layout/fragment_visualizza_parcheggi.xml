@@ -32,7 +32,7 @@
                 android:textAlignment="center"
                 android:textColor="@color/colorPrimaryDark"
                 android:textSize="24sp"
-                android:textStyle="normal|bold" />
+                android:textStyle="bold" />
         </LinearLayout>
     </ScrollView>
 </android.support.design.widget.CoordinatorLayout>

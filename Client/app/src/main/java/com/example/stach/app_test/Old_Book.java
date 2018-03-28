@@ -66,7 +66,6 @@ public class Old_Book extends Fragment {
                         public void onClick(View view) {
                             int index = view.getId();
 
-                            /**
                             if (index >= 0 && index < Parametri.prenotazioniVecchie.size()) {
                                 //passo le informazioni relative alla mia prenotazione
                                 Bundle bundle = new Bundle();
@@ -76,14 +75,13 @@ public class Old_Book extends Fragment {
                                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                                 //passo i valori
-                                Detail_Book detail_book = new Detail_Book();
-                                detail_book.setArguments(bundle);
+                                DetailOldBook detail_old_book = new DetailOldBook();
+                                detail_old_book.setArguments(bundle);
                                 //eseguo la transazione
-                                fragmentTransaction.replace(R.id.fram, detail_book);
-                                fragmentTransaction.addToBackStack("Fragment_book");
+                                fragmentTransaction.replace(R.id.fram, detail_old_book);
+                                fragmentTransaction.addToBackStack("Fragment_old_book");
                                 fragmentTransaction.commit();
                             }
-                             */
                         }
                     });
                 }

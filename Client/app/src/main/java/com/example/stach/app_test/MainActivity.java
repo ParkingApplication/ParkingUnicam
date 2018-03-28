@@ -376,13 +376,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void ResultResponse(String responseCode, String result) {
             if (responseCode == null) {
-                    caricamento.dismiss();
+                caricamento.dismiss();
                 Toast.makeText(getApplicationContext(), "Errore di ricezione delle prenotazioni in corso.\nIl server non risponde.", Toast.LENGTH_LONG).show();
                 return;
             }
 
             if (responseCode.equals("400")) {
-                    caricamento.dismiss();
+                caricamento.dismiss();
                 String message = Connessione.estraiErrore(result);
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                 return;
@@ -399,7 +399,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 } catch (Exception e) {
                     e.printStackTrace();
-                        caricamento.dismiss();
+                    caricamento.dismiss();
                     Toast.makeText(getApplicationContext(), "Errore di risposta del server.\nImpossibile visualizzare le prenotazioni.", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -407,7 +407,9 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 Parametri.prenotazioniVecchie = prenotazioni;
 
                 if (Parametri.parcheggi == null) {
-
+                    Connessione connPar = new Connessione(new JSONObject(), "POST");
+                    connPar.addListener(ListenerGetParcheggiForOld);
+                    connPar.execute(Parametri.IP + "/getAllParcheggi");
                 } else {
                     caricamento.dismiss();
                     setTitle("Prenotazioni passate");
@@ -417,6 +419,50 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     fragmentTransaction.addToBackStack("Prenotazioni_Passate");
                     fragmentTransaction.commit();
                 }
+            }
+        }
+    };
+
+    private ConnessioneListener ListenerGetParcheggiForOld = new ConnessioneListener() {
+        @Override
+        public void ResultResponse(String responseCode, String result) {
+            if (responseCode == null) {
+                caricamento.dismiss();
+                Toast.makeText(getApplicationContext(), "Errore di ricezione dei parcheggi.\nIl server non risponde.", Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (responseCode.equals("400")) {
+                caricamento.dismiss();
+                String message = Connessione.estraiErrore(result);
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (responseCode.equals("200")) {
+                ArrayList<Parcheggio> par = new ArrayList<Parcheggio>();
+
+                try {
+                    JSONObject allparcheggi = new JSONObject(result);
+                    JSONArray parcheggi = allparcheggi.getJSONArray("parcheggi");
+
+                    for (int i = 0; i < parcheggi.length(); i++)
+                        par.add(new Parcheggio(parcheggi.get(i).toString()));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    caricamento.dismiss();
+                    Toast.makeText(getApplicationContext(), "Errore di risposta del server.\nImpossibile visualizzare le prenotazioni.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                caricamento.dismiss();
+                setTitle("Prenotazioni passate");
+                Old_Book fragment = new Old_Book();
+                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                fragmentTransaction.replace(R.id.fram, fragment, "Fragment vecchie prenotazioni");
+                fragmentTransaction.addToBackStack("Prenotazioni_Passate");
+                fragmentTransaction.commit();
             }
         }
     };

@@ -132,6 +132,13 @@ public class StartActivity extends AppCompatActivity {
             if ((appoggio = fos1.readLine()) != null)
                 passwordResult = appoggio;
 
+            // Leggo le impostazioni
+            if ((appoggio = fos1.readLine()) != null)
+                Parametri.TEMPO_EXTRA = Integer.parseInt(appoggio);
+
+            if ((appoggio = fos1.readLine()) != null)
+                Parametri.TEMPO_AVVISO = Integer.parseInt(appoggio);
+
             fos1.close();
         } catch (Exception e) {
             e.printStackTrace();

@@ -62,9 +62,12 @@ public class LoginActivity extends AppCompatActivity implements  ConnessioneList
             password = SHA1(password);
         } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Riscontrati problemi nell' hashing della password.", Toast.LENGTH_LONG).show();
             return;
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
+            Toast.makeText(getApplicationContext(), "Riscontrati problemi nell' hashing della password.", Toast.LENGTH_LONG).show();
+            return;
         }
 
         sendDataForLogin(username, password);
@@ -165,6 +168,8 @@ public class LoginActivity extends AppCompatActivity implements  ConnessioneList
             BufferedWriter fos = new BufferedWriter(new FileWriter(Parametri.login_file.getAbsolutePath()));
             fos.write(username + "\n");
             fos.write(password + "\n");
+            fos.write(Parametri.TEMPO_EXTRA + "\n");
+            fos.write(Parametri.TEMPO_AVVISO + "\n");
             fos.close();
         } catch (Exception e) {
             e.printStackTrace();

@@ -126,6 +126,7 @@ public class PrenotaParcheggio extends Fragment {
             postData.put("idParcheggio", Parametri.parcheggi.get(index).getId());
             postData.put("tipoParcheggio", tipo_parcheggio);
             postData.put("token", Parametri.Token);
+            postData.put("tempoExtra", Parametri.TEMPO_EXTRA);
 
             // Se conosco la mia posizione attuale la invio al server insieme a quella della mia destinazione
             if (Parametri.lastKnowPosition != null) {

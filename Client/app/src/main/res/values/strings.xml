@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Unicam Parking</string>
     <string name="title_activity_login">Accedi</string>
@@ -65,12 +65,33 @@
     <string name="navBooking">Naviga verso il parcheggio</string>
     <!-- String related to change password fragment-->
     <string name="newPassword">Inserisci la nuova password</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="password_recovery1">Inserisci la tua email di registrazione</string>
     <string name="password_recovery2">ti invieremo una nuova password</string>
     <string name="icon_card">Dati pagamento</string>
     <string name="posti_moto">Posti moto:</string>
-
-
+    <string-array name="optionsMenuItem2">
+        <item>Non avvisare</item>
+        <item>5 minuti</item>
+        <item>10 minuti</item>
+        <item>15 minuti</item>
+    </string-array>
+<string-array name="optionsMenuItem1">
+<item>Nessuno</item>
+<item>10 minuti</item>
+<item>15 minuti</item>
+<item>20 minuti</item>
+</string-array>
+    <integer-array name="optionsMenuItem1value">
+        <item>0</item>
+        <item>10</item>
+        <item>15</item>
+        <item>20</item>
+    </integer-array>
+    <integer-array name="optionsMenuItem2value">
+        <item>0</item>
+        <item>5</item>
+        <item>10</item>
+        <item>15</item>
+    </integer-array>
 </resources>

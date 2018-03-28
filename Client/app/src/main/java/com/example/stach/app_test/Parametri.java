@@ -21,6 +21,8 @@ public class Parametri {
     static String telefono = null;
     static String saldo = null;
     static Location lastKnowPosition = null;
+    static int TEMPO_AVVISO = 5 * 60 * 1000; // 5 minuti
+    static int TEMPO_EXTRA = 20 * 60 * 1000; // 20 minuti
 
     // Dati carta di credito
     static String numero_carta = null;

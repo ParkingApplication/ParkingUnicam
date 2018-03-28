@@ -25,9 +25,10 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
     // Timer scadenza prenotazioni
     private Handler handler = new Handler();
-    private final int TIMER = 7 * 1000; // 7 secondi
+    private final int TIMER = 10 * 1000; // 10 secondi
 
     private ProgressDialog caricamento = null;
+    private boolean launchPrenotaizoni = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         fragmentTransaction.commit();
 
         // Recupero i dati delle mie prenotaizoni (per il timer delle scadenze)
-        GetPrenotazioniFirsTime();
+        GetDatiPrenotazioni(false);
     }
 
     // Funzione per l'aggiornamento automatico dei posti liberi
@@ -64,6 +65,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        // Se il menù è aperto lo chiudo
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
@@ -87,6 +89,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            setTitle("Settings");
+            OptionsMenu fragment = new OptionsMenu();
+            FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fram, fragment, "settings");
+            fragmentTransaction.addToBackStack("Settings_Fragment");
+            fragmentTransaction.commit();
             return true;
         }
 
@@ -120,7 +128,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_your_book) {
-            GetDatiPrenotazioni();
+            GetDatiPrenotazioni(true);
         } else if (id == R.id.nav_logout) {
             Parametri.login_file.delete();
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
@@ -160,73 +168,35 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     // Ogni tot secondi viene chiamata per controllare le scadenze delle prenotazioni in corso
     private void ControllaScadenze() {
-        if (Parametri.prenotazioniInCorso != null)
+        if (Parametri.prenotazioniInCorso != null && Parametri.parcheggi != null)
             for (int i = 0; i < Parametri.prenotazioniInCorso.size(); i++)
                 if (Parametri.prenotazioniInCorso.get(i).getTempoScadenza() <= 0) {
                     new AlertDialog.Builder(this)
-                            .setTitle("La tua prenotazione è scaduta")
-                            .setMessage("la tua prenotazone nel parcheggio " + Parametri.parcheggi.get(i).getIndirizzo() + " è scaduta.")
+                            .setTitle("Penotazione scaduta")
+                            .setMessage("La tua prenotazone nel parcheggio " + Parametri.parcheggi.get(i).getIndirizzo() + " è scaduta.")
                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialogInterface, int i) {
                                 }
                             }).create().show();
                     Parametri.prenotazioniInCorso.remove(i);
-                }
+                } else if (Parametri.prenotazioniInCorso.get(i).getTempoScadenza() < Parametri.TEMPO_AVVISO)
+                    new AlertDialog.Builder(this)
+                            .setTitle("Avviso scadenza")
+                            .setMessage("La tua prenotazone nel parcheggio " + Parametri.parcheggi.get(i).getIndirizzo()
+                                    + " scadrà tra " + ((Parametri.TEMPO_AVVISO / 1000) / 60) + " minuti.")
+                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialogInterface, int i) {
+                                }
+                            }).create().show();
+                else
+                    GetDatiPrenotazioni(false);
 
         handler.postDelayed(runnable, TIMER);
     }
 
-    public void GetPrenotazioniFirsTime() {
-        JSONObject richiesta = new JSONObject();
-
-        try {
-            richiesta.put("token", Parametri.Token);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-
-        Connessione conn = new Connessione(richiesta, "POST");
-        conn.addListener(ListenerGetPrenotazioniFirstTime);
-        conn.execute(Parametri.IP + "/getPrenotazioniInAttoUtente");
-    }
-
-    private ConnessioneListener ListenerGetPrenotazioniFirstTime = new ConnessioneListener() {
-        @Override
-        public void ResultResponse(String responseCode, String result) {
-            if (responseCode == null) {
-                Toast.makeText(getApplicationContext(), "Errore di ricezione delle prenotazioni in corso.\nIl server non risponde.", Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (responseCode.equals("400")) {
-                String message = Connessione.estraiErrore(result);
-                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_SHORT).show();
-                return;
-            }
-
-            if (responseCode.equals("200")) {
-                List<Prenotazione> prenotazioni = new ArrayList<>();
-
-                try {
-                    JSONArray prenotazioniInAtto = (new JSONObject(result).getJSONArray("prenotazioniInAtto"));
-
-                    for (int i = 0; i < prenotazioniInAtto.length(); i++)
-                        prenotazioni.add(new Prenotazione(prenotazioniInAtto.getJSONObject(i).toString()));
-
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    return;
-                }
-
-                Parametri.prenotazioniInCorso = prenotazioni;
-            }
-        }
-
-    };
-
-    public void GetDatiPrenotazioni() {
+    public void GetDatiPrenotazioni(boolean forLaunchPrenotaizoni) {
         JSONObject postData = new JSONObject();
 
         try {
@@ -236,8 +206,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             return;
         }
 
-        caricamento = ProgressDialog.show(MainActivity.this, "Recupero dati",
-                "Connessione con il server in corso...", true);
+        launchPrenotaizoni = forLaunchPrenotaizoni;
+
+        if (launchPrenotaizoni) {
+            caricamento = ProgressDialog.show(MainActivity.this, "Recupero dati",
+                    "Connessione con il server in corso...", true);
+
+        }
 
         Connessione connPre = new Connessione(postData, "POST");
         connPre.addListener(ListenerGetPrenotazioni);
@@ -248,13 +223,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void ResultResponse(String responseCode, String result) {
             if (responseCode == null) {
-                caricamento.dismiss();
+                if (launchPrenotaizoni) {
+                    caricamento.dismiss();
+                    launchPrenotaizoni = false;
+                }
                 Toast.makeText(getApplicationContext(), "Errore di ricezione delle prenotazioni in corso.\nIl server non risponde.", Toast.LENGTH_LONG).show();
                 return;
             }
 
             if (responseCode.equals("400")) {
-                caricamento.dismiss();
+                if (launchPrenotaizoni) {
+                    caricamento.dismiss();
+                    launchPrenotaizoni = false;
+                }
                 String message = Connessione.estraiErrore(result);
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                 return;
@@ -271,6 +252,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 } catch (Exception e) {
                     e.printStackTrace();
+                    if (launchPrenotaizoni) {
+                        caricamento.dismiss();
+                        launchPrenotaizoni = false;
+                    }
                     Toast.makeText(getApplicationContext(), "Errore di risposta del server.\nImpossibile visualizzare le prenotazioni.", Toast.LENGTH_LONG).show();
                     return;
                 }
@@ -281,7 +266,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Connessione connPar = new Connessione(new JSONObject(), "POST");
                     connPar.addListener(ListenerGetParcheggi);
                     connPar.execute(Parametri.IP + "/getAllParcheggi");
-                } else {
+                } else if (launchPrenotaizoni) {
                     caricamento.dismiss();
                     setTitle("Le tue prenotazioni");
                     FragmentYour_Book fragment = new FragmentYour_Book();
@@ -289,6 +274,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
                     fragmentTransaction.addToBackStack("Fragment_Book");
                     fragmentTransaction.commit();
+                    launchPrenotaizoni = false;
                 }
             }
         }
@@ -299,13 +285,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         @Override
         public void ResultResponse(String responseCode, String result) {
             if (responseCode == null) {
-                caricamento.dismiss();
+                if (launchPrenotaizoni) {
+                    caricamento.dismiss();
+                    launchPrenotaizoni = false;
+                }
                 Toast.makeText(getApplicationContext(), "Errore di ricezione dei parcheggi.\nIl server non risponde.", Toast.LENGTH_LONG).show();
                 return;
             }
 
             if (responseCode.equals("400")) {
-                caricamento.dismiss();
+                if (launchPrenotaizoni) {
+                    caricamento.dismiss();
+                    launchPrenotaizoni = false;
+                }
                 String message = Connessione.estraiErrore(result);
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                 return;
@@ -323,20 +315,27 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
                 } catch (Exception e) {
                     e.printStackTrace();
+                    if (launchPrenotaizoni) {
+                        caricamento.dismiss();
+                        launchPrenotaizoni = false;
+                    }
                     Toast.makeText(getApplicationContext(), "Errore di risposta del server.\nImpossibile visualizzare le prenotazioni.", Toast.LENGTH_LONG).show();
                     return;
                 }
 
                 Parametri.parcheggi = par;
 
-                caricamento.dismiss();
+                if (launchPrenotaizoni) {
+                    caricamento.dismiss();
 
-                setTitle("Le tue prenotazioni");
-                FragmentYour_Book fragment = new FragmentYour_Book();
-                FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
-                fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
-                fragmentTransaction.addToBackStack("Fragment_Book");
-                fragmentTransaction.commit();
+                    setTitle("Le tue prenotazioni");
+                    FragmentYour_Book fragment = new FragmentYour_Book();
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
+                    fragmentTransaction.addToBackStack("Fragment_Book");
+                    fragmentTransaction.commit();
+                    launchPrenotaizoni = false;
+                }
             }
         }
     };

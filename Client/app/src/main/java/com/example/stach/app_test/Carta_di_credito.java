@@ -32,9 +32,9 @@ public class Carta_di_credito extends Fragment implements ConnessioneListener {
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_carta_di_credito, container, false);
 
-        t_numero = (EditText) view.findViewById(R.id.editTextNumeroCarta);
-        t_data = (EditText) view.findViewById(R.id.editTextDataScadenza);
-        t_pin = (EditText) view.findViewById(R.id.editTextPin);
+        t_numero = view.findViewById(R.id.editTextNumeroCarta);
+        t_data = view.findViewById(R.id.editTextDataScadenza);
+        t_pin = view.findViewById(R.id.editTextPin);
 
         // Se sono presenti setto i dati precedentemente collegati all' account dall' utente
         if (Parametri.numero_carta != null )
@@ -44,7 +44,7 @@ public class Carta_di_credito extends Fragment implements ConnessioneListener {
         if (Parametri.pin != null)
             t_pin.setText(Parametri.pin);
 
-        Button sendDatiCarta = (Button) view.findViewById((R.id.buttonAggiornaCarta));
+        Button sendDatiCarta = view.findViewById((R.id.buttonAggiornaCarta));
         final ConnessioneListener me = this;
         sendDatiCarta.setOnClickListener(new View.OnClickListener() {
             @Override

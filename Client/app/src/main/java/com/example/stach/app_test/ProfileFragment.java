@@ -11,7 +11,6 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -28,52 +27,53 @@ public class ProfileFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate (R.layout.fragment_profile, container, false);
 
-        ImageView mImageView;
-        TextView t_nome;
-        TextView t_cognome;
-        TextView t_data;
-        TextView t_telefono;
-        TextView t_email;
-        TextView t_saldo;
-        TextView t_user;
+        if (Parametri.nome != null && Parametri.data_di_scadenza != null) {
+            ImageView mImageView;
+            TextView t_nome;
+            TextView t_cognome;
+            TextView t_data;
+            TextView t_telefono;
+            TextView t_email;
+            TextView t_saldo;
+            TextView t_user;
 
-        mImageView = view.findViewById(R.id.image_profile);
-        mImageView.setImageResource(R.mipmap.ic_profile);
+            mImageView = view.findViewById(R.id.image_profile);
+            mImageView.setImageResource(R.mipmap.ic_profile);
 
-        t_nome = view.findViewById(R.id.Nome);
-        t_nome.setText(Parametri.nome );
+            t_nome = view.findViewById(R.id.Nome);
+            t_nome.setText(Parametri.nome);
 
-        t_cognome = view.findViewById(R.id.Cognome);
-        t_cognome.setText(Parametri.cognome );
-        t_telefono = view.findViewById(R.id.Telefono);
-        t_telefono.setText(Parametri.telefono );
+            t_cognome = view.findViewById(R.id.Cognome);
+            t_cognome.setText(Parametri.cognome);
+            t_telefono = view.findViewById(R.id.Telefono);
+            t_telefono.setText(Parametri.telefono);
 
-        t_data = view.findViewById(R.id.Data_Nascita);
-        t_data.setText(DateFormat.format("dd MMMM yyyy", stringToDate(Parametri.data_nascita, "yyyy-MM-dd")).toString());
+            t_data = view.findViewById(R.id.Data_Nascita);
+            t_data.setText(DateFormat.format("dd MMMM yyyy", stringToDate(Parametri.data_nascita, "yyyy-MM-dd")).toString());
 
-        t_email = view.findViewById(R.id.Email);
-        t_email.setText(Parametri.email );
+            t_email = view.findViewById(R.id.Email);
+            t_email.setText(Parametri.email);
 
-        t_saldo = view.findViewById(R.id.Saldo);
-        t_saldo.setText(Parametri.saldo );
+            t_saldo = view.findViewById(R.id.Saldo);
+            t_saldo.setText(Parametri.saldo);
 
-        t_user = view.findViewById(R.id.Username);
-        t_user.setText(Parametri.username );
+            t_user = view.findViewById(R.id.Username);
+            t_user.setText(Parametri.username);
 
-        Button button_cambia_credenziali = view.findViewById((R.id.buttonCambiaCredenziali));
+            Button button_cambia_credenziali = view.findViewById((R.id.buttonCambiaCredenziali));
 
-        button_cambia_credenziali.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
-                FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-                Cambia_credenziali cambia_credenziali = new Cambia_credenziali();
-                fragmentTransaction.replace(R.id.fram, cambia_credenziali);
-                fragmentTransaction.addToBackStack("Fragment_change_parameters");
-                fragmentTransaction.commit();
-            }
-        });
-
+            button_cambia_credenziali.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
+                    FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                    Cambia_credenziali cambia_credenziali = new Cambia_credenziali();
+                    fragmentTransaction.replace(R.id.fram, cambia_credenziali);
+                    fragmentTransaction.addToBackStack("Fragment_change_parameters");
+                    fragmentTransaction.commit();
+                }
+            });
+        }
         return view;
     }
 

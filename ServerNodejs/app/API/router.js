@@ -14,7 +14,6 @@ var PrenotazionePagata = require("../models/prenotazionePagata");
 
 // Localstorage interno per salvare il numero dei posti liberi (senza doverlo ricalcolare da mysql ad ogni richiesta)
 var Storage = require('../storage/Storage');
-Storage.loadPostiLiberiFromServer();
 
 // Servizio posta elettronica
 var EmailSender = require('../EmailSender');
@@ -24,8 +23,6 @@ var DistastanceCalculator = require('../DistanceCalculatorGoogleMap');
 // Configurazioni varie
 var ConfigConnessione = require("../config/configConnessione");
 var TipoPosto = require("../config/configTipoPosto");
-// 20 minuti extra per lo scadere della prenotazione
-var SCADENZA_PRENOTAZIONI = (20 * 60 * 1000);
 
 //  Verifica del token
 var verifyToken = function (req, res, next) {
@@ -106,24 +103,29 @@ var PrenotazioneScaduta = function (idPrenotazione, idUtente) {
     });
 };
 
-// Ricarico i timer della scadenza di tutte le prenotazoni in atto
-Prenotazione.getAllPrenotazioni(function (err, rows) {
-    if (err)
-        console.log("Errore! Impossibile caricare le prenotazioni in atto.");
-    else
-        for (var i = 0; i < rows.length; i++) {
-            var now = new Date();
-            var datetime = rows[i].data_scadenza.getFullYear() + "-" + (rows[i].data_scadenza.getMonth() + 1) + "-" + rows[i].data_scadenza.getDate() +
-                " " + rows[i].data_scadenza.getHours() + ":" + rows[i].data_scadenza.getMinutes() + ":" + rows[i].data_scadenza.getSeconds();
+// Ricarico i posti liberi dal server
+Storage.loadPostiLiberiFromServer(function () {
+    // Ricarico i timer della scadenza di tutte le prenotazoni in atto
+    Prenotazione.getAllPrenotazioni(function (err, rows) {
+        if (err)
+            console.log("Errore! Impossibile caricare le prenotazioni in atto.");
+        else {
+            for (var i = 0; i < rows.length; i++) {
+                var now = new Date();
+                var datetime = rows[i].data_scadenza.getFullYear() + "-" + (rows[i].data_scadenza.getMonth() + 1) + "-" + rows[i].data_scadenza.getDate() +
+                    " " + rows[i].data_scadenza.getHours() + ":" + rows[i].data_scadenza.getMinutes() + ":" + rows[i].data_scadenza.getSeconds();
 
-            var timer = new Date(datetime).getTime() - now.getTime();
+                var timer = new Date(datetime).getTime() - now.getTime();
 
-            if (timer < 0)
-                timer = 100; // 0.1 secondi
+                if (timer < 0)
+                    timer = 100; // 0.1 secondi
 
-            // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
-            setTimeout(PrenotazioneScaduta, timer, rows[i].id_prenotazione, rows[i].id_utente);
+                // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
+                setTimeout(PrenotazioneScaduta, timer, rows[i].id_prenotazione, rows[i].id_utente);
+            }
+            console.log("Timer prenotazioni in atto reimpostati.");
         }
+    });
 });
 
 // API ROUTES -------------------
@@ -1025,7 +1027,7 @@ apiRoutes.post('/getPostiLiberiParcheggio', function (req, res) {
 });
 
 apiRoutes.post('/effettuaPrenotazione', function (req, res) {
-    if (req.body.idParcheggio == undefined || req.body.tipoParcheggio == undefined)
+    if (req.body.idParcheggio == undefined || req.body.tipoParcheggio == undefined || req.body.tempoExtra == undefined)
         res.status(400).json({
             error: {
                 codice: 77,
@@ -1071,7 +1073,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                             if (req.body.partenza == undefined || req.body.destinazione == undefined) {
                                 // Genero il codice da cui creare il QRCode
                                 var now = new Date();
-                                var datetime = new Date((now.getTime() + SCADENZA_PRENOTAZIONI));
+                                var datetime = new Date((now.getTime() + req.body.tempoExtra));
                                 var data = now.getMilliseconds() + req.user.id;
                                 var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
                                 var scadenza = datetime.toLocaleString();
@@ -1095,7 +1097,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                                             });
 
                                             // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
-                                            setTimeout(PrenotazioneScaduta, SCADENZA_PRENOTAZIONI, result.insertId, req.user.id);
+                                            setTimeout(PrenotazioneScaduta, req.body.tempoExtra, result.insertId, req.user.id);
 
                                             // Aggiorno il numero di posti liberi
                                             switch (req.body.tipoParcheggio) {
@@ -1132,7 +1134,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
 
                                         // Genero il codice da cui creare il QRCode
                                         var now = new Date();
-                                        var datetime = new Date((now.getTime() + SCADENZA_PRENOTAZIONI + tempoArrivo));
+                                        var datetime = new Date((now.getTime() + req.body.tempoExtra + tempoArrivo));
                                         var data = now.getMilliseconds() + req.user.id;
                                         var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
                                         var scadenza = datetime.toLocaleString();
@@ -1156,7 +1158,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                                                     });
 
                                                     // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
-                                                    setTimeout(PrenotazioneScaduta, SCADENZA_PRENOTAZIONI + tempoArrivo, result.insertId, req.user.id);
+                                                    setTimeout(PrenotazioneScaduta, req.body.tempoExtra + tempoArrivo, result.insertId, req.user.id);
 
                                                     // Aggiorno il numero di posti liberi
                                                     switch (req.body.tipoParcheggio) {

@@ -19,12 +19,12 @@ storage.init({
 });
 
 var funzionalita = {
-    loadPostiLiberiFromServer: function () {
+    loadPostiLiberiFromServer: function (callback) {
         var Parcheggio = require("../models/parcheggio");
         // Elimino i dati precedenti
         storage.removeItem('PostiLiberi', function (err) {
             if (err)
-                throw err;
+                throw err; 
         });
         var posti = [];
         // Carico il numero di tutti i posti liberi di ogni parcheggio in memoria da mysql
@@ -75,6 +75,7 @@ var funzionalita = {
 
                 storage.setItem("PostiLiberi", posti);
                 console.log("Numero posti liberi caricati in memoria dal database.");
+                callback();
             }
         });
     },

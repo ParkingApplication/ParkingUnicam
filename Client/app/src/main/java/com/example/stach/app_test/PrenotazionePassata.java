@@ -7,46 +7,43 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class Prenotazione {
-    private Date scadenza;
+public class PrenotazionePassata {
+    private Date data;
     private int id;
     private int idParcheggio;
     private int idTipo;
-    private String codice;
-    private boolean avvisata;
+    private int permanenza;
 
-    public Prenotazione(int id, Date scadenza, int idParcheggio, int idTipo, String codice) throws Exception {
-        if (scadenza == null)
+    public PrenotazionePassata(int id, Date data, int idParcheggio, int idTipo, int permanenza) throws Exception {
+        if (data == null)
             throw new Exception("Data scadenza non può essere null.");
 
         this.id = id;
-        this.scadenza = scadenza;
+        this.data = data;
         this.idParcheggio = idParcheggio;
         this.idTipo = idTipo;
-        this.codice = codice;
-        this.avvisata = false;
+        this.permanenza = permanenza;
     }
 
-    public Prenotazione(String prenotazione) throws Exception {
+    public PrenotazionePassata(String prenotazione) throws Exception {
         JSONObject jobj = new JSONObject(prenotazione);
 
         this.id = jobj.getInt("idPrenotazione");
         this.idParcheggio = jobj.getInt("idParcheggio");
-        this.idTipo = jobj.getInt("idPosto");
-        this.scadenza = stringToDate(jobj.getString("data"), "yyyy-MM-dd HH:mm:ss");
-        if (scadenza == null)
-            throw new Exception("Formato data scadenza prenotazione errato.");
+        this.idTipo = jobj.getInt("tipoParcheggio");
+        this.data = stringToDate(jobj.getString("data"), "yyyy-MM-dd");
+        if (data == null)
+            throw new Exception("Formato data prenotazione errato.");
 
-        this.codice = jobj.getString("codice");
-        this.avvisata = false;
+        this.permanenza = jobj.getInt("orePermanenza");
     }
 
     public int getId() {
         return id;
     }
 
-    public Date getScadenza() {
-        return scadenza;
+    public Date getData() {
+        return data;
     }
 
     public int getIdParcheggio() {
@@ -57,14 +54,10 @@ public class Prenotazione {
         return idTipo;
     }
 
-    public String getCodice() {
-        return codice;
+    public int getOrePermanenza() {
+        return permanenza;
     }
 
-    public long getTempoScadenza() {
-        Date now = new Date();
-        return scadenza.getTime() - now.getTime();
-    }
 
     private Date stringToDate(String data, String format) {
         Date stringDate = null;
@@ -84,13 +77,5 @@ public class Prenotazione {
         }
 
         return stringDate;
-    }
-
-    public boolean isAlreadyNotified() {
-        return avvisata;
-    }
-
-    public void Notified() {
-        avvisata = true;
     }
 }

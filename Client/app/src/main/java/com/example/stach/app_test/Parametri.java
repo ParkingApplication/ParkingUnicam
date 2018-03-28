@@ -33,4 +33,5 @@ public class Parametri {
     static List<Parcheggio> parcheggi = null;
     static List<Parcheggio> parcheggi_vicini = null;
     static List<Prenotazione> prenotazioniInCorso = null;
+    static List<PrenotazionePassata> prenotazioniVecchie = null;
 }

@@ -22,6 +22,10 @@
             android:icon="@drawable/ic_folder_shared_black_24dp"
             android:title="@string/icon_your_book" />
         <item
+            android:id="@+id/nav_old_book"
+            android:icon="@drawable/ic_folder_shared_black_24dp"
+            android:title="@string/icon_your_old_book" />
+        <item
             android:id="@+id/nav_logout"
             android:icon="@drawable/ic_exit_to_app_black_24dp"
             android:title="@string/icon_logout" />

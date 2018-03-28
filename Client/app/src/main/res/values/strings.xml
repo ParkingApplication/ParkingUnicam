@@ -44,6 +44,7 @@
     <string name="icon_profile">Profilo</string>
     <string name="icon_find_park">Trova un parcheggio</string>
     <string name="icon_your_book">Le tue prenotazioni</string>
+    <string name="icon_your_old_book">Prenotazioni terminate</string>
     <string name="icon_settings">Impostazioni</string>
     <string name="icon_logout">Logout</string>
     <!-- String related to profile fragment-->
@@ -76,12 +77,12 @@
         <item>10 minuti</item>
         <item>15 minuti</item>
     </string-array>
-<string-array name="optionsMenuItem1">
-<item>Nessuno</item>
-<item>10 minuti</item>
-<item>15 minuti</item>
-<item>20 minuti</item>
-</string-array>
+    <string-array name="optionsMenuItem1">
+        <item>Nessuno</item>
+        <item>10 minuti</item>
+        <item>15 minuti</item>
+        <item>20 minuti</item>
+    </string-array>
     <integer-array name="optionsMenuItem1value">
         <item>0</item>
         <item>10</item>

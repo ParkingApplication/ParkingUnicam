@@ -69,7 +69,7 @@ public class OptionsMenu extends Fragment implements AdapterView.OnItemSelectedL
         if (parent.getId() == R.id.spinnerTempoExtra) {
             int[] opzioni = getResources().getIntArray(R.array.optionsMenuItem1value);
             Parametri.TEMPO_EXTRA = opzioni[pos] * 60 * 1000;
-        } else if (view.getId() == R.id.spinnerAvvisa) {
+        } else if (parent.getId() == R.id.spinnerAvvisa) {
             int[] opzioni = getResources().getIntArray(R.array.optionsMenuItem2value);
             Parametri.TEMPO_AVVISO = opzioni[pos] * 60 * 1000;
         }

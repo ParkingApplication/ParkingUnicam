@@ -1,7 +1,6 @@
 package com.example.stach.app_test;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +12,10 @@ import android.widget.Toast;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
 
-public class OptionsMenu extends Fragment implements AdapterView.OnItemSelectedListener {
-    public OptionsMenu() {
+public class OptionsMenu extends FragmentWithOnBack implements AdapterView.OnItemSelectedListener {
+    private String titolo;
 
+    public OptionsMenu() {
     }
 
     @Override
@@ -61,6 +61,9 @@ public class OptionsMenu extends Fragment implements AdapterView.OnItemSelectedL
             }
         });
 
+        titolo = getActivity().getTitle().toString();
+        getActivity().setTitle("Settings");
+
         return view;
     }
 
@@ -97,5 +100,11 @@ public class OptionsMenu extends Fragment implements AdapterView.OnItemSelectedL
         Toast.makeText(getContext(), "Impostazioni salvate.", Toast.LENGTH_SHORT).show();
         getActivity().setTitle("Trova parcheggio");
         getActivity().onBackPressed();
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        getActivity().setTitle(titolo);
+        return false;
     }
 }

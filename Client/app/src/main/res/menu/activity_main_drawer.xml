@@ -9,18 +9,18 @@
             android:icon="@drawable/ic_person_black_24dp"
             android:title="@string/icon_profile" />
         <item
-            android:id="@+id/nav_card"
-            android:icon="@drawable/ic_credit_card_black_24dp"
-            android:title="@string/icon_card" />
+            android:id="@+id/nav_your_book"
+            android:icon="@drawable/ic_folder_shared_black_24dp"
+            android:title="@string/icon_your_book" />
         <item
             android:id="@+id/nav_findPark"
             android:checked="true"
             android:icon="@drawable/ic_location_on_black_24dp"
             android:title="@string/icon_find_park" />
         <item
-            android:id="@+id/nav_your_book"
-            android:icon="@drawable/ic_folder_shared_black_24dp"
-            android:title="@string/icon_your_book" />
+            android:id="@+id/nav_card"
+            android:icon="@drawable/ic_credit_card_black_24dp"
+            android:title="@string/icon_card" />
         <item
             android:id="@+id/nav_old_book"
             android:icon="@drawable/ic_folder_shared_black_24dp"

@@ -6,11 +6,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
-import android.support.v4.app.Fragment;
 import android.widget.Toast;
 import org.json.JSONObject;
 
-public class Cambia_credenziali extends Fragment implements ConnessioneListener {
+public class Cambia_credenziali extends FragmentWithOnBack implements ConnessioneListener {
     private EditText t_nome;
     private EditText t_cognome;
     private EditText t_data;

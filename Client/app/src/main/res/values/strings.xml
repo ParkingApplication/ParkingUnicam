@@ -44,7 +44,7 @@
     <string name="icon_profile">Profilo</string>
     <string name="icon_find_park">Trova un parcheggio</string>
     <string name="icon_your_book">Le tue prenotazioni</string>
-    <string name="icon_your_old_book">Prenotazioni terminate</string>
+    <string name="icon_your_old_book">Prenotazioni pagate</string>
     <string name="icon_settings">Impostazioni</string>
     <string name="icon_logout">Logout</string>
     <!-- String related to profile fragment-->

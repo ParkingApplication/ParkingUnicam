@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
@@ -23,9 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
-    // Timer scadenza prenotazioni
+    // Handler e Timer scadenza prenotazioni
     private Handler handler = new Handler();
-    private final int TIMER = 10 * 1000; // 10 secondi
+    private final int TIMER = 7 * 1000; // 7 secondi
 
     private ProgressDialog caricamento = null;
     private boolean launchPrenotaizoni = false;
@@ -43,9 +44,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         NavigationView navigationView = findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
 
-        //DEFAULT FRAGMENT
         setTitle("Trova parcheggio");
-        //assign default fragment
         FindYourParkingFragment fragment = new FindYourParkingFragment();
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
@@ -69,7 +68,19 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
         } else {
-            super.onBackPressed();
+            List<Fragment> fragmentList = getSupportFragmentManager().getFragments();
+            boolean handled = false;
+
+            for (Fragment f : fragmentList)
+                if (f instanceof FragmentWithOnBack) {
+                    handled = ((FragmentWithOnBack) f).onBackPressed();
+
+                    if (handled)
+                        break;
+                }
+
+            if (!handled)
+                super.onBackPressed();
         }
     }
 
@@ -82,18 +93,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
-            setTitle("Settings");
             OptionsMenu fragment = new OptionsMenu();
             FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
             fragmentTransaction.replace(R.id.fram, fragment, "settings");
-            fragmentTransaction.addToBackStack("Settings_Fragment");
+            fragmentTransaction.addToBackStack("");
             fragmentTransaction.commit();
             return true;
         }
@@ -104,23 +110,22 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
         int id = item.getItemId();
         FragmentManager sfm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = sfm.beginTransaction();
+        int count = sfm.getBackStackEntryCount();
+        for(int i = 0; i < count; ++i)
+            sfm.popBackStack();
 
-        //choose fragment
         if (id == R.id.nav_profile) {
             setTitle("Il tuo profilo");
             ProfileFragment fragment = new ProfileFragment();
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Profile");
-            fragmentTransaction.addToBackStack("Profile_Fragment");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_card) {
             setTitle("Aggiorna dati carta");
             Carta_di_credito fragment = new Carta_di_credito();
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Carta");
-            fragmentTransaction.addToBackStack("Card_Fragment");
             fragmentTransaction.commit();
         } else if (id == R.id.nav_findPark) {
             setTitle("Trova parcheggio");
@@ -133,11 +138,12 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             GetDatiOldPrenotazioni();
         } else if (id == R.id.nav_logout) {
             Parametri.login_file.delete();
+            Parametri.resetAllParametri();
             Intent intent = new Intent(MainActivity.this, LoginActivity.class);
             startActivity(intent);
             this.finish();
         } else if (id == R.id.nav_share) {
-            //TODO
+            // Condivisione via socialmedia
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -286,7 +292,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     FragmentYour_Book fragment = new FragmentYour_Book();
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
-                    fragmentTransaction.addToBackStack("Fragment_Book");
                     fragmentTransaction.commit();
                     launchPrenotaizoni = false;
                 }
@@ -346,8 +351,6 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     FragmentYour_Book fragment = new FragmentYour_Book();
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
-                    fragmentTransaction.addToBackStack("Fragment_Book");
-                    fragmentTransaction.commit();
                     launchPrenotaizoni = false;
                 }
             }
@@ -412,11 +415,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     connPar.execute(Parametri.IP + "/getAllParcheggi");
                 } else {
                     caricamento.dismiss();
-                    setTitle("Prenotazioni passate");
+                    setTitle("Prenotazioni pagate");
                     Old_Book fragment = new Old_Book();
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fram, fragment, "Fragment vecchie prenotazioni");
-                    fragmentTransaction.addToBackStack("Prenotazioni_Passate");
                     fragmentTransaction.commit();
                 }
             }
@@ -457,11 +459,10 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 }
 
                 caricamento.dismiss();
-                setTitle("Prenotazioni passate");
+                setTitle("Prenotazioni pagate");
                 Old_Book fragment = new Old_Book();
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.fram, fragment, "Fragment vecchie prenotazioni");
-                fragmentTransaction.addToBackStack("Prenotazioni_Passate");
                 fragmentTransaction.commit();
             }
         }

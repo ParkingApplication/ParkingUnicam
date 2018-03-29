@@ -2,7 +2,6 @@ package com.example.stach.app_test;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.format.DateFormat;
@@ -14,7 +13,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class Old_Book extends Fragment {
+public class Old_Book extends FragmentWithOnBack {
     // Parcheggi associati alle mie vecchie prenotazioni
     private List<Parcheggio> parcheggi = new ArrayList<>();
 
@@ -79,7 +78,7 @@ public class Old_Book extends Fragment {
                                 detail_old_book.setArguments(bundle);
                                 //eseguo la transazione
                                 fragmentTransaction.replace(R.id.fram, detail_old_book);
-                                fragmentTransaction.addToBackStack("Fragment_old_book");
+                                fragmentTransaction.addToBackStack("Prenotazioni pagate");
                                 fragmentTransaction.commit();
                             }
                         }
@@ -107,5 +106,15 @@ public class Old_Book extends Fragment {
             }
         }
         return view;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        getActivity().setTitle("Trova parcheggio");
+        FindYourParkingFragment fragment = new FindYourParkingFragment();
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
+        fragmentTransaction.commit();
+        return true;
     }
 }

@@ -145,6 +145,9 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
             mGoogleMap.addMarker(markerOptions);
         }
 
+        // Sposto la telecamera della mappa sul centro italia
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(43.056696, 12.567339), 7));
+
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             // Controllo che il GPS sia acceso
             if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false)
@@ -293,7 +296,7 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
 
         Toast.makeText(getApplicationContext(), "Hai scelto " + marker.getTitle(), Toast.LENGTH_LONG).show();
         // Sposto la visuale e faccio lo zoom sulla posizione cliccata
-        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(scelta.getPosition(), 11));
+        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(scelta.getPosition(), 10));
 
         return false;
     }

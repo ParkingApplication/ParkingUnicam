@@ -7,41 +7,7 @@
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <Button
-            android:id="@+id/btnSend"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="24dp"
-            android:background="@drawable/roundedbutton"
-            android:onClick="onClickLogin"
-            android:text="@string/btn_login"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textStyle="normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/pass" />
-
-        <Button
-            android:id="@+id/signUp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="32dp"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="4dp"
-            android:background="@drawable/roundedbutton"
-            android:onClick="goToSignUp"
-            android:text="@string/btn_to_signUp"
-            android:textAllCaps="true"
-            android:textColor="@color/white"
-            android:textStyle="normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnCredential" />
+        android:layout_height="match_parent">
 
         <ImageView
             android:id="@+id/unicamPark"
@@ -68,22 +34,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/unicamPark" />
 
-        <Button
-            android:id="@+id/btnCredential"
-            style="?android:attr/borderlessButtonStyle"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="4dp"
-            android:background="@android:color/transparent"
-            android:onClick="goToPasswordRecovery"
-            android:text="@string/btn_credentials"
-            android:textAllCaps="false"
-            android:textColor="@color/black"
-            android:textStyle="normal"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/btnSend" />
-
         <EditText
             android:id="@+id/pass"
             android:layout_width="match_parent"
@@ -100,22 +50,55 @@
             app:layout_constraintTop_toBottomOf="@+id/mail" />
 
         <Button
-            android:id="@+id/btnbackdoor"
+            android:id="@+id/btnSend"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/roundedbutton"
+            android:onClick="onClickLogin"
+            android:text="@string/btn_login"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textStyle="normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/pass" />
+
+        <Button
+            android:id="@+id/btnCredential"
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
+            android:layout_marginTop="8dp"
             android:background="@android:color/transparent"
-            android:onClick="backdoor"
-            android:text="backdoor login"
+            android:onClick="goToPasswordRecovery"
+            android:text="@string/btn_credentials"
             android:textAllCaps="false"
             android:textColor="@color/black"
             android:textStyle="normal"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/signUp" />
+            app:layout_constraintTop_toBottomOf="@+id/btnSend" />
+
+        <Button
+            android:id="@+id/signUp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="8dp"
+            android:background="@drawable/roundedbutton"
+            android:onClick="goToSignUp"
+            android:text="@string/btn_to_signUp"
+            android:textAllCaps="true"
+            android:textColor="@color/white"
+            android:textStyle="normal"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnCredential" />
+
     </android.support.constraint.ConstraintLayout>
 
 </android.support.design.widget.CoordinatorLayout>

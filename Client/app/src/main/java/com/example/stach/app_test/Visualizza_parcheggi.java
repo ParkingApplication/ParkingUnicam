@@ -7,13 +7,12 @@ import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.app.Fragment;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class Visualizza_parcheggi extends Fragment {
+public class Visualizza_parcheggi extends FragmentWithOnBack {
     private int index = -1;
 
     @Override
@@ -96,10 +95,22 @@ public class Visualizza_parcheggi extends Fragment {
             return;
         }
 
-        PrenotaParcheggio fragment = PrenotaParcheggio.newInstance(id);
+        getActivity().setTitle("Prenota parcheggio");
+        PrenotaParcheggio fragment = PrenotaParcheggio.newInstance(id, true);
         android.support.v4.app.FragmentManager fmanager = getActivity().getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = fmanager.beginTransaction();
         fragmentTransaction.replace(R.id.fram, fragment, "PrenotaParcheggio");
+        fragmentTransaction.addToBackStack("Visualizza parcheggi");
         fragmentTransaction.commit();
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        getActivity().setTitle("Trova parcheggio");
+        FindYourParkingFragment fragment = new FindYourParkingFragment();
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
+        fragmentTransaction.commit();
+        return true;
     }
 }

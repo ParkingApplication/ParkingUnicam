@@ -16,7 +16,6 @@ import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
 import android.Manifest;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -403,18 +402,19 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
     };
 
     private void CallFragmentVisualizzaParcheggi() {
+        getActivity().setTitle("Elenco parcheggi");
         Visualizza_parcheggi fragment = new Visualizza_parcheggi();
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fram, fragment, "Visualizza_parcheggi");
-        fragmentTransaction.addToBackStack("Visualizza_parcheggi");
+        fragmentTransaction.replace(R.id.fram, fragment, "Visualizza parcheggi");
         fragmentTransaction.commit();
     }
 
     private void CallFragmentPrenotaParcheggio(int id){
-        PrenotaParcheggio fragment = PrenotaParcheggio.newInstance(id);
+        getActivity().setTitle("Prenota parcheggio");
+        PrenotaParcheggio fragment = PrenotaParcheggio.newInstance(id, false);
         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-        fragmentTransaction.replace(R.id.fram, fragment, "PrenotaParcheggio");
-        fragmentTransaction.addToBackStack("PrenotaParcheggio");
+        fragmentTransaction.replace(R.id.fram, fragment, "Prenota Parcheggio");
+        fragmentTransaction.addToBackStack("Trova parcheggio");
         fragmentTransaction.commit();
     }
 }

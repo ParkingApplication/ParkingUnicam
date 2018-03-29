@@ -1,7 +1,6 @@
 package com.example.stach.app_test;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.text.format.DateFormat;
@@ -17,7 +16,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class ProfileFragment extends Fragment {
+public class ProfileFragment extends FragmentWithOnBack {
 
     public ProfileFragment() {
 
@@ -95,5 +94,15 @@ public class ProfileFragment extends Fragment {
         }
 
         return stringDate;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        getActivity().setTitle("Trova parcheggio");
+        FindYourParkingFragment fragment = new FindYourParkingFragment();
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
+        fragmentTransaction.commit();
+        return true;
     }
 }

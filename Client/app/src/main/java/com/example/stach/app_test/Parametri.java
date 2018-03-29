@@ -34,4 +34,25 @@ public class Parametri {
     static List<Parcheggio> parcheggi_vicini = null;
     static List<Prenotazione> prenotazioniInCorso = null;
     static List<PrenotazionePassata> prenotazioniVecchie = null;
+
+    static public void resetAllParametri() {
+        Token = null;
+        parcheggi = null;
+        parcheggi_vicini = null;
+        prenotazioniInCorso = null;
+        prenotazioniVecchie = null;
+        lastKnowPosition = null;
+        id = null;
+        username = null;
+        email = null;
+        password = null;
+        nome = null;
+        cognome = null;
+        data_nascita = null;
+        telefono = null;
+        saldo = null;
+        numero_carta = null;
+        data_di_scadenza = null;
+        pin = null;
+    }
 }

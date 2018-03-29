@@ -1,19 +1,17 @@
 package com.example.stach.app_test;
 
-
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
 import org.json.JSONObject;
 
 
-public class Carta_di_credito extends Fragment implements ConnessioneListener {
+public class Carta_di_credito extends FragmentWithOnBack implements ConnessioneListener {
     private EditText t_numero;
     private EditText t_data;
     private EditText t_pin;
@@ -115,5 +113,15 @@ public class Carta_di_credito extends Fragment implements ConnessioneListener {
             getActivity().onBackPressed();
             return;
         }
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        getActivity().setTitle("Trova parcheggio");
+        FindYourParkingFragment fragment = new FindYourParkingFragment();
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
+        fragmentTransaction.commit();
+        return true;
     }
 }

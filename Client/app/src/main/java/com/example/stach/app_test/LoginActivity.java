@@ -23,27 +23,12 @@ public class LoginActivity extends AppCompatActivity implements  ConnessioneList
         setContentView(R.layout.activity_login);
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-    }
 
-    public void backdoor(View view) {
-        startActivity(new Intent(this, MainActivity.class));
-        finish();
-    }
-
-    /**
-     * This method allow user to go signUp activity
-     */
     public void goToSignUp(View view) {
         startActivity(new Intent(LoginActivity.this, SignUpActivity.class));
         finish();
     }
 
-    /**
-     * This method allow user to go signUp activity
-     */
     public void goToPasswordRecovery(View view) {
         startActivity(new Intent(LoginActivity.this, PasswordRecoveryActivity.class));
         finish();

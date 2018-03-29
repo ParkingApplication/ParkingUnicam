@@ -8,7 +8,6 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.app.Fragment;
 import android.widget.Button;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -21,20 +20,22 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
 
-public class PrenotaParcheggio extends Fragment {
+public class PrenotaParcheggio extends FragmentWithOnBack {
     private int index;
     private int tipo_parcheggio;
     private View view;
     private ProgressDialog caricamento;
+    private boolean needBack;
 
     // Intervallo ed handler per aggiornare i posti liberi
     private final int TIMER = 5 * 1000; // 5 secondi
     private Handler handler = new Handler();
 
-    public static PrenotaParcheggio newInstance(int indice) {
+    public static PrenotaParcheggio newInstance(int indice, boolean needBack) {
         PrenotaParcheggio fragment = new PrenotaParcheggio();
         Bundle args = new Bundle();
         args.putInt("ID", indice);
+        args.putBoolean("needBack", needBack);
         fragment.setArguments(args);
         return fragment;
     }
@@ -44,6 +45,7 @@ public class PrenotaParcheggio extends Fragment {
         view = inflater.inflate(R.layout.fragment_prenota_parcheggio, container, false);
 
         int id = getArguments().getInt("ID", -1);
+        needBack = getArguments().getBoolean("needBack");
 
         for (index = 0; index < Parametri.parcheggi.size(); index++)
             if (Parametri.parcheggi.get(index).getId() == id)
@@ -325,5 +327,21 @@ public class PrenotaParcheggio extends Fragment {
         }
 
         return stringDate;
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if (!needBack) {
+            getActivity().setTitle("Trova parcheggio");
+            FindYourParkingFragment fragment = new FindYourParkingFragment();
+            FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
+            fragmentTransaction.commit();
+            return true;
+        }
+        else {
+            getActivity().setTitle("Elenco parcheggi");
+            return false;
+        }
     }
 }

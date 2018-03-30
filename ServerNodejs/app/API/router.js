@@ -59,12 +59,13 @@ var PrenotazioneScaduta = function (idPrenotazione, idUtente) {
             console.log("Impossibile cancellare la prenotazione (id:" + idPrenotazione + ") riscontrati problemi con il database nella ricerca.");
         else // Se la prenotazione è ancora nel database
             if (rows.length == 1) {
+                datap = rows[0].data_scadenza;
                 idParcheggio = rows[0].id_parcheggio;
                 Prenotazione.delPrenotazione(idPrenotazione, function (err) {
                     if (err)
                         console.log("Impossibile cancellare la prenotazione (id:" + idPrenotazione + ") riscontrati problemi con il database nella cancellazione.");
                     else {
-                        console.log("Prenotazione scaduta eliminata con successo (id: " + idPrenotazione + ").");
+                        console.log("Prenotazione scaduta eliminata con successo (id: " + idPrenotazione + ", scaduta il " + datap + ").");
                         // Aggiorno il numero dei posti liberi
                         Storage.getAllPostiLiberi(function (err, data) {
                             if (err)
@@ -457,6 +458,85 @@ apiRoutes.post('/getAllParcheggi', function (req, res) {
                             parcheggi: parcheggi
                         });
                     }
+                });
+            }
+            else
+                res.status(400).json({
+                    error: {
+                        codice: 46,
+                        info: "Non sono presenti percheggi nel database."
+                    }
+                });
+    });
+});
+
+apiRoutes.post('/getAllBaseParcheggi', function (req, res) {
+    Parcheggio.getParcheggiConPostiTotali(function (err, rows) {
+        if (err)
+            res.status(400).json({
+                error: {
+                    codice: 48,
+                    info: "Riscontrati problemi con il database."
+                }
+            });
+        else
+            if (rows.length > 0) {
+                var parcheggi = [];
+                var parcheggio = null;
+                var id = -1;
+                var l = 0;
+
+                for (var i = 0; i < rows.length; i++) {
+                    if (rows[i].idParcheggio != id) {
+                        if (parcheggio != null) {
+                            parcheggi[l] = parcheggio;
+                            l++;
+                        }
+
+                        id = rows[i].idParcheggio;
+
+                        parcheggio = {
+                            id: rows[i].idParcheggio,
+                            indirizzo: {
+                                citta: rows[i].citta,
+                                provincia: rows[i].provincia,
+                                cap: rows[i].cap,
+                                via: rows[i].via,
+                                n_civico: rows[i].numero_civico
+                            },
+                            coordinate: {
+                                x: rows[i].coordinataX,
+                                y: rows[i].coordinataY
+                            },
+                            tariffaOrariaLavorativi: rows[i].tariffaOrariaLavorativi,
+                            tariffaOrariaFestivi: rows[i].tariffaOrariaFestivi
+                        };
+                    }
+
+                    switch (rows[i].id_tipo) {
+                        case TipoPosto.auto:
+                            parcheggio.nPostiMacchina = rows[i].numero_posti;
+                            break;
+                        case TipoPosto.autobus:
+                            parcheggio.nPostiAutobus = rows[i].numero_posti;
+                            break;
+                        case TipoPosto.camper:
+                            parcheggio.nPostiCamper = rows[i].numero_posti;
+                            break;
+                        case TipoPosto.moto:
+                            parcheggio.nPostiMoto = rows[i].numero_posti;
+                            break;
+                        case TipoPosto.disabile:
+                            parcheggio.nPostiDisabile = rows[i].numero_posti;
+                            break;
+                    }
+                }
+
+                if (parcheggio != null)
+                    parcheggi[l] = parcheggio;
+
+                res.json({
+                    parcheggi: parcheggi
                 });
             }
             else
@@ -1332,8 +1412,9 @@ apiRoutes.patch('/resetQRCode', function (req, res) {
                     });
                 else
                     res.json({
+                        QRCODE: codice,
                         successful: {
-                            QRCODE: codice,
+                            codice: 500,
                             info: "Il QRCode è stato rigenerato correttamente."
                         }
                     });
@@ -1455,7 +1536,6 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
                 });
             }
         });
-
     }
     else {
         if (req.user.livelloAmministrazione != undefined && req.user.livelloAmministrazione > 0) {
@@ -1467,16 +1547,17 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
                             info: "Riscontrati problemi con il database."
                         }
                     });
-
                 else {
                     var j = 0;
+                    var prenotazioni = [];
+
                     for (var i = 0; i < rows.length; i++) {
                         prenotazioneInAtto = {
                             idPrenotazione: rows[i].id_prenotazione,
                             idUtente: rows[i].id_utente,
                             idParcheggio: rows[i].id_parcheggio,
                             idPosto: rows[i].id_tipo_posto,
-                            data: rows[i].data_scadenza,
+                            data: (new Date(rows[i].data_scadenza).toLocaleString()),
                             codice: rows[i].codice
                         };
 
@@ -1499,6 +1580,188 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
             });
         }
     }
+});
+
+apiRoutes.post('/addParcheggio', function (req, res) {
+    if (req.body.parcheggio == undefined)
+        res.status(400).json({
+            error: {
+                codice: 7,
+                info: "Devi inviare i dati del parcheggio per aggiungerlo."
+            }
+        });
+    else
+        if (req.user.livelloAmministrazione != undefined && req.user.livelloAmministrazione > 0) {
+            Parcheggio.addParcheggio(req.body.parcheggio, function (err, result) {
+                if (err)
+                    res.status(400).json({
+                        error: {
+                            codice: 350,
+                            info: "Riscontrati problemi con il database."
+                        }
+                    });
+                else {
+                    var idPar = result.insertId;
+                    Parcheggio.addPostiParcheggio(idPar, req.body.parcheggio, function (err, result) {
+                        if (err) {
+                            res.status(400).json({
+                                error: {
+                                    codice: 350,
+                                    info: "Riscontrati problemi con il database."
+                                }
+                            });
+                            Parcheggio.delParcheggio(idPar, function (err, result) {
+                                if (err)
+                                    console.log("Impossibile eliminare il parcheggio.\nATTENZIONE! Parcheggio aggiunto senza posti totali.");
+                            });
+                        }
+                        else {
+                            res.json({
+                                successful: {
+                                    codice: 200,
+                                    info: "Parcheggio aggiunto con successo."
+                                }
+                            });
+
+                            var nuoviPostiLiberi = {
+                                id_parcheggio: idPar,
+                                auto: req.body.parcheggio.nPostiMacchina,
+                                autobus: req.body.parcheggio.nPostiAutobus,
+                                moto: req.body.parcheggio.nPostiMoto,
+                                camper: req.body.parcheggio.nPostiCamper,
+                                disabile: req.body.parcheggio.nPostiDisabile
+                            }
+
+                            Storage.getAllPostiLiberi(function (err, data) {
+                                if (err)
+                                    console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi per il nuovo parcheggio (in lettura).");
+                                else {
+                                    data[data.length] = nuoviPostiLiberi;
+
+                                    Storage.updatePostiLiberi(data, function (err) {
+                                        if (err)
+                                            console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi per il nuovo parcheggio (in scrittura).");
+                                    });
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        }
+        else
+            res.status(400).json({
+                error: {
+                    codice: 500,
+                    info: "Privilegi amministratore insufficienti."
+                }
+            });
+});
+
+apiRoutes.patch('/aggiornaParcheggio', function (req, res) {
+    if (req.body.parcheggio == undefined)
+        res.status(400).json({
+            error: {
+                codice: 7,
+                info: "Devi inviare i dati del parcheggio per aggiungerlo."
+            }
+        });
+    else
+        if (req.user.livelloAmministrazione != undefined && req.user.livelloAmministrazione > 0) {
+            Parcheggio.updateParcheggio(req.body.parcheggio, function (err, result) {
+                if (err)
+                    res.status(400).json({
+                        error: {
+                            codice: 350,
+                            info: "Riscontrati problemi con il database."
+                        }
+                    });
+                else {
+                    if (req.body.parcheggio.nPostiMacchina == undefined)
+                        res.json({
+                            successful: {
+                                codice: 180,
+                                info: "Dati parcheggio modificati con successo."
+                            }
+                        });
+                    else {
+                        var error = 0;
+                        Storage.getAllPostiLiberi(function (err, data) {
+                            var index = -1;
+                            var app = {};
+
+                            if (err)
+                                console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi (in lettura).");
+                            else
+                                for (index = 0; index < data.length; index++)
+                                    if (data[index].id_parcheggio == req.body.parcheggio.id)
+                                        break;
+
+                            Parcheggio.updatePostiParcheggio(req.body.parcheggio.id, TipoPosto.auto, req.body.parcheggio.nPostiMacchina, function (err) {
+                                if (err)
+                                    error++;
+                                else
+                                    app.auto = req.body.parcheggio.nPostiMacchina;
+                                Parcheggio.updatePostiParcheggio(req.body.parcheggio.id, TipoPosto.moto, req.body.parcheggio.nPostiMoto, function (err) {
+                                    if (err)
+                                        error++;
+                                    else
+                                        app.moto = req.body.parcheggio.nPostiMoto;
+                                    Parcheggio.updatePostiParcheggio(req.body.parcheggio.id, TipoPosto.camper, req.body.parcheggio.nPostiCamper, function (err) {
+                                        if (err)
+                                            error++;
+                                        else
+                                            app.camper = req.body.parcheggio.nPostiCamper;
+                                        Parcheggio.updatePostiParcheggio(req.body.parcheggio.id, TipoPosto.autobus, req.body.parcheggio.nPostiAutobus, function (err) {
+                                            if (err)
+                                                error++;
+                                            else
+                                                app.autobus = req.body.parcheggio.nPostiAutobus;
+                                            Parcheggio.updatePostiParcheggio(req.body.parcheggio.id, TipoPosto.disabile, req.body.parcheggio.nPostiDisabile, function (err) {
+                                                if (err)
+                                                    error++;
+                                                else
+                                                    app.disabile = req.body.parcheggio.nPostiDisabile;
+                                                if (error == 0)
+                                                    res.json({
+                                                        successful: {
+                                                            codice: 185,
+                                                            info: "Dati parcheggio e numero posti aggiornati."
+                                                        }
+                                                    });
+                                                else
+                                                    res.json({
+                                                        successful: {
+                                                            codice: 187,
+                                                            info: "Dati parcheggio aggiornati, " + error + " numeri posti totali parzialmente aggiornati.\n(riscontrati problemi con il database)"
+                                                        }
+                                                    });
+
+                                                if (index != -1) {
+                                                    data[index] = app;
+
+                                                    Storage.updatePostiLiberi(data, function (err) {
+                                                        if (err)
+                                                            console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi (in scrittura).");
+                                                    });
+                                                }
+                                            });
+                                        });
+                                    });
+                                });
+                            });
+                        });
+                    }
+                }
+            });
+        }
+        else
+            res.status(400).json({
+                error: {
+                    codice: 500,
+                    info: "Privilegi amministratore insufficienti."
+                }
+            });
 });
 
 module.exports = apiRoutes;

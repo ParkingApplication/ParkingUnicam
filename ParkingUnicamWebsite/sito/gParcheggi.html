@@ -1,0 +1,115 @@
+<div class="container-fluid" ng-show="logIn">
+    <div class="row text-center">
+        <p class="titoloAdmin">Amministrazione parcheggi</p>
+    </div>
+    <div class="row" style="margin-top:10px;">
+        <div class="col-md-3 text-center">
+        </div>
+        <div class="col-md-6">
+            <div class="panel-group pannelletti">
+                <div class="panel panel-default pannello" ng-repeat="parcheggio in Parcheggi" style="margin-top:20px;">
+
+                    <div class="panel-heading" style="background-color: #333;color: white;padding-bottom: 20px;">
+
+                        <label>ID:</label> {{ parcheggio.id }}
+
+                        <button id="modifica{{ $index }}" type="button" class="btn pull-right buttonUser" ng-click="ModificaParcheggio($index, true)">
+                            <span class="glyphicon  glyphicon-pencil"></span>
+                        </button>
+
+                        <button id="annulla{{ $index }}" type="button" class="btn pull-right buttonUser" ng-click="ModificaParcheggio($index, false)"
+                            style="display: none;">
+                            <span class="glyphicon glyphicon-remove"></span>
+                        </button>
+
+                        <button id="salva{{ $index }}" type="button" class="btn pull-right buttonUser" ng-click="SalvaParcheggio($index)" style="display: none;">
+                            <span class="glyphicon  glyphicon-ok"></span>
+                        </button>
+                    </div>
+
+                    <div class="panel-body corpoPannello" style="padding-top: 5px;">
+                        <h4 class="infoUtente" style="text-align: center;margin-bottom: 15px;">Info parcheggio:</h4>
+                        <ul>
+                            <li>
+                                <span class="subInfoUtente">Città:</span>
+                                <input type="text" id="citta{{ $index }}" value="{{ parcheggio.indirizzo.citta }}" class="formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Via:</span>
+                                <input type="text" id="via{{ $index }}" value="{{ parcheggio.indirizzo.via }}" class="formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">CAP:</span>
+                                <input type="text" id="cap{{ $index }}" value="{{ parcheggio.indirizzo.cap }}" class="formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">N. Civico:</span>
+                                <input type="text" id="n_civico{{ $index }}" value="{{ parcheggio.indirizzo.n_civico }}" class="formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Provincia:</span>
+                                <input type="text" id="provincia{{ $index }}" value="{{ parcheggio.indirizzo.provincia }}" class="formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Latitutine:</span>
+                                <input type="text" id="latitutine{{ $index }}" value="{{ parcheggio.coordinate.x }}" class="formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Longitutine:</span>
+                                <input type="text" id="longitutine{{ $index }}" value="{{ parcheggio.coordinate.y }}" class="formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Tar. festivi:</span>
+                                <input type="number" id="tariffaOrariaFestivi{{ $index }}" min="0" step="0.1" value="{{ parcheggio.tariffaOrariaFestivi }}" class="formUtente"
+                                    disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Tar. lavorativi:</span>
+                                <input type="number" id="tariffaOrariaLavorativi{{ $index }}" min="0" step="0.1" value="{{ parcheggio.tariffaOrariaLavorativi }}" class="formUtente"
+                                    disabled required/>
+                            </li>
+                        </ul>
+                        <h4 class="infoUtente" style="text-align: center;margin-bottom: 15px;margin-top: 15px;">Numero posti totali:</h4>
+                        <ul>
+                            <li>
+                                <span class="subInfoUtente">Auto:</span>
+                                <input type="number" id="nPostiMacchina{{ $index }}" min="0" step="1" value="{{ parcheggio.nPostiMacchina }}" class=" formUtente" disabled
+                                    required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Autobus:</span>
+                                <input type="number" id="nPostiAutobus{{ $index }}" min="0" step="1" value="{{ parcheggio.nPostiAutobus }}" class=" formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Camper:</span>
+                                <input type="number" id="nPostiCamper{{ $index }}" min="0" step="1" value="{{ parcheggio.nPostiCamper }}" class=" formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Moto:</span>
+                                <input type="number" id="nPostiMoto{{ $index }}" min="0" step="1" value="{{ parcheggio.nPostiMoto }}" class=" formUtente" disabled required/>
+                            </li>
+                            <li>
+                                <span class="subInfoUtente">Disabile:</span>
+                                <input type="number" id="nPostiDisabile{{ $index }}" min="0" step="1" value="{{ parcheggio.nPostiDisabile }}" class=" formUtente" disabled
+                                    required/>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-md-3">
+        </div>
+    </div>
+</div>
+
+<!-- PARTE VISIBILE SOLO SE NON SI E' LOGGATI -->
+<div class="container-fluid" ng-hide="logIn">
+    <div class="row text-center">
+        <p class="subTitolo" style="margin-top: 30px;">IMPOSSIBILE ACCEDERE SENZA ESSERE LOGGATI!</p>
+        <h3>
+            <p style="margin-top: 30px;color: rgb(161, 20, 20);font-weight: bold;">Pagina riservata agli amministratori.</p>
+        </h3>
+    </div>
+</div>

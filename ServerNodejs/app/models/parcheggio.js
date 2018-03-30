@@ -4,37 +4,30 @@ var parcheggio = {
     getAllParcheggi: function (callback) {
         return db.query("SELECT * FROM parcheggi;", callback);
     },
-    getNumeroPostiTotaliParcheggio: function (idParcheggio, callback) { // Inutilizzata
-        return db.query("SELECT id_parcheggio, nome, numero_posti FROM posti_parcheggio, tipo_parcheggio WHERE tipo_parcheggio.idTipo_parcheggio = posti_parcheggio.id_tipo WHERE id_parcheggio=? ORDER BY id_parcheggio, id_tipo;", [idParcheggio], callback);
+    getParcheggiConPostiTotali: function (callback) {
+        return db.query("SELECT * FROM parcheggi, posti_parcheggio  WHERE idParcheggio = id_parcheggio ORDER BY id_parcheggio, id_tipo;", callback);
     },
     getAllPostiLiberi: function (callback) {
         return db.query("SELECT * FROM posti_parcheggio_liberi_view;", callback);
     },
     getParcheggioFromID: function (id, callback) {
         return db.query("SELECT * FROM parcheggi WHERE idParcheggio=?;", [id], callback);
+    },
+    addParcheggio: function (parcheggio, callback) {
+        return db.query("INSERT INTO parcheggi (`coordinataX`, `coordinataY`, `citta`, `cap`, `via`, `numero_civico`, `tariffaOrariaLavorativi`, `tariffaOrariaFestivi`, `provincia`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);", [parcheggio.coordinate.x, parcheggio.coordinate.y, parcheggio.indirizzo.citta, parcheggio.indirizzo.cap, parcheggio.indirizzo.via, parcheggio.indirizzo.n_civico, parcheggio.tariffaOrariaLavorativi, parcheggio.tariffaOrariaFestivi, parcheggio.indirizzo.cap], callback);
+    },
+    addPostiParcheggio: function(idParcheggio, posti, callback) {
+        return db.query("INSERT INTO posti_parcheggi` (`id_parcheggio`, `id_tipo`, `numero_posti`) VALUES (?, 0, ?), (?, 1, ?), (?, 2, ?), (?, 3, ?), (?, 4, ?)", [idParcheggio, posti.nPostiMacchina, idParcheggio, posti.nPostiCamper, idParcheggio, posti.nPostiMoto, idParcheggio, posti.nPostiAutobus, idParcheggio, posti.nPostiDisabile], callback);
+    },
+    delParcheggio: function(idParcheggio, callback) {
+        db.query("DELETE FROM parcheggi WHERE idParcheggio=?;", [idParcheggio], callback);
+    },
+    updateParcheggio: function(parcheggio, callback) {
+        db.query("UPDATE parcheggi SET `coordinataX`=?, `coordinataY`=?, `citta`=?, `cap`=?, `via`=?, `numero_civico`=?, `tariffaOrariaLavorativi`=?, `tariffaOrariaFestivi`=?, `provincia`=? WHERE `idParcheggio`='?;", [parcheggio.coordinate.x, parcheggio.coordinate.y, parcheggio.indirizzo.citta, parcheggio.indirizzo.cap, parcheggio.indirizzo.via, parcheggio.indirizzo.n_civico, parcheggio.tariffaOrariaLavorativi, parcheggio.tariffaOrariaFestivi, parcheggio.indirizzo.provincia, parcheggio.id], callback);
+    },
+    updatePostiParcheggio: function(idParcheggio, idTipo, posti, callback) {
+        return db.query("UPDATE posti_parcheggio SET `numero_posti`=?  WHERE `id_parcheggio`=? and`id_tipo`=?;", [posti, idParcheggio, idTipo], callback);
     }
 };
 
 module.exports = parcheggio;
-
-/*var parcheggio = {
-    id: Number,
-    indirizzo: {
-        citta: String,
-        provincia: String,
-        cap: Number,
-        via: String,
-        n_civico: String
-    },
-    coordinate: {
-        x: String,
-        y: String
-    },
-    nPostiMacchina: Number,
-    nPostiAutobus: Number,
-    nPostiDisabile: Number,
-    nPostiCamper: Number,
-    nPostiMoto: Number,
-    tariffaOrariaLavorativi: Number,
-    tariffaOrariaFestivi: Number,
-}*/

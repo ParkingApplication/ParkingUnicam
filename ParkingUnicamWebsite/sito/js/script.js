@@ -40,8 +40,8 @@ indexApp.config(function ($routeProvider) {
             templateUrl: './parcheggi.html',
             controller: 'gestisciParcheggi'
         }).when('/mainAdmin', {
-            templateUrl: './mainAdmin.html',
-            controller: 'gestisciAdmin'
+            templateUrl: './gParcheggi.html',
+            controller: 'gestisciParcheggiAdmin'
         })
         .when('/utenti', {
             templateUrl: './utenti.html',
@@ -143,6 +143,12 @@ indexApp.controller('homeController', function ($scope, $localStorage, $location
     }
 
     menuSet(0);
+
+    $("#logoUnicam").click(function () {
+        $scope.$applyAsync(function () {
+            $location.path('/login');
+        });
+    });
 });
 
 indexApp.controller('gestisciParcheggi', function ($scope, $http, $localStorage, $location) {
@@ -154,6 +160,12 @@ indexApp.controller('gestisciParcheggi', function ($scope, $http, $localStorage,
     }
 
     menuSet(1);
+
+    $("#logoUnicam").click(function () {
+        $scope.$applyAsync(function () {
+            $location.path('/login');
+        });
+    });
 
     $http({
         method: "POST",
@@ -187,7 +199,32 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
     $scope.AllAutisti = [];
     $scope.Autisti = [];
     $scope.Search = [];
+    $scope.Parcheggi = [];
     menuSet(3);
+
+    var TipoPosto = ["Auto", "Camper", "Moto", "Autobus", "Disabile"];
+
+    var getAllParcheggi = function () {
+        $http({
+            method: "POST",
+            url: protocol + "://" + ipserver + "/getAllParcheggi",
+            headers: { 'Content-Type': 'application/json' }
+        }).then(function (response) {
+            if (response.status == 200)
+                if (response.data.parcheggi)
+                    $scope.Parcheggi = response.data.parcheggi;
+                else
+                    alert("Errore sconosciuto!");
+            else
+                alert("Errore sconosciuto.");
+
+        }, function (response) {
+            if (response.data != null && response.data.error !== undefined)
+                alert(response.data.error.info);
+            else
+                alert("Server irraggiungibile.");
+        });
+    }
 
     $http({
         method: "POST",
@@ -208,6 +245,8 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
         else
             alert("Server irraggiungibile.");
     });
+
+    getAllParcheggi();
 
     var IndexFromId = function (id) {
         var j;
@@ -232,6 +271,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
 
             $("#modifica" + index).hide();
             $("#elimina" + index).hide();
+            $("#btnPrenotazioni" + index).hide();
             $("#annulla" + index).show();
             $("#salva" + index).show();
         }
@@ -249,6 +289,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
 
             $("#modifica" + index).show();
             $("#elimina" + index).show();
+            $("#btnPrenotazioni" + index).show();
             $("#annulla" + index).hide();
             $("#salva" + index).hide();
 
@@ -354,7 +395,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
     };
 
     $scope.ModalPrenotazioni = function (index) {
-        $("#modalNomeUser").text("Prenotazioni in corso di " +  $scope.Autisti[index].nome);
+        $("#modalNomeUser").text("Prenotazioni in corso di " + $scope.Autisti[index].nome);
 
         var parametri = {
             token: curToken.value,
@@ -369,8 +410,45 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
         }).then(function (response) {
             if (response.status == 200) {
                 if (response.data.prenotazioniInAtto !== undefined) {
-                    $scope.PrenotazioniUtente = response.data.prenotazioniInAtto;
-                    $("#prenotazioniModalLong").modal('show');
+                    if ($scope.Parcheggi !== undefined && $scope.Parcheggi.length > 0) {
+                        $scope.PrenotazioniUtente = response.data.prenotazioniInAtto;
+
+                        for (var i = 0; i < $scope.PrenotazioniUtente.length; i++) {
+                            $scope.PrenotazioniUtente[i].nomePosto = TipoPosto[$scope.PrenotazioniUtente[i].idPosto];
+                            for (var j = 0; j < $scope.Parcheggi.length; j++)
+                                if ($scope.PrenotazioniUtente[i].idParcheggio == $scope.Parcheggi[j].id) {
+                                    $scope.PrenotazioniUtente[i].indirizzo = $scope.Parcheggi[j].indirizzo.via
+                                        + ", " + $scope.Parcheggi[j].indirizzo.n_civico + ", "
+                                        + $scope.Parcheggi[j].indirizzo.cap + ", "
+                                        + $scope.Parcheggi[j].indirizzo.citta + " "
+                                        + $scope.Parcheggi[j].indirizzo.provincia;
+                                    break;
+                                }
+                        }
+
+                        $("#prenotazioniModalLong").modal('show');
+                    }
+                    else {
+                        getAllParcheggi();
+                        if ($scope.Parcheggi !== undefined && $scope.Parcheggi.length > 0) {
+                            $scope.PrenotazioniUtente = response.data.prenotazioniInAtto;
+
+                            for (var i = 0; i < $scope.PrenotazioniUtente.length; i++) {
+                                $scope.PrenotazioniUtente[i].nomePosto = TipoPosto[$scope.PrenotazioniUtente[i].idPosto];
+                                for (var j = 0; j < $scope.Parcheggi.length; j++)
+                                    if ($scope.PrenotazioniUtente[i].idParcheggio == $scope.Parcheggi[j].id) {
+                                        $scope.PrenotazioniUtente[i].indirizzo = $scope.Parcheggi[j].indirizzo.via
+                                            + ", " + $scope.Parcheggi[j].indirizzo.n_civico + ", "
+                                            + $scope.Parcheggi[j].indirizzo.cap + ", "
+                                            + $scope.Parcheggi[j].indirizzo.citta + " "
+                                            + $scope.Parcheggi[j].indirizzo.provincia;
+                                        break;
+                                    }
+                            }
+
+                            $("#prenotazioniModalLong").modal('show');
+                        }
+                    }
                 }
                 else
                     alert("Errore sconosciuto!");
@@ -383,8 +461,39 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             else
                 alert("Server irraggiungibile.");
         });
+    };
 
-        
+    $scope.resetCode = function (index) {
+        if (confirm("Vuoi resettare il Codice di questa prenotazione ?")) {
+            var parametri = {
+                token: curToken.value,
+                idPrenotazione: $scope.PrenotazioniUtente[index].idPrenotazione
+            };
+
+            $http({
+                method: "PATCH",
+                url: protocol + "://" + ipserver + "/resetQRCode",
+                headers: { 'Content-Type': 'application/json' },
+                data: parametri
+            }).then(function (response) {
+                if (response.status == 200) {
+                    if (response.data.QRCODE !== undefined) {
+                        if (response.data.successful !== undefined)
+                            alert(response.data.successful.info);
+                        $scope.PrenotazioniUtente[index].codice = response.data.QRCODE;
+                    }
+                    else
+                        alert("Errore sconosciuto!");
+                }
+                else
+                    alert("Errore sconosciuto!");
+            }, function (response) {
+                if (response.data != null && response.data.error !== undefined)
+                    alert(response.data.error.info);
+                else
+                    alert("Server irraggiungibile.");
+            });
+        };
     };
 
     var Search = function () {
@@ -392,7 +501,8 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
         var output = [];
         var i = 0;
 
-        if ((input == "") || (input == "undefined")) {
+
+        if ((input === undefined) || input.length < 1) {
             $scope.page = 1;
             $scope.Search = [];
             visualizza($scope.page, $scope.AllAutisti);
@@ -422,7 +532,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
                     visualizza($scope.page, output);
                 }
                 else
-                    if (searchFor == 3) {   // ID
+                    if (searchFor == 3) {   // Cerca per ID
                         $scope.AllAutisti.forEach(user => {
                             if (user.id == input) {
                                 output[i] = user;
@@ -433,13 +543,22 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
                         $scope.Search = output;
                         visualizza($scope.page, output);
                     }
-                    else {
-                        $scope.Search = [];
-                        alert("Prima devi selezionare per cosa cercare.");
-                    }
-
-
-    }
+                    else
+                        if (searchFor == 4) {   // Cerca per username
+                            $scope.AllAutisti.forEach(user => {
+                                if (user.username.toLowerCase().startsWith(input.toLowerCase())) {
+                                    output[i] = user;
+                                    i++;
+                                }
+                            });
+                            $scope.page = 1;
+                            $scope.Search = output;
+                            visualizza($scope.page, output);
+                        } else {
+                            $scope.Search = [];
+                            alert("Prima devi selezionare per cosa cercare.");
+                        }
+    };
 
     $("#cercaPerNome").click(function () {
         $("#cercaPer").text("Cerca per nome");
@@ -456,7 +575,15 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
         searchFor = 3;
     });
 
-    $("#inputSearch").change(Search);
+    $("#cercaPerUsername").click(function () {
+        $("#cercaPer").text("Cerca per username");
+        searchFor = 4;
+    });
+
+    $("#inputSearch").keyup(function () {
+        $scope.$applyAsync(Search);
+    });
+
     $("#btnSearch").click(Search);
 
     var visualizza = function (pagina, users) {
@@ -522,25 +649,31 @@ indexApp.controller('gestisciPrenotazioni', function ($scope, $http, $localStora
 
     menuSet(4);
 
+});
+
+indexApp.controller('gestisciParcheggiAdmin', function ($scope, $http, $localStorage) {
+    if ($localStorage.XToken) {
+        curToken = $localStorage.XToken;
+        $scope.hideMenu(true);
+    }
+
+    menuSet(2);
+
+    $scope.Parcheggi = [];
+
     $http({
         method: "POST",
-        url: protocol + "://" + ipserver + "/getParcheggiPerCitta",
-        headers: { 'Content-Type': 'application/json' },
-        data: {
-            'token': curToken.value,
-            'citta': "Roma"
-        }
+        url: protocol + "://" + ipserver + "/getAllBaseParcheggi",
+        headers: { 'Content-Type': 'application/json' }
     }).then(function (response) {
-        if (response.status == 200) {
-            if (response.data.parcheggi) {
-                alert(response.data.parcheggi[0]);
-                $location.path('/home');
-            }
+        if (response.status == 200)
+            if (response.data.parcheggi)
+                $scope.Parcheggi = response.data.parcheggi;
             else
                 alert("Errore sconosciuto!");
-        }
         else
-            alert("Errore sconosciuto!");
+            alert("Errore sconosciuto.");
+
     }, function (response) {
         if (response.data != null && response.data.error !== undefined)
             alert(response.data.error.info);
@@ -548,15 +681,124 @@ indexApp.controller('gestisciPrenotazioni', function ($scope, $http, $localStora
             alert("Server irraggiungibile.");
     });
 
-});
+    $scope.ModificaParcheggio = function (index, value) {
+        // Nascondo/Mostro i tasti relativi alla funzionalità richiesta
+        if (value) {
+            $("#citta" + index).removeAttr("disabled");
+            $("#via" + index).removeAttr("disabled");
+            $("#cap" + index).removeAttr("disabled");
+            $("#n_civico" + index).removeAttr("disabled");
+            $("#provincia" + index).removeAttr("disabled");
+            $("#latitutine" + index).removeAttr("disabled");
+            $("#longitutine" + index).removeAttr("disabled");
+            $("#tariffaOrariaFestivi" + index).removeAttr("disabled");
+            $("#tariffaOrariaLavorativi" + index).removeAttr("disabled");
+            $("#nPostiMacchina" + index).removeAttr("disabled");
+            $("#nPostiAutobus" + index).removeAttr("disabled");
+            $("#nPostiCamper" + index).removeAttr("disabled");
+            $("#nPostiMoto" + index).removeAttr("disabled");
+            $("#nPostiDisabile" + index).removeAttr("disabled");
 
-indexApp.controller('gestisciAdmin', function ($scope, $http, $localStorage) {
-    if ($localStorage.XToken) {
-        curToken = $localStorage.XToken;
-        $scope.hideMenu(true);
-    }
+            $("#modifica" + index).hide();
+            $("#annulla" + index).show();
+            $("#salva" + index).show();
+        }
+        else {
+            $("#citta" + index).attr("disabled", "disabled");
+            $("#via" + index).attr("disabled", "disabled");
+            $("#cap" + index).attr("disabled", "disabled");
+            $("#n_civico" + index).attr("disabled", "disabled");
+            $("#provincia" + index).attr("disabled", "disabled");
+            $("#latitutine" + index).attr("disabled", "disabled");
+            $("#longitutine" + index).attr("disabled", "disabled");
+            $("#tariffaOrariaFestivi" + index).attr("disabled", "disabled");
+            $("#tariffaOrariaLavorativi" + index).attr("disabled", "disabled");
+            $("#nPostiMacchina" + index).attr("disabled", "disabled");
+            $("#nPostiAutobus" + index).attr("disabled", "disabled");
+            $("#nPostiCamper" + index).attr("disabled", "disabled");
+            $("#nPostiMoto" + index).attr("disabled", "disabled");
+            $("#nPostiDisabile" + index).attr("disabled", "disabled");
 
-    menuSet(2);
+            $("#modifica" + index).show();
+            $("#annulla" + index).hide();
+            $("#salva" + index).hide();
+
+            //  Ripristino i valori originali
+            $("#citta" + index).val($scope.Parcheggi[index].indirizzo.citta);
+            $("#via" + index).val($scope.Parcheggi[index].indirizzo.via);
+            $("#cap" + index).val($scope.Parcheggi[index].indirizzo.cap);
+            $("#n_civico" + index).val($scope.Parcheggi[index].indirizzo.n_civico);
+            $("#provincia" + index).val($scope.Parcheggi[index].indirizzo.provincia);
+            $("#latitutine" + index).val($scope.Parcheggi[index].coordinate.x);
+            $("#longitutine" + index).val($scope.Parcheggi[index].coordinate.y);
+            $("#tariffaOrariaFestivi" + index).val($scope.Parcheggi[index].tariffaOrariaFestivi);
+            $("#tariffaOrariaLavorativi" + index).val($scope.Parcheggi[index].tariffaOrariaLavorativi);
+            $("#nPostiMacchina" + index).val($scope.Parcheggi[index].nPostiMacchina);
+            $("#nPostiAutobus" + index).val($scope.Parcheggi[index].nPostiAutobus);
+            $("#nPostiCamper" + index).val($scope.Parcheggi[index].nPostiCamper);
+            $("#nPostiMoto" + index).val($scope.Parcheggi[index].nPostiMoto);
+            $("#nPostiDisabile" + index).val($scope.Parcheggi[index].nPostiDisabile);
+        }
+    };
+
+    $scope.SalvaParcheggio = function (index) {
+        var parametri = {
+            token: curToken.value,
+            parcheggio: {
+                id: $scope.Parcheggi[index].id,
+                indirizzo: {
+                    citta: $("#citta" + index).val() || $scope.Parcheggi[index].indirizzo.citta,
+                    provincia: $("#provincia" + index).val() || $scope.Parcheggi[index].indirizzo.provincia,
+                    cap: $("#cap" + index).val() || $scope.Parcheggi[index].indirizzo.cap,
+                    via: $("#via" + index).val() || $scope.Parcheggi[index].indirizzo.via,
+                    n_civico: $("#n_civico" + index).val() || $scope.Parcheggi[index].indirizzo.n_civico
+                },
+                coordinate: {
+                    x: $("#latitutine" + index).val() || $scope.Parcheggi[index].coordinate.x,
+                    y: $("#longitutine" + index).val() || $scope.Parcheggi[index].coordinate.y
+                },
+                tariffaOrariaLavorativi: $("#tariffaOrariaLavorativi" + index).val() || $scope.Parcheggi[index].tariffaOrariaFestivi,
+                tariffaOrariaFestivi: $("#tariffaOrariaFestivi" + index).val() || $scope.Parcheggi[index].tariffaOrariaLavorativii
+            }
+        }
+
+        if ($("#nPostiMacchina" + index).val() != $scope.Parcheggi[index].nPostiMacchina ||
+            $("#nPostiAutobus" + index).val() != $scope.Parcheggi[index].nPostiAutobus ||
+            $("#nPostiCamper" + index).val() != $scope.Parcheggi[index].nPostiCamper ||
+            $("#nPostiMoto" + index).val() != $scope.Parcheggi[index].nPostiMoto ||
+            $("#nPostiDisabile" + index).val() != $scope.Parcheggi[index].nPostiDisabile) {
+            parametri.parcheggio.nPostiMacchina = $("#nPostiMacchina" + index).val() || $scope.Parcheggi[index].nPostiMacchina,
+                parametri.parcheggio.nPostiAutobus = $("#nPostiAutobus" + index).val() || $scope.Parcheggi[index].nPostiAutobus,
+                parametri.parcheggio.nPostiCamper = $("#nPostiCamper" + index).val() || $scope.Parcheggi[index].nPostiCamper,
+                parametri.parcheggio.nPostiMoto = $("#nPostiMoto" + index).val() || $scope.Parcheggi[index].nPostiMoto,
+                parametri.parcheggio.nPostiDisabile = $("#nPostiDisabile" + index).val() || $scope.Parcheggi[index].nPostiDisabile
+        }
+
+        $http({
+            method: "PATCH",
+            url: protocol + "://" + ipserver + "/aggiornaParcheggio",
+            headers: { 'Content-Type': 'application/json' },
+            data: parametri
+        }).then(function (response) {
+            if (response.status == 200)
+                if (response.data.successful !== undefined) {
+                    alert(response.data.successful.info);
+                    //  Setto i nuovi valori
+                    $scope.Parcheggi[index] = parametri.parcheggio;
+                    ModificaParcheggio(index, false);
+                }
+                else
+                    alert("Errore sconosciuto!");
+            else
+                alert("Errore sconosciuto!");
+        }, function (response) {
+            $scope.ModificaParcheggio(index, false);
+            if (response.data != null && response.data.error !== undefined)
+                alert(response.data.error.info);
+            else
+                alert("Server irraggiungibile.");
+        });
+    };
 
 });
 
@@ -567,9 +809,7 @@ indexApp.controller('gestisciLogout', function ($scope, $location, $localStorage
     $location.path('/');
 });
 
-/**
- * Username is the e-mail of the persone who want to access in it's personal profile
- */
+
 indexApp.controller('gestisciLogin', function ($scope, $http, $location, $localStorage) {
     if ($localStorage.XToken) {
         curToken = $localStorage.XToken;
@@ -645,12 +885,18 @@ indexApp.controller('gestisciLogin', function ($scope, $http, $location, $localS
 });
 
 indexApp.controller("gestisciSingup", function ($scope, $http, $location, $localStorage) {
-    // Tolgo l'ora dal datetime per la data di nascita dell' utenet
+    // Tolgo l'ora dal datetime per la data di nascita dell' utente
     $('#datanascita').datetimepicker({
         format: 'YYYY/MM/DD'
     });
 
     menuSet();
+
+    $("#logoUnicam").click(function () {
+        $scope.$applyAsync(function () {
+            $location.path('/login');
+        });
+    });
 
     $scope.message = "Registrati";
 

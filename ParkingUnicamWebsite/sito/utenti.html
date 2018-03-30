@@ -107,25 +107,35 @@
 
                                         <label>ID:</label> {{ prenotazione.idPrenotazione }}
 
-                                        <button id="resetCode{{ $index }}" type="button" class="btn pull-right buttonUser" ng-click="">
-                                            <span class="glyphicon  glyphicon-pencil"></span>
+
+                                        <button id="resetCode{{ $index }}" type="button" class="btn pull-right buttonUser" ng-click="resetCode($index)">
+                                            <span class="glyphicon  glyphicon-qrcode"></span>
                                         </button>
-
-
-                                        <div class="panel-body corpoPannello" style="padding-top: 5px;">
-                                            <h4 class="infoUtente">Info prenotazione:</h4>
-                                            <ul>
-                                                <li>
-                                                    <span class="subInfoUtente">data:</span>
-                                                    <input type="text" value="{{ prenotazione.data }}" class="formUtente" disabled />
-                                                </li>
-                                                <li>
-                                                    <span class="subInfoUtente">codice:</span>
-                                                    <input type="text" value="{{ prenotazione.codice }}" class=" formUtente" disabled />
-                                                </li>
-                                            </ul>
-                                        </div>
+                                        <h6 class="pull-right">Reset Codice</h6>
                                     </div>
+
+                                    <div class="panel-body corpoPannello" style="padding-top: 5px; text-align: left;">
+                                        <h4 class="infoUtente">Info prenotazione:</h4>
+                                        <ul>
+                                            <li>
+                                                <span class="subInfoPrenotazione">Luogo:</span>
+                                                <span>{{ prenotazione.indirizzo }}</span>
+                                            </li>
+                                            <li>
+                                                <span class="subInfoPrenotazione">Data scadenza:</span>
+                                                <span>{{ prenotazione.data | date:'MMMM dd, y HH:mm:ss' }}</span>
+                                            </li>
+                                            <li>
+                                                <span class="subInfoPrenotazione">Tipo posto:</span>
+                                                <span>{{ prenotazione.nomePosto }}</span>
+                                            </li>
+                                            <li>
+                                                <span class="subInfoPrenotazione">Codice:</span>
+                                                <span>{{ prenotazione.codice }}</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+
 
                                 </div>
                                 <div class="modal-footer">

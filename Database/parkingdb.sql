@@ -134,7 +134,7 @@ CREATE TABLE `carte_di_credito` (
 
 LOCK TABLES `carte_di_credito` WRITE;
 /*!40000 ALTER TABLE `carte_di_credito` DISABLE KEYS */;
-INSERT INTO `carte_di_credito` VALUES (92,'08475034','2027-01-09','666'),(103,'0987543452','2024-10-01','7543'),(109,'2345235','2018-03-20','234'),(65,'238976253','1997-10-10','853'),(60,'34523452345','2023-01-01','809'),(101,'365948453','2022-03-23','3909'),(2,'89234234','1990-10-24','7999');
+INSERT INTO `carte_di_credito` VALUES (92,'08475034','2027-01-09','666'),(103,'0987543452','2024-10-01','7543'),(109,'2345235','2018-03-20','234'),(65,'238976253','1997-10-10','853'),(60,'34523452345','2023-01-01','809'),(101,'365948453','2022-03-23','3909'),(114,'4534536453','2025-05-01','4355'),(102,'456456465','2038-03-05','456'),(2,'89234234','1990-10-24','7999');
 /*!40000 ALTER TABLE `carte_di_credito` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -146,18 +146,18 @@ DROP TABLE IF EXISTS `parcheggi`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `parcheggi` (
-  `idParcheggio` int(11) NOT NULL,
+  `idParcheggio` int(11) NOT NULL AUTO_INCREMENT,
   `coordinataX` varchar(64) NOT NULL,
   `coordinataY` varchar(64) NOT NULL,
   `citta` varchar(32) NOT NULL,
-  `cap` int(11) NOT NULL,
+  `cap` varchar(8) NOT NULL,
   `via` varchar(64) NOT NULL,
   `numero_civico` varchar(8) NOT NULL,
   `tariffaOrariaLavorativi` double NOT NULL,
   `tariffaOrariaFestivi` double NOT NULL,
   `provincia` varchar(3) NOT NULL,
   PRIMARY KEY (`idParcheggio`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -166,7 +166,7 @@ CREATE TABLE `parcheggi` (
 
 LOCK TABLES `parcheggi` WRITE;
 /*!40000 ALTER TABLE `parcheggi` DISABLE KEYS */;
-INSERT INTO `parcheggi` VALUES (0,'43.136840','13.067224','Camerino',62032,'Via U. Betti','13',2,1,'MC'),(1,'41.900738','12.515249','Roma',185,'De Lollis/irpini','6A',2.5,3,'RM'),(2,'43.348337','12.921714','Fabriano',60040,'Viale Beniamino Gigli','21',1.8,2.5,'AN'),(3,'43.601634','13.507641','Ancona ',60127,'Via Folli','5',2.3,3.2,'AN'),(4,'43.115748','12.384730','Perugia',6123,'Via Alessandro Pascoli','2',1.4,1.8,'PG'),(5,'43.299480','13.443915','Macerata',62100,'Via Gino Valentini','4',2,2.5,'MC'),(6,'42.854923','13.586182','Ascoli Piceno',63100,'Porta Maggiore','2',1.5,2,'AP'),(7,'43.081999','13.042297','Muccia',62034,'Via Compo della Fiera','6',1.7,1.9,'MC'),(8,'43.218024','13.298582','Tolentino',62029,'Via Goffredo Mameli','6',1.5,2,'MC'),(9,'43.300690','13.734134','Civitanova Marche',62012,'Via Carnia','88-2',1.7,1.9,'MC'),(10,'43.523618','13.237300','Jesi',60035,'Piazza Donato Bramante','18',2,2.1,'AN');
+INSERT INTO `parcheggi` VALUES (0,'43.136840','13.067224','Camerino','62032','Via U. Betti','13',2,1,'MC'),(1,'41.900738','12.515249','Roma','00185','De Lollis/irpini','6A',2.5,3,'RM'),(2,'43.348337','12.921714','Fabriano','60040','Viale Beniamino Gigli','21',1.8,2.5,'AN'),(3,'43.601634','13.507641','Ancona ','60127','Via Folli','5',2.3,3.2,'AN'),(4,'43.115748','12.384730','Perugia','06123','Via Alessandro Pascoli','2',1.4,1.8,'PG'),(5,'43.299480','13.443915','Macerata','62100','Via Gino Valentini','4',2,2.5,'MC'),(6,'42.854923','13.586182','Ascoli Piceno','63100','Porta Maggiore','2',1.5,2,'AP'),(7,'43.081999','13.042297','Muccia','62034','Via Compo della Fiera','6',1.7,1.9,'MC'),(8,'43.218024','13.298582','Tolentino','62029','Via Goffredo Mameli','6',1.5,2,'MC'),(9,'43.300690','13.734134','Civitanova Marche','62012','Via Carnia','88-2',1.7,1.9,'MC'),(10,'43.523618','13.237300','Jesi','60035','Piazza Donato Bramante','18',2,2.1,'AN'),(11,'43.917404','12.902683','Pesaro','61121','Lungofoglia Nazioni','2A',1.7,1.9,'PU'),(12,'42.740658','12.737360','Spoleto','06049','Piazza della Vittoria','26',2,2.1,'PG'),(13,'43.099701','11.789724','Montepulciano','53045','Via Iris Origo','54',1.6,1.8,'SI'),(14,'42.951717','12.704308','Foligno','06034','Via Nazario Sauro','1',2,2.4,'PG');
 /*!40000 ALTER TABLE `parcheggi` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -183,7 +183,8 @@ CREATE TABLE `posti_parcheggio` (
   `numero_posti` int(11) NOT NULL,
   PRIMARY KEY (`id_parcheggio`,`id_tipo`),
   KEY `id_tipo_posto_associato_idx` (`id_tipo`),
-  CONSTRAINT `id_parcheggio_associato` FOREIGN KEY (`id_parcheggio`) REFERENCES `parcheggi` (`idParcheggio`) ON DELETE CASCADE ON UPDATE CASCADE,
+  KEY `parcheggioAssociato_idx` (`id_parcheggio`),
+  CONSTRAINT `id_parcheggioAssociato` FOREIGN KEY (`id_parcheggio`) REFERENCES `parcheggi` (`idParcheggio`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `id_tipo_posto_associato` FOREIGN KEY (`id_tipo`) REFERENCES `tipo_parcheggio` (`idTipo_parcheggio`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -194,7 +195,7 @@ CREATE TABLE `posti_parcheggio` (
 
 LOCK TABLES `posti_parcheggio` WRITE;
 /*!40000 ALTER TABLE `posti_parcheggio` DISABLE KEYS */;
-INSERT INTO `posti_parcheggio` VALUES (0,0,30),(0,1,44),(0,2,50),(0,3,40),(0,4,30),(1,0,90),(1,1,80),(1,2,75),(1,3,95),(1,4,40),(2,0,50),(2,1,34),(2,2,76),(2,3,45),(2,4,40),(3,0,120),(3,1,56),(3,2,76),(3,3,34),(3,4,50),(4,0,124),(4,1,43),(4,2,100),(4,3,34),(4,4,54),(5,0,88),(5,1,87),(5,2,67),(5,3,56),(5,4,23),(6,0,65),(6,1,43),(6,2,23),(6,3,12),(6,4,11),(7,0,89),(7,1,67),(7,2,54),(7,3,34),(7,4,23),(8,0,76),(8,1,45),(8,2,34),(8,3,54),(8,4,23),(9,0,96),(9,1,45),(9,2,55),(9,3,56),(9,4,23),(10,0,65),(10,1,45),(10,2,67),(10,3,45),(10,4,10);
+INSERT INTO `posti_parcheggio` VALUES (0,0,70),(0,1,44),(0,2,50),(0,3,40),(0,4,30),(1,0,92),(1,1,80),(1,2,75),(1,3,95),(1,4,40),(2,0,50),(2,1,34),(2,2,76),(2,3,45),(2,4,40),(3,0,92),(3,1,56),(3,2,76),(3,3,34),(3,4,50),(4,0,92),(4,1,43),(4,2,100),(4,3,34),(4,4,54),(5,0,92),(5,1,87),(5,2,67),(5,3,56),(5,4,23),(6,0,92),(6,1,43),(6,2,23),(6,3,12),(6,4,11),(7,0,92),(7,1,67),(7,2,54),(7,3,34),(7,4,23),(8,0,92),(8,1,45),(8,2,34),(8,3,54),(8,4,23),(9,0,92),(9,1,45),(9,2,55),(9,3,56),(9,4,23),(10,0,92),(10,1,45),(10,2,67),(10,3,45),(10,4,10),(11,0,92),(11,1,56),(11,2,54),(11,3,34),(11,4,12),(12,0,92),(12,1,34),(12,2,23),(12,3,43),(12,4,12),(13,0,92),(13,1,23),(13,2,34),(13,3,56),(13,4,23),(14,0,92),(14,1,34),(14,2,45),(14,3,23),(14,4,20);
 /*!40000 ALTER TABLE `posti_parcheggio` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -228,12 +229,12 @@ CREATE TABLE `prenotazioni_in_atto` (
   `codice` varchar(64) NOT NULL,
   PRIMARY KEY (`id_prenotazione`),
   KEY `utenteCollegato_idx` (`id_utente`),
-  KEY `parcheggioCollegato_idx` (`id_parcheggio`),
   KEY `tipoPostoCollegato_idx` (`id_tipo_posto`),
-  CONSTRAINT `parcheggioCollegato` FOREIGN KEY (`id_parcheggio`) REFERENCES `parcheggi` (`idParcheggio`) ON DELETE CASCADE ON UPDATE CASCADE,
+  KEY `parcheggioCollegato_idx` (`id_parcheggio`),
+  CONSTRAINT `parcheggioCollegato` FOREIGN KEY (`id_parcheggio`) REFERENCES `parcheggi` (`idParcheggio`) ON UPDATE CASCADE,
   CONSTRAINT `tipoPostoCollegato` FOREIGN KEY (`id_tipo_posto`) REFERENCES `tipo_parcheggio` (`idTipo_parcheggio`) ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT `utenteCollegato` FOREIGN KEY (`id_utente`) REFERENCES `utenti` (`idUtente`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -242,6 +243,7 @@ CREATE TABLE `prenotazioni_in_atto` (
 
 LOCK TABLES `prenotazioni_in_atto` WRITE;
 /*!40000 ALTER TABLE `prenotazioni_in_atto` DISABLE KEYS */;
+INSERT INTO `prenotazioni_in_atto` VALUES (30,114,12,0,'2018-03-31 23:43:26','051e4e127b92f5d98d3c79b195f2b291'),(31,114,8,2,'2018-04-01 10:00:26','3def184ad8f4755ff269862ea77393dd'),(32,114,4,0,'2018-04-01 23:43:26','362e80d4df43b03ae6d3f8540cd63626'),(33,114,3,4,'2018-04-02 21:56:06','23ce1851341ec1fa9e0c259de10bf87c'),(34,114,5,1,'2018-04-01 12:53:00','b337e84de8752b27eda3a12363109e80'),(35,114,8,3,'2018-04-01 12:23:00','daca41214b39c5dc66674d09081940f0');
 /*!40000 ALTER TABLE `prenotazioni_in_atto` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -261,11 +263,11 @@ CREATE TABLE `prenotazioni_pagate` (
   `tipoParcheggio` int(11) NOT NULL,
   PRIMARY KEY (`idPrenotazione`),
   KEY `Autista_idx` (`idUtente`),
-  KEY `ParcheggioAssociato_idx` (`idParcheggio`),
   KEY `TipoParcheggioAssociato_idx` (`tipoParcheggio`),
+  KEY `parcheggioAssociato_idx` (`idParcheggio`),
   CONSTRAINT `Autista` FOREIGN KEY (`idUtente`) REFERENCES `utenti` (`idUtente`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `ParcheggioAssociato` FOREIGN KEY (`idParcheggio`) REFERENCES `parcheggi` (`idParcheggio`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `TipoParcheggioAssociato` FOREIGN KEY (`tipoParcheggio`) REFERENCES `tipo_parcheggio` (`idTipo_parcheggio`) ON UPDATE CASCADE
+  CONSTRAINT `TipoParcheggioAssociato` FOREIGN KEY (`tipoParcheggio`) REFERENCES `tipo_parcheggio` (`idTipo_parcheggio`) ON UPDATE CASCADE,
+  CONSTRAINT `parcheggioAssociato` FOREIGN KEY (`idParcheggio`) REFERENCES `parcheggi` (`idParcheggio`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -275,6 +277,7 @@ CREATE TABLE `prenotazioni_pagate` (
 
 LOCK TABLES `prenotazioni_pagate` WRITE;
 /*!40000 ALTER TABLE `prenotazioni_pagate` DISABLE KEYS */;
+INSERT INTO `prenotazioni_pagate` VALUES (1,101,8,'2018-03-25',6,0),(2,101,7,'2018-02-12',8,0);
 /*!40000 ALTER TABLE `prenotazioni_pagate` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -333,7 +336,7 @@ CREATE TABLE `utenti` (
 
 LOCK TABLES `utenti` WRITE;
 /*!40000 ALTER TABLE `utenti` DISABLE KEYS */;
-INSERT INTO `utenti` VALUES (2,'root','dc76e9f0c0006e8f919e0c515c66dbba3982f785','root@gmail.com','Amministratore','Pazzo','1995-10-29','34234653',1000,1),(3,'34g','ergg','mario@test.it','Dario','Rossi','2017-05-09','56745764567',0,1),(4,'sewrg','34g','gino@test.it','Gino','Pino','2017-05-09','45764576',0,1),(5,'asdgf4','seaweg','marco@test.it','Marco','Test','2017-05-09','54674567',0,1),(7,'j65er5','5ej6','mozzo@test.it','Capitano','Navale','2017-05-09','779679679',0,1),(8,'e5j6e','5ej6','capitano@test.it','Zozzo','Ubriaco','2017-05-09','45764576',0,1),(9,'dh465e','5e6j','martello@test.it','Vite','Spanata','2017-05-09','67965969',0,1),(28,'erge','erger','filippo@test.it','Filippo','Hippo','2017-05-09','4563457437',0,1),(29,'e56j','e5j6j65','h3po@test.it','Norman','Randi','2017-05-09','2457475',1,1),(55,'342523','g453g','hi45ppo@test.it','Giorgio','Mastrota','2017-05-09','45364356',4,1),(56,'gs45','4g5','hip5po@test.it','Gianni','Morandi','2017-05-09','54674567',4,1),(57,'e5g3','sg5er','hip2po@test.it','Gino','Ginoso','2017-05-09','24564356',5,1),(58,'e5g45','esg5','hi1ppo@test.it','Nomi','ACaso','2017-05-09','43564356',6,1),(59,'eg5e423','e5ghew5','hi5ppo@test.it','Peppe','Peluria','2017-05-09','6574567',7,1),(60,'erg','e5he','hi4ppo@test.it','Cinese','Gassoso','2020-01-01','777777777',0,1),(62,'test','test','prova','Luca','Sambuca','1996-11-20','3278690997',1000,1),(65,'test1','test','test@gtgest.it','Testolino','Successfull','2018-03-22','3774574',14,1),(66,'albero','nero','balber@bin.com','Alfio','Ceneri','1975-02-21','4352345',60,1),(67,'peppe','posta','peppepostino@poste.it','Peppe','Postino','1784-06-03','35254325',4,1),(68,'giag','fweg','gianio@juju.it','Gigi','Tastiera','1964-09-01','23543252',0,1),(69,'asjoweg','nowenf','hude@kurl.it','Geenos','Androide','1988-02-17','435324534',0,1),(70,'onep','onep','mantello_pelato@live.it','Saitama','Pelato','1990-04-25','43523453',1,1),(81,'436224536','onep','email1@server.dominio','Gianni','Hugo','1964-09-01','64536435',0,1),(82,'etwrhw4rt','onep','email2@server.dominio','Gilberto','Drugo','1964-09-01','45364356',0,1),(83,'ewrgewrg','onep','emai3l@server.dominio','Gulag','Pollu','1964-09-01','4576456456',0,1),(84,'eweewrg','onep','emai4l@server.dominio','Genny','Ron','1964-09-01','677777',0,1),(85,'serh','onep','email5@server.dominio','Gina','Benzina','1964-09-01','56657567',0,1),(86,'rth','onep','em3ail@server.dominio','Giga','Byte','1964-09-01','456465753',0,1),(87,'juyt','onep','emai2l@server.dominio','Guga','Ruga','1964-09-01','4564256456',0,1),(88,'ted','onep','em1ail@server.dominio','Greg','Pennarello','1981-09-01','3451451345',100,1),(89,'gnj','onep','ema1il@ser4ver.dominio','Geppetto','Mastro','1964-09-01','4564365',0,1),(90,'fdgty','onep','ema9il@server.dominio','Greta','Bruna','1964-09-10','223456645',0,1),(91,'bordi','bordi','bordi','ciccio','bordi','1996-10-10','322254',0,1),(92,'stach','18c66b36973dab974b2e422b529aab29e59f84ee','lorenzo.stacchio@studenti.unicam.it','Lorenzo','Stacchietti','1996-11-09','6666666',100,1),(94,'test2','109f4b3c50d7b0df729d299bc6f8e9ef9066971f','test@test.test','Testolaccia','Testata','2008-03-21','4564567456',0,1),(101,'empo','422068876de3222d7e1f569cae5583204fa79cc6','ruggeri85n@gmail.com','Nicolò','Ruggeri','1995-10-23','3345968526',0,1),(102,'Libro','18c66b36973dab974b2e422b529aab29e59f84ee','libbrone@one.it','Libro','Importante','2018-03-05','456456',0,1),(103,'Drago','e42fce0d4849d8fb9c28a71c993d36d3abb91f78','dragone@ciccione.it','Drago','Matto','2018-03-23','435345345',100,1),(104,'ergnergon','2d1a91a7239c50bb2eed020e3dc9eeb13c9240ca','giggio@gmail.com','23423','435345','2018-03-27','456t456',0,0),(105,'roberto','49089b61d0b15f16834bb4cf3a5fa45b7dfe1a74','robbyrobboso@gmail.com','Roberto','Robboso','2018-03-12','456456456',0,0),(109,'Nicolò','68b5193fd0f5308baac9d9eed453a89e6925bcf9','nicolo.ruggeri@studenti.unicam.it','Nicolò','Ruggeri','2018-03-21','435435',0,1),(110,'username','5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8','ruggeri5n@gmail.com','Nicolò','Ruggeri','2018-03-22','3345968526',0,1),(111,'rocco','88a9d5a83b2b7e4bc74200cc205858df88a90f44','ruggeri95n@gmail.com','Dubai','Genova','2018-03-17','4563463656',0,1),(112,'Testa','a94a8fe5ccb19ba61c4c0873d391e987982fbbd3','gigi@g.i','testsette','Ratti','1196-01-01','464684843',0,1),(113,'bullone','34718edb825480e8d91a0c4b6d580b1e3f35b4d9','rattolino@rat.it','ratto','bine','1886-03-01','664646818',0,0),(114,'hagdka7','b3919b5714626e0a12a511c0e4702fe759333c87','cixhxio@gmail.com','rattol','gugle','1996-00-13','1995564646',0,0);
+INSERT INTO `utenti` VALUES (2,'root','dc76e9f0c0006e8f919e0c515c66dbba3982f785','root@gmail.com','Amministratore','Pazzo','1995-10-29','34234653',1000,1),(3,'34g','ergg','mario@test.it','Dario','Rossi','2017-05-09','56745764567',0,1),(4,'sewrg','34g','gino@test.it','Gino','Pino','2017-05-09','45764576',0,1),(5,'asdgf4','seaweg','marco@test.it','Marco','Test','2017-05-09','54674567',0,1),(7,'j65er5','5ej6','mozzo@test.it','Capitano','Navale','2017-05-09','779679679',0,1),(8,'e5j6e','5ej6','capitano@test.it','Zozzo','Ubriaco','2017-05-09','45764576',0,1),(9,'dh465e','5e6j','martello@test.it','Vite','Spanata','2017-05-09','67965969',0,1),(28,'erge','erger','filippo@test.it','Filippo','Hippo','2017-05-09','4563457437',0,1),(29,'e56j','e5j6j65','h3po@test.it','Norman','Randi','2017-05-09','2457475',1,1),(55,'342523','g453g','hi45ppo@test.it','Giorgio','Mastrota','2017-05-09','45364356',4,1),(56,'gs45','4g5','hip5po@test.it','Gianni','Morandi','2017-05-09','54674567',4,1),(57,'e5g3','sg5er','hip2po@test.it','Gino','Ginoso','2017-05-09','24564356',5,1),(58,'e5g45','esg5','hi1ppo@test.it','Nomi','ACaso','2017-05-09','43564356',6,1),(59,'eg5e423','e5ghew5','hi5ppo@test.it','Peppe','Peluria','2017-05-09','6574567',7,1),(60,'erg','e5he','hi4ppo@test.it','Cinese','Gassoso','2020-01-01','777777777',0,1),(62,'test','test','prova','Luca','Sambuca','1996-11-20','3278690997',1000,1),(65,'test1','test','test@gtgest.it','Testolino','Successfull','2018-03-22','3774574',14,1),(66,'albero','nero','balber@bin.com','Alfio','Ceneri','1975-02-21','4352345',60,1),(67,'peppe','posta','peppepostino@poste.it','Peppe','Postino','1784-06-03','35254325',4,1),(68,'giag','fweg','gianio@juju.it','Gigi','Tastiera','1964-09-01','23543252',0,1),(69,'asjoweg','nowenf','hude@kurl.it','Geenos','Androide','1988-02-17','435324534',0,1),(70,'onep','onep','mantello_pelato@live.it','Saitama','Pelato','1990-04-25','43523453',1,1),(81,'436224536','onep','email1@server.dominio','Gianni','Hugo','1964-09-01','64536435',0,1),(82,'etwrhw4rt','onep','email2@server.dominio','Gilberto','Drugo','1964-09-01','45364356',0,1),(83,'ewrgewrg','onep','emai3l@server.dominio','Gulag','Pollu','1964-09-01','4576456456',0,1),(84,'eweewrg','onep','emai4l@server.dominio','Genny','Ron','1964-09-01','677777',0,1),(85,'serh','onep','email5@server.dominio','Gina','Benzina','1964-09-01','56657567',0,1),(86,'rth','onep','em3ail@server.dominio','Giga','Byte','1964-09-01','456465753',0,1),(87,'juyt','onep','emai2l@server.dominio','Guga','Ruga','1964-09-01','4564256456',0,1),(88,'ted','onep','em1ail@server.dominio','Greg','Pennarello','1981-09-01','3451451345',100,1),(89,'gnj','onep','ema1il@ser4ver.dominio','Geppetto','Mastro','1964-09-01','4564365',0,1),(90,'fdgty','onep','ema9il@server.dominio','Greta','Bruna','1964-09-10','223456645',0,1),(91,'bordi','bordi','bordi','ciccio','bordi','1996-10-10','322254',0,1),(92,'stach','18c66b36973dab974b2e422b529aab29e59f84ee','lorenzo.stacchio@studenti.unicam.it','Lorenzo','Stacchietti','1996-11-09','6666666',100,1),(94,'test2','109f4b3c50d7b0df729d299bc6f8e9ef9066971f','test@test.test','Testolaccia','Testata','2008-03-21','4564567456',0,1),(101,'empo','422068876de3222d7e1f569cae5583204fa79cc6','ruggeri85n@gmail.com','Nicolò','Ruggeri','1995-10-24','3345968526',NULL,1),(102,'Libro','18c66b36973dab974b2e422b529aab29e59f84ee','libbrone@one.it','Libro','Importante','2018-03-05','456456',0,1),(103,'Drago','e42fce0d4849d8fb9c28a71c993d36d3abb91f78','dragone@ciccione.it','Drago','Matto','2018-03-23','435345345',100,1),(104,'ergnergon','2d1a91a7239c50bb2eed020e3dc9eeb13c9240ca','giggio@gmail.com','23423','435345','2018-03-27','456t456',0,0),(105,'roberto','49089b61d0b15f16834bb4cf3a5fa45b7dfe1a74','robbyrobboso@gmail.com','Roberto','Robboso','2018-03-12','456456456',0,0),(109,'Nicolò','68b5193fd0f5308baac9d9eed453a89e6925bcf9','nicolo.ruggeri@studenti.unicam.it','Nicolò','Ruggeri','2018-03-21','435435',0,1),(110,'username','5baa61e4c9b93f3f0682250b6cf8331b7ee68fd8','ruggeri5n@gmail.com','Nicolò','Ruggeri','2018-03-22','3345968526',0,1),(111,'rocco','88a9d5a83b2b7e4bc74200cc205858df88a90f44','ruggeri95n@gmail.com','Dubai','Genova','2018-03-17','4563463656',0,1),(112,'Testa','a94a8fe5ccb19ba61c4c0873d391e987982fbbd3','gigi@g.i','testsette','Ratti','1196-01-01','464684843',0,1),(113,'bullone','34718edb825480e8d91a0c4b6d580b1e3f35b4d9','rattolino@rat.it','ratto','bine','1886-03-01','664646818',0,1),(114,'pippo','b3919b5714626e0a12a511c0e4702fe759333c87','testgiacomo@gmail.com','Giacomo','Test','1995-10-10','03595564646',NULL,1);
 /*!40000 ALTER TABLE `utenti` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -433,4 +436,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2018-03-26  0:22:46
+-- Dump completed on 2018-04-01 13:03:01

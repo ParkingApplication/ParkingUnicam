@@ -53,7 +53,7 @@ public class OptionsMenu extends FragmentWithOnBack implements AdapterView.OnIte
                 break;
             }
 
-        Button buttonSalva = view.findViewById(R.id.buttonSalvaImpostazioni);
+        Button buttonSalva = view.findViewById(R.id.buttonSalvaAdvanceImpostazioni);
         buttonSalva.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

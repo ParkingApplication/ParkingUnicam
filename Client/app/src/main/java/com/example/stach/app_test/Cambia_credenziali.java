@@ -39,14 +39,14 @@ public class Cambia_credenziali extends FragmentWithOnBack implements Connession
                              Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_cambia_credenziali, container, false);
 
-        t_nome = (EditText) view.findViewById(R.id.nuova_Nome);
-        t_cognome = (EditText) view.findViewById(R.id.nuova_Cognome);
-        t_data = (EditText) view.findViewById(R.id.nuova_Data_Nascita);
-        t_telefono = (EditText) view.findViewById(R.id.nuova_Telefono);
-        t_email = (EditText) view.findViewById(R.id.nuova_Email);
-        t_vecchia_password = (EditText) view.findViewById(R.id.vecchia_password);
-        t_nuova_password = (EditText) view.findViewById(R.id.nuova_password);
-        t_username = (EditText) view.findViewById(R.id.nuova_Username);
+        t_nome = view.findViewById(R.id.nuova_Nome);
+        t_cognome = view.findViewById(R.id.nuova_Cognome);
+        t_data = view.findViewById(R.id.nuova_Data_Nascita);
+        t_telefono = view.findViewById(R.id.nuova_Telefono);
+        t_email = view.findViewById(R.id.nuova_Email);
+        t_vecchia_password = view.findViewById(R.id.vecchia_password);
+        t_nuova_password = view.findViewById(R.id.nuova_password);
+        t_username = view.findViewById(R.id.nuova_Username);
 
         t_nome.setText(Parametri.nome);
         t_cognome.setText(Parametri.cognome);
@@ -55,7 +55,7 @@ public class Cambia_credenziali extends FragmentWithOnBack implements Connession
         t_email.setText(Parametri.email);
         t_username.setText(Parametri.username);
 
-        Button sendCredenziali = (Button) view.findViewById((R.id.nuova_buttonCommit));
+        Button sendCredenziali = view.findViewById((R.id.nuova_buttonCommit));
         final ConnessioneListener me = this;
         sendCredenziali.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -135,7 +135,6 @@ public class Cambia_credenziali extends FragmentWithOnBack implements Connession
 
             AggiornaParametri();
             getActivity().onBackPressed();
-            return;
         }
     }
 }

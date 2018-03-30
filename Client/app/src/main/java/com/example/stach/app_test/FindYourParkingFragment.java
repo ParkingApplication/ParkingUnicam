@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
@@ -117,7 +118,7 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -264,7 +265,7 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
 
             if (responseCode.equals("200")) {
                 // Estraggo i dati dei parcheggi restituiti dal server
-                ArrayList<String> par = new ArrayList<String>();
+                ArrayList<String> par = new ArrayList<>();
                 try {
                     JSONObject allparcheggi = new JSONObject(result);
                     JSONArray parcheggi = allparcheggi.getJSONArray("parcheggi");
@@ -285,7 +286,6 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
                 Intent intent = new Intent(getContext(), MapActivity.class);
                 intent.putStringArrayListExtra("parcheggi", par);
                 startActivityForResult(intent, ACTION_MAP);
-                return;
             }
         }
     };
@@ -304,6 +304,10 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
             postData.put("long", curLocation.getLongitude());
             postData.put("token", Parametri.Token);
         } catch (Exception e) {
+            e.printStackTrace();
+            caricamento.dismiss();
+            Toast.makeText(getContext(), "Errore nell' elaborazione dei dati da inviare.", Toast.LENGTH_LONG).show();
+            return;
         }
 
         Connessione conn = new Connessione(postData, "POST");
@@ -356,7 +360,6 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
                     connPar.addListener(ListenerGetAllParcheggi);
                     connPar.execute(Parametri.IP + "/getAllParcheggi");
                 }
-                return;
             }
         }
 
@@ -379,7 +382,7 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
             }
 
             if (responseCode.equals("200")) {
-                ArrayList<Parcheggio> par = new ArrayList<Parcheggio>();
+                ArrayList<Parcheggio> par = new ArrayList<>();
 
                 try {
                     JSONObject allparcheggi = new JSONObject(result);

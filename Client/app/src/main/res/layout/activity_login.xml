@@ -10,7 +10,7 @@
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/unicamPark"
+            android:id="@+id/unicamParkLoginLogo"
             android:layout_width="match_parent"
             android:layout_height="80dp"
             android:layout_marginTop="24dp"
@@ -32,7 +32,7 @@
             android:textAlignment="center"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/unicamPark" />
+            app:layout_constraintTop_toBottomOf="@+id/unicamParkLoginLogo" />
 
         <EditText
             android:id="@+id/pass"

@@ -82,10 +82,13 @@ public class Parcheggio {
         return postiLiberi;
     }
 
-    public void setPostiLiberi(int[] postiLiberi) {
-        for (int i = 0; i < TipoPosto.N_POSTI; i++) {
-            this.postiLiberi[i] = postiLiberi[i];
-        }
+    public void setPostiLiberi(int[] postiLiberi) throws Exception {
+        if (postiLiberi.length != TipoPosto.N_POSTI)
+            throw new Exception("Numero posti liberi errato.");
+        else
+            for (int i = 0; i < TipoPosto.N_POSTI; i++) {
+                this.postiLiberi[i] = postiLiberi[i];
+            }
     }
 
     public double getPrezzoFestivi() {

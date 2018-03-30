@@ -18,7 +18,7 @@ public class Connessione extends AsyncTask<String, String, String> {
     // This is a constructor that allows you to pass in the JSON body
     public Connessione(JSONObject postData, String requestType) {
         this.requestType = requestType;
-        this.listeners = new ArrayList<ConnessioneListener>();
+        this.listeners = new ArrayList<>();
         if (postData != null) {
             this.postData = postData;
         }
@@ -40,7 +40,7 @@ public class Connessione extends AsyncTask<String, String, String> {
             urlConnection.setRequestProperty("Content-Type", "application/json; charset= utf-8");
             urlConnection.setRequestProperty("Accept", "application/json");
             urlConnection.setRequestMethod(requestType);
-            urlConnection.setConnectTimeout(7000);
+            urlConnection.setConnectTimeout(10000);
             // Send the post body
             if (this.postData != null) {
                 OutputStreamWriter writer = new OutputStreamWriter(urlConnection.getOutputStream());
@@ -49,7 +49,7 @@ public class Connessione extends AsyncTask<String, String, String> {
             }
 
             int statusCode = urlConnection.getResponseCode();
-            InputStreamReader inputStreamReader = null;
+            InputStreamReader inputStreamReader;
 
             // Se lo statuscode è 200 leggo la risposta, altrimenti leggo l'errore
             if (statusCode == 200)
@@ -60,12 +60,12 @@ public class Connessione extends AsyncTask<String, String, String> {
             // Leggo la risposta dal server
             BufferedReader reader = new BufferedReader(inputStreamReader);
             StringBuilder sb = new StringBuilder();
-            String response = null;
+            String response;
 
 
 
             while ((response = reader.readLine()) != null)
-                sb.append(response + "\n");
+                sb.append(response).append("\n");
 
             response = sb.toString();
             responseInfo = response;
@@ -102,7 +102,7 @@ public class Connessione extends AsyncTask<String, String, String> {
 
     // Funzione per l'estrazione automatica del dato JSon error
     public static String estraiErrore(String data){
-        String result = "";
+        String result;
 
         try {
             JSONObject response = new JSONObject(data);
@@ -117,7 +117,7 @@ public class Connessione extends AsyncTask<String, String, String> {
 
     // Funzione per l'estrazione automatica del dato JSon successful
     public static String estraiSuccessful(String data){
-        String result = "";
+        String result;
 
         try {
             JSONObject response = new JSONObject(data);

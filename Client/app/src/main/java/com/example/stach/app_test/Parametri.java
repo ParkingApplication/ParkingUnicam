@@ -9,6 +9,7 @@ public class Parametri {
     static String IP = "http://2.226.207.189:5666";
     static String Token = null;
     static File login_file;
+    static File advance_setting_file;
 
     // Dati account utente
     static String id = null;

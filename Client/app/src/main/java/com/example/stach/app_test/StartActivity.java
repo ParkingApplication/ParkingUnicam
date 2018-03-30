@@ -19,6 +19,9 @@ public class StartActivity extends AppCompatActivity {
         setContentView(R.layout.activity_start);
 
         Parametri.login_file = new File(this.getFilesDir(), "data.lgn");
+        Parametri.advance_setting_file = new File(this.getFilesDir(), "advoption.lgn");
+
+        caricaImpostazioniAvanzate();
 
         if (recruitData())
             sendDataForLogin();
@@ -47,7 +50,7 @@ public class StartActivity extends AppCompatActivity {
         conn.execute(Parametri.IP + "/login");
     }
 
-    ConnessioneListener loginListenerConnessione = new ConnessioneListener() {
+    private ConnessioneListener loginListenerConnessione = new ConnessioneListener() {
         @Override
         public void ResultResponse(String responseCode, String result) {
             if (responseCode == null) {
@@ -66,13 +69,13 @@ public class StartActivity extends AppCompatActivity {
             }
 
             if (responseCode.equals("200")) {
-                String message = "";
+                String message;
 
                 // Estraggo i miei dati restituiti dal server
                 try {
                     JSONObject token = new JSONObject(result);
                     JSONObject autistajs = new JSONObject(token.getString("autista"));
-                    JSONObject carta = null;
+                    JSONObject carta;
 
                     Parametri.Token = token.getString("token");
                     Parametri.id = autistajs.getString("id");
@@ -110,19 +113,17 @@ public class StartActivity extends AppCompatActivity {
                 Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
                 startActivity(new Intent(getApplicationContext(), MainActivity.class));
                 finish();
-                return;
             }
         }
     };
 
-    public boolean recruitData() {
+    private boolean recruitData() {
         String mailResult = "";
         String passwordResult = "";
 
         try {
             String appoggio;
             BufferedReader fos1 = new BufferedReader(new FileReader(Parametri.login_file.getAbsolutePath()));
-            StringBuilder sb = new StringBuilder();
 
             // Leeggo l'email
             if ((appoggio = fos1.readLine()) != null)
@@ -148,5 +149,19 @@ public class StartActivity extends AppCompatActivity {
         username = mailResult;
         password = passwordResult;
         return true;
+    }
+
+    private void caricaImpostazioniAvanzate() {
+        try {
+            String app;
+            BufferedReader fos1 = new BufferedReader(new FileReader(Parametri.advance_setting_file.getAbsolutePath()));
+
+            if ((app = fos1.readLine()) != null)
+                Parametri.IP = app;
+
+            fos1.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

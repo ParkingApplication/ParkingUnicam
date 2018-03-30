@@ -20,7 +20,7 @@ public class PasswordRecoveryActivity extends AppCompatActivity implements Conne
 
     public void sendDataForPasswordRecovery(View view){
         //Prendo i dati dalla form:
-        EditText email = (EditText) findViewById(R.id.editTextEmail);
+        EditText email = findViewById(R.id.editTextEmail);
 
         String emails = email.getText().toString();
 
@@ -77,7 +77,6 @@ public class PasswordRecoveryActivity extends AppCompatActivity implements Conne
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
             finish();
-            return;
         }
     }
 }

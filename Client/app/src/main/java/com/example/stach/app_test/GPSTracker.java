@@ -21,7 +21,6 @@ import java.util.List;
 
 public class GPSTracker extends Service {
     private final Context mContext;
-    private LocationRequest mLocationRequest;
     private Location location;
     private LocationManager locationManager;
     private List<GpsChangeListener> listeners;
@@ -40,6 +39,8 @@ public class GPSTracker extends Service {
     // I permessi verranno controllati dalla classe che utilizza il GPSTracker
     @SuppressLint("MissingPermission")
     public void StartToGetLocation() {
+        LocationRequest mLocationRequest;
+
         try {
             locationManager = (LocationManager) mContext.getSystemService(LOCATION_SERVICE);
             // Se il GPS è attivo

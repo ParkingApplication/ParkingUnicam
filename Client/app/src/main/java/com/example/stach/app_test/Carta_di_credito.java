@@ -111,7 +111,6 @@ public class Carta_di_credito extends FragmentWithOnBack implements ConnessioneL
 
             AggiornaParametri();
             getActivity().onBackPressed();
-            return;
         }
     }
 

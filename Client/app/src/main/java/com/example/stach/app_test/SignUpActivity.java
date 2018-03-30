@@ -127,7 +127,7 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher, Co
     //Criptazione SHA1
     public static String SHA1(String text) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest md = MessageDigest.getInstance("SHA-1");
-        byte[] sha1hash = new byte[40];
+        byte[] sha1hash;
         md.update(text.getBytes("iso-8859-1"), 0, text.length());
         sha1hash = md.digest();
         return convertToHex(sha1hash);
@@ -173,7 +173,6 @@ public class SignUpActivity extends AppCompatActivity implements TextWatcher, Co
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
             startActivity(new Intent(getApplicationContext(), LoginActivity.class));
             finish();
-            return;
         }
     }
 }

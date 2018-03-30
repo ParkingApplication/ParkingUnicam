@@ -1,6 +1,6 @@
 // create the module
 var indexApp = angular.module('parkingApp', ['ngRoute', 'ngStorage']);
-var ipserver = "2.226.207.189:5666";
+var ipserver = "172.16.0.212:5044";
 var protocol = "http";
 
 //  variabile contenente il token
@@ -169,10 +169,10 @@ indexApp.controller('gestisciParcheggi', function ($scope, $http, $localStorage,
             alert("Errore sconosciuto.");
 
     }, function (response) {
-        if (response.data.error)
+        if (response.data != null && response.data.error !== undefined)
             alert(response.data.error.info);
         else
-            alert("Errore sconosciuto.");
+            alert("Server irraggiungibile.");
     });
 });
 
@@ -203,10 +203,10 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             else
                 alert("Errore sconosciuto!");
     }, function (response) {
-        if (response.data.error)
+        if (response.data != null && response.data.error !== undefined)
             alert(response.data.error.info);
         else
-            alert("Errore sconosciuto.");
+            alert("Server irraggiungibile.");
     });
 
     var IndexFromId = function (id) {
@@ -225,7 +225,6 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             $("#cognome" + index).removeAttr("disabled");
             $("#dataDiNascita" + index).removeAttr("disabled");
             $("#telefono" + index).removeAttr("disabled");
-            $("#saldo" + index).removeAttr("disabled");
             $("#abilitato" + index).removeAttr("disabled");
             $("#numero_carta" + index).removeAttr("disabled");
             $("#pin" + index).removeAttr("disabled");
@@ -243,7 +242,6 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             $("#cognome" + index).attr("disabled", "disabled");
             $("#dataDiNascita" + index).attr("disabled", "disabled");
             $("#telefono" + index).attr("disabled", "disabled");
-            $("#saldo" + index).attr("disabled", "disabled");
             $("#abilitato" + index).attr("disabled", "disabled");
             $("#numero_carta" + index).attr("disabled", "disabled");
             $("#pin" + index).attr("disabled", "disabled");
@@ -261,7 +259,6 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             $("#cognome" + index).val($scope.Autisti[index].cognome);
             $("#dataDiNascita" + index).val($scope.Autisti[index].dataDiNascita);
             $("#telefono" + index).val($scope.Autisti[index].telefono);
-            $("#saldo" + index).val(parseFloat($scope.Autisti[index].saldo).toFixed(2));
             $("#abilitato" + index).prop('checked', $scope.Autisti[index].abilitato);
             $("#numero_carta" + index).val($scope.Autisti[index].carta_di_credito.numero_carta);
             $("#pin" + index).val($scope.Autisti[index].carta_di_credito.pin);
@@ -281,7 +278,6 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
                 cognome: $("#cognome" + index).val() || $scope.Autisti[index].cognome,
                 dataDiNascita: $("#dataDiNascita" + index).val(),
                 telefono: $("#telefono" + index).val(),
-                saldo: $("#saldo" + index).val(),
                 abilitato: $("#abilitato" + index).is(':checked'),
                 carta_di_credito: {
                     numero_carta: $("#numero_carta" + index).val(),
@@ -298,7 +294,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
             data: parametri
         }).then(function (response) {
             if (response.status == 200)
-                if (response.data.successful) {
+                if (response.data.successful !== undefined) {
                     alert(response.data.successful.info);
                     //  Setto i nuovi valori
                     $scope.Autisti[index] = parametri.autista;
@@ -313,10 +309,10 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
                 alert("Errore sconosciuto!");
         }, function (response) {
             $scope.ModificaUtente(index, false);
-            if (response.data.error)
+            if (response.data != null && response.data.error !== undefined)
                 alert(response.data.error.info);
             else
-                alert("Errore sconosciuto.");
+                alert("Server irraggiungibile.");
         });
     };
 
@@ -334,7 +330,7 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
                 data: parametri
             }).then(function (response) {
                 if (response.status == 200) {
-                    if (response.data.successful) {
+                    if (response.data.successful !== undefined) {
                         for (var i = IndexFromId($scope.Autisti[index].id); i < $scope.AllAutisti.length - 1; i++)
                             $scope.AllAutisti[i] = $scope.AllAutisti[i + 1];
 
@@ -349,12 +345,46 @@ indexApp.controller('gestisciUtenti', function ($scope, $http, $localStorage, $l
                 else
                     alert("Errore sconosciuto!");
             }, function (response) {
-                if (response.data.error)
+                if (response.data != null && response.data.error !== undefined)
                     alert(response.data.error.info);
                 else
-                    alert("Errore sconosciuto.");
+                    alert("Server irraggiungibile.");
             });
         };
+    };
+
+    $scope.ModalPrenotazioni = function (index) {
+        $("#modalNomeUser").text("Prenotazioni in corso di " +  $scope.Autisti[index].nome);
+
+        var parametri = {
+            token: curToken.value,
+            idUtente: $scope.Autisti[index].id
+        };
+
+        $http({
+            method: "POST",
+            url: protocol + "://" + ipserver + "/getPrenotazioniInAttoUtente",
+            headers: { 'Content-Type': 'application/json' },
+            data: parametri
+        }).then(function (response) {
+            if (response.status == 200) {
+                if (response.data.prenotazioniInAtto !== undefined) {
+                    $scope.PrenotazioniUtente = response.data.prenotazioniInAtto;
+                    $("#prenotazioniModalLong").modal('show');
+                }
+                else
+                    alert("Errore sconosciuto!");
+            }
+            else
+                alert("Errore sconosciuto!");
+        }, function (response) {
+            if (response.data != null && response.data.error !== undefined)
+                alert(response.data.error.info);
+            else
+                alert("Server irraggiungibile.");
+        });
+
+        
     };
 
     var Search = function () {
@@ -512,10 +542,10 @@ indexApp.controller('gestisciPrenotazioni', function ($scope, $http, $localStora
         else
             alert("Errore sconosciuto!");
     }, function (response) {
-        if (response.data.error)
+        if (response.data != null && response.data.error !== undefined)
             alert(response.data.error.info);
         else
-            alert("Errore sconosciuto.");
+            alert("Server irraggiungibile.");
     });
 
 });
@@ -559,7 +589,7 @@ indexApp.controller('gestisciLogin', function ($scope, $http, $location, $localS
             data: { 'token': curToken.value }
         }).then(function (response) {
             if (response.status == 200) {
-                if (response.data.success) {
+                if (response.data.successful !== undefined) {
                     alert(response.data.message);
                     $location.path('/home');
                 }
@@ -569,10 +599,10 @@ indexApp.controller('gestisciLogin', function ($scope, $http, $location, $localS
             else
                 alert("Errore sconosciuto!");
         }, function (response) {
-            if (response.data.error)
+            if (response.data != null && response.data.error !== undefined)
                 alert(response.data.error.info);
             else
-                alert("Errore sconosciuto.");
+                alert("Server irraggiungibile.");
         });
     }
 
@@ -606,10 +636,10 @@ indexApp.controller('gestisciLogin', function ($scope, $http, $location, $localS
                 }
             }
         }, function (response) {
-            if (response.data.error)
+            if (response.data != null && response.data.error !== undefined)
                 alert(response.data.error.info);
             else
-                alert("Errore sconosciuto!");
+                alert("Server irraggiungibile.");
         });
     }
 });
@@ -647,7 +677,7 @@ indexApp.controller("gestisciSingup", function ($scope, $http, $location, $local
             data: parametri
         }).then(function (response) {
             if (response.status == 200) {
-                if (response.data.successful) {
+                if (response.data.successful !== undefined) {
                     alert(response.data.successful.info);
                     $location.path('/');
                 }
@@ -657,10 +687,10 @@ indexApp.controller("gestisciSingup", function ($scope, $http, $location, $local
             else
                 alert("Errore sconosciuto!");
         }, function (response) {
-            if (response.data.error)
+            if (response.data != null && response.data.error !== undefined)
                 alert(response.data.error.info);
             else
-                alert("Errore sconosciuto!");
+                alert("Server irraggiungibile.");
         });
     };
 });

@@ -14,7 +14,6 @@ import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Toast;
 import android.Manifest;
@@ -37,7 +36,6 @@ import java.util.List;
 
 public class MapActivity extends FragmentActivity implements OnMyLocationButtonClickListener, OnMapReadyCallback, OnMarkerClickListener {
     private GoogleMap mGoogleMap;
-    private SupportMapFragment mapFrag;
     private LocationRequest mLocationRequest;
     private LocationManager lmanager;
     private Marker mCurrLocationMarker;
@@ -53,12 +51,13 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+        SupportMapFragment mapFrag;
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         mapFrag = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mapFrag.getMapAsync(this);
         lmanager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
 
-        this.parcheggi = new ArrayList<Parcheggio>();
+        this.parcheggi = new ArrayList<>();
 
         // Prelevo i dati passati tramite intent
         Intent intent = getIntent();
@@ -99,7 +98,7 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
          if (mFusedLocationClient != null)
              if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                  // Controllo che il GPS sia acceso
-                 if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false)
+                 if (!lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER))
                      checkGPS();
                  else {
                      mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
@@ -215,7 +214,7 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String permissions[], @NonNull int[] grantResults) {
         switch (requestCode) {
             case MY_PERMISSIONS_REQUEST_LOCATION: {
                 if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
@@ -231,7 +230,6 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
                     // Permessi negati, disabilitare qui le funzioni per il gps
                     Toast.makeText(this, "Permessi negati.\nNon puoi utilizzare correttamente quest applicazione", Toast.LENGTH_LONG).show();
                 }
-                return;
             }
         }
     }
@@ -241,7 +239,7 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
 
     // Controlla se il GPS è accesso
     private void checkGPS() {
-        if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false) {
+        if (!lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             new AlertDialog.Builder(this)
                     .setTitle("Devi attivare il GPS")
                     .setMessage("Per cercare un parcheggio è necessario attivare la localizzazione automatica.")
@@ -267,7 +265,7 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
             case ACTION_LOCATION_SETTING:
-                if (lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER) == false) {
+                if (!lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                     Toast.makeText(this, "GPS spento.\nNon puoi utilizzare correttamente quest applicazione.", Toast.LENGTH_LONG).show();
                 } else {
                     if (ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

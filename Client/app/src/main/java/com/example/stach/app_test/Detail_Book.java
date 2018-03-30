@@ -3,7 +3,8 @@ package com.example.stach.app_test;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,10 +16,12 @@ import com.google.android.gms.maps.model.LatLng;
 
 import org.json.JSONObject;
 
-public class Detail_Book extends Fragment implements ConnessioneListener {
+public class Detail_Book extends FragmentWithOnBack implements ConnessioneListener {
     private Prenotazione prenotazione = null;
+    private boolean needBack;
 
-    public Detail_Book() {
+    public  Detail_Book () {
+
     }
 
     @Override
@@ -28,6 +31,7 @@ public class Detail_Book extends Fragment implements ConnessioneListener {
         if (Parametri.prenotazioniInCorso != null) {
             Bundle bundle = getArguments();
 
+            needBack = bundle.getBoolean("needBack");
             String parcheggio = bundle.getString("NomeParcheggio");
             int id = Integer.parseInt(bundle.getString("idPrenotazione"));
 
@@ -128,7 +132,25 @@ public class Detail_Book extends Fragment implements ConnessioneListener {
             Toast.makeText(getContext(), message, Toast.LENGTH_LONG).show();
             Parametri.prenotazioniInCorso.remove(prenotazione);
             getActivity().onBackPressed();
-            return;
         }
+    }
+
+    @Override
+    public boolean onBackPressed() {
+        if (!needBack) {
+            FragmentManager sfm = getActivity().getSupportFragmentManager();
+            int count = sfm.getBackStackEntryCount();
+            for(int i = 0; i < count; ++i)
+                sfm.popBackStack();
+
+            getActivity().setTitle("Trova parcheggio");
+            FindYourParkingFragment fragment = new FindYourParkingFragment();
+            FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
+            fragmentTransaction.commit();
+            return true;
+        }
+        else
+            return false;
     }
 }

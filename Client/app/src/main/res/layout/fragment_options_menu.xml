@@ -5,14 +5,12 @@
     android:layout_height="match_parent"
     tools:context="com.example.stach.app_test.OptionsMenu">
 
-    <!-- TODO: Update blank fragment layout -->
-
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
         <ImageView
-            android:id="@+id/imageViewSettings"
+            android:id="@+id/imageViewAdvanceSettings"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="8dp"
@@ -34,13 +32,13 @@
             app:layout_constraintBottom_toTopOf="@+id/constraintLayout2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/imageViewSettings" />
+            app:layout_constraintTop_toBottomOf="@+id/imageViewAdvanceSettings" />
 
         <android.support.constraint.ConstraintLayout
             android:id="@+id/constraintLayout2"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            app:layout_constraintBottom_toTopOf="@+id/buttonSalvaImpostazioni"
+            app:layout_constraintBottom_toTopOf="@+id/buttonSalvaAdvanceImpostazioni"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/textView8">
@@ -108,7 +106,7 @@
         </android.support.constraint.ConstraintLayout>
 
         <Button
-            android:id="@+id/buttonSalvaImpostazioni"
+            android:id="@+id/buttonSalvaAdvanceImpostazioni"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@drawable/roundedbutton"

@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.Toast;
 import java.io.BufferedWriter;
 import java.io.FileWriter;
@@ -16,11 +17,21 @@ import org.json.*;
 
 public class LoginActivity extends AppCompatActivity implements  ConnessioneListener {
     private ProgressDialog caricamento = null;
+    private int opzioniAvanzate = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+
+        // Imposto le impostazioni avanzate
+        ImageView imgv = findViewById(R.id.unicamParkLoginLogo);
+        imgv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                impostazioniAvanzate();
+            }
+        });
     }
 
 
@@ -95,13 +106,13 @@ public class LoginActivity extends AppCompatActivity implements  ConnessioneList
         }
 
         if (responseCode.equals("200")) {
-            String message = "";
+            String message;
 
             // Estraggo i miei dati restituiti dal server
             try {
                 JSONObject token = new JSONObject(result);
                 JSONObject autistajs = new JSONObject(token.getString("autista"));
-                JSONObject carta = null;
+                JSONObject carta;
 
                 Parametri.Token = token.getString("token");
                 Parametri.id = autistajs.getString("id");
@@ -144,7 +155,6 @@ public class LoginActivity extends AppCompatActivity implements  ConnessioneList
             Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
             startActivity(new Intent(getApplicationContext(), MainActivity.class));
             finish();
-            return;
         }
     }
 
@@ -164,7 +174,7 @@ public class LoginActivity extends AppCompatActivity implements  ConnessioneList
     // Criptazione SHA1
     public static String SHA1(String text) throws NoSuchAlgorithmException, UnsupportedEncodingException {
         MessageDigest md = MessageDigest.getInstance("SHA-1");
-        byte[] sha1hash = new byte[40];
+        byte[] sha1hash;
         md.update(text.getBytes("iso-8859-1"), 0, text.length());
         sha1hash = md.digest();
         return convertToHex(sha1hash);
@@ -186,4 +196,13 @@ public class LoginActivity extends AppCompatActivity implements  ConnessioneList
         }
         return buf.toString();
     }
+
+        private void impostazioniAvanzate() {
+            opzioniAvanzate++;
+
+            if (opzioniAvanzate == 3) {
+                startActivity(new Intent(LoginActivity.this, ImpostazioniAvanzate.class));
+                opzioniAvanzate = 0;
+            }
+        }
 }

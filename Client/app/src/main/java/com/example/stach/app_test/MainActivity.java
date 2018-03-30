@@ -5,6 +5,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -109,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     @SuppressWarnings("StatementWithEmptyBody")
     @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
+    public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         int id = item.getItemId();
         FragmentManager sfm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = sfm.beginTransaction();
@@ -323,7 +324,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             if (responseCode.equals("200")) {
-                ArrayList<Parcheggio> par = new ArrayList<Parcheggio>();
+                ArrayList<Parcheggio> par = new ArrayList<>();
 
                 try {
                     JSONObject allparcheggi = new JSONObject(result);
@@ -351,6 +352,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     FragmentYour_Book fragment = new FragmentYour_Book();
                     FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                     fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
+                    fragmentTransaction.commit();
                     launchPrenotaizoni = false;
                 }
             }
@@ -442,7 +444,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             }
 
             if (responseCode.equals("200")) {
-                ArrayList<Parcheggio> par = new ArrayList<Parcheggio>();
+                ArrayList<Parcheggio> par = new ArrayList<>();
 
                 try {
                     JSONObject allparcheggi = new JSONObject(result);
@@ -457,6 +459,8 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     Toast.makeText(getApplicationContext(), "Errore di risposta del server.\nImpossibile visualizzare le prenotazioni.", Toast.LENGTH_LONG).show();
                     return;
                 }
+
+                Parametri.parcheggi = par;
 
                 caricamento.dismiss();
                 setTitle("Prenotazioni pagate");

@@ -24,28 +24,31 @@ public class CodificatoreIndirizzi {
 
     // Restituisce l'indirizzo ricavato da location
     public String getIndirizzoFromLocation(Location location) {
-        String result = "";
-        List<Address> addresses = null;
+        String result;
+        List<Address> addresses;
 
         try {
             addresses = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
         } catch (IOException ioException) {
             result = "Errore geocoder.";
+            return result;
         } catch (IllegalArgumentException illegalArgumentException) {
             result = "Lat o Long errati.";
+            return result;
         }
 
         if (addresses == null || addresses.size() == 0) {
             result = "Indirizzo non trovato.";
         } else {
             Address address = addresses.get(0);
-            ArrayList<String> addressFragments = new ArrayList<String>();
+            ArrayList<String> addressFragments = new ArrayList<>();
 
             for (int i = 0; i <= address.getMaxAddressLineIndex(); i++)
                 addressFragments.add(address.getAddressLine(i));
 
             result = TextUtils.join(System.getProperty("line.separator"), addressFragments);
         }
+
         return result;
     }
 }

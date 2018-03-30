@@ -22,6 +22,10 @@
                             <span class="glyphicon  glyphicon-pencil"></span>
                         </button>
 
+                        <button id="btnPrenotazioni{{ $index }}" type="button" class="btn pull-right buttonUser" ng-click="ModalPrenotazioni($index)">
+                            <span class="glyphicon glyphicon-list-alt"></span>
+                        </button>
+
                         <button id="annulla{{ $index }}" type="button" class="btn pull-right buttonUser" ng-click="ModificaUtente($index, false)"
                             style="display: none;">
                             <span class="glyphicon glyphicon-remove"></span>
@@ -60,13 +64,10 @@
                                 <input type="tel" id="telefono{{ $index }}" value="{{ utente.telefono }}" class=" formUtente" disabled required/>
                             </li>
                             <li>
-                                <span class="subInfoUtente">saldo (€):</span>
-                                <input type="text" id="saldo{{ $index }}" value="{{ utente.saldo | number:2}}" class=" formUtente" disabled required/>
-                            </li>
-                            <li>
                                 <div class="form-check">
                                     <span class="subInfoUtente">abilitato:</span>
-                                    <input type="checkbox" class="form-check-input" ng-checked="{{ utente.abilitato }}" style="width: 20px; height: 20px;margin-left: 80px;" id="abilitato{{ $index }}" disabled/>
+                                    <input type="checkbox" class="form-check-input" ng-checked="{{ utente.abilitato }}" style="width: 20px; height: 20px;margin-left: 80px;"
+                                        id="abilitato{{ $index }}" disabled/>
                                 </div>
                             </li>
                         </ul>
@@ -90,6 +91,51 @@
                     </div>
                 </div>
 
+                <!-- Modal prenotazioni utente -->
+                <div class="modal fade" id="prenotazioniModalLong" tabindex="-1" role="dialog" aria-labelledby="prenotazioniModalLongTitle"
+                    aria-hidden="true">
+                    <div class="modal-dialog" role="document">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 id="modalNomeUser" class="modalInfoUtente" id="prenotazioniModalLongTitle">Prenotazioni in corso di </h5>
+                            </div>
+                            <div class="modal-body">
+
+                                <div class="panel panel-default pannello" ng-repeat="prenotazione in PrenotazioniUtente" style="margin-top:20px;">
+
+                                    <div class="panel-heading" style="background-color: #333;color: white;padding-bottom: 20px;">
+
+                                        <label>ID:</label> {{ prenotazione.idPrenotazione }}
+
+                                        <button id="resetCode{{ $index }}" type="button" class="btn pull-right buttonUser" ng-click="">
+                                            <span class="glyphicon  glyphicon-pencil"></span>
+                                        </button>
+
+
+                                        <div class="panel-body corpoPannello" style="padding-top: 5px;">
+                                            <h4 class="infoUtente">Info prenotazione:</h4>
+                                            <ul>
+                                                <li>
+                                                    <span class="subInfoUtente">data:</span>
+                                                    <input type="text" value="{{ prenotazione.data }}" class="formUtente" disabled />
+                                                </li>
+                                                <li>
+                                                    <span class="subInfoUtente">codice:</span>
+                                                    <input type="text" value="{{ prenotazione.codice }}" class=" formUtente" disabled />
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Chiudi</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- bottoni pagine -->
                 <div class="panelBottoni">
                     <ul class="pager">
@@ -104,9 +150,9 @@
                         </li>
                     </ul>
                 </div>
+
+            </div>
+            <div class="col-md-3">
             </div>
         </div>
-        <div class="col-md-3">
-        </div>
     </div>
-</div>

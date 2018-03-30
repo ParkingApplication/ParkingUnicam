@@ -172,7 +172,7 @@ public class PrenotaParcheggio extends FragmentWithOnBack {
                 if (Parametri.prenotazioniInCorso == null)
                     Parametri.prenotazioniInCorso = new ArrayList<>();
 
-                Prenotazione pren = null;
+                Prenotazione pren;
 
                 try {
                     JSONObject risp = new JSONObject(result);
@@ -194,6 +194,8 @@ public class PrenotaParcheggio extends FragmentWithOnBack {
                 Bundle bundle = new Bundle();
                 bundle.putString("idPrenotazione", String.valueOf(pren.getId()));
                 bundle.putString("NomeParcheggio", String.valueOf(Parametri.parcheggi.get(index).getIndirizzo()));
+                bundle.putBoolean("needBack", false);
+                getActivity().setTitle("Le tue prenotazioni");
                 //eseguo la transazione
                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -203,8 +205,6 @@ public class PrenotaParcheggio extends FragmentWithOnBack {
                 //eseguo la transazione
                 fragmentTransaction.replace(R.id.fram, detail_book);
                 fragmentTransaction.commit();
-
-                return;
             }
         }
 
@@ -260,14 +260,20 @@ public class PrenotaParcheggio extends FragmentWithOnBack {
                     return;
                 }
 
-                Parametri.parcheggi.get(index).setPostiLiberi(postiLib);
+                try {
+                    Parametri.parcheggi.get(index).setPostiLiberi(postiLib);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getContext(), "Errore di risposta del server.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
 
                 if (caricamento != null)
                     if (caricamento.isShowing())
                         caricamento.dismiss();
 
                 AggiornaPostiLiberi();
-                return;
             }
         }
 

@@ -3,6 +3,7 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var crypto = require('crypto');
 var path = require('path');
+var dateFormat = require('dateformat');
 
 // Modelli
 var Utente = require("../models/utente");
@@ -65,7 +66,7 @@ var PrenotazioneScaduta = function (idPrenotazione, idUtente) {
                     if (err)
                         console.log("Impossibile cancellare la prenotazione (id:" + idPrenotazione + ") riscontrati problemi con il database nella cancellazione.");
                     else {
-                        console.log("Prenotazione scaduta eliminata con successo (id: " + idPrenotazione + ", scaduta il " + datap + ").");
+                        console.log("Prenotazione scaduta eliminata con successo (id: " + idPrenotazione + ", scaduta il " + datap.toLocaleString('it-IT', { hour12: false }) + ").");
                         // Aggiorno il numero dei posti liberi
                         Storage.getAllPostiLiberi(function (err, data) {
                             if (err)
@@ -191,61 +192,6 @@ apiRoutes.post('/signup', function (req, res) {
             }
         });
 });
-
-// TEST
-apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
-    if (req.body.QRCODE == undefined)
-        res.status(400).json({
-            error: {
-                codice: 7,
-                info: "Campi mancanti."
-            }
-        });
-    else {
-        if (req.body.QRCODE === "1111")
-            res.json({
-                successful: {
-                    codice: 200,
-                    info: "Sei abilitato ad entrare nel parcheggio."
-                }
-            });
-        else
-            res.status(400).json({
-                error: {
-                    codice: 7,
-                    info: "QRcode non esistente."
-                }
-            });
-    }
-});
-
-apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
-    if (req.body.QRCODE == undefined)
-        res.status(400).json({
-            error: {
-                codice: 7,
-                info: "Campi mancanti."
-            }
-        });
-    else {
-        if (req.body.QRCODE === "2222")
-            res.json({
-                successful: {
-                    codice: 200,
-                    info: "Sei abilitato ad uscire dal parcheggio."
-                }
-            });
-        else
-            res.status(400).json({
-                error: {
-                    codice: 7,
-                    info: "QRcode non esistente."
-                }
-            });
-    }
-});
-
-// ENDTEST
 
 // Verifica email (acceduta solo da browser, risponde con status 200 e con pagine html)
 apiRoutes.get('/verify', function (req, res) {
@@ -594,7 +540,6 @@ apiRoutes.post('/resetPassword', function (req, res) {
 
                     Utente.updateAutista(user, function (err) {
                         if (err) {
-                            console.log(err);
                             res.status(400).json({
                                 error: {
                                     codice: 61,
@@ -625,6 +570,60 @@ apiRoutes.post('/resetPassword', function (req, res) {
                     })
         });
 });
+
+// Route per il server nel parcheggio
+apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
+    if (req.body.QRCODE == undefined)
+        res.status(400).json({
+            error: {
+                codice: 7,
+                info: "Campi mancanti."
+            }
+        });
+    else {
+        if (req.body.QRCODE === "1111")
+            res.json({
+                successful: {
+                    codice: 200,
+                    info: "Sei abilitato ad entrare nel parcheggio."
+                }
+            });
+        else
+            res.status(400).json({
+                error: {
+                    codice: 7,
+                    info: "QRcode non esistente."
+                }
+            });
+    }
+});
+
+apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
+    if (req.body.QRCODE == undefined)
+        res.status(400).json({
+            error: {
+                codice: 7,
+                info: "Campi mancanti."
+            }
+        });
+    else {
+        if (req.body.QRCODE === "2222")
+            res.json({
+                successful: {
+                    codice: 200,
+                    info: "Sei abilitato ad uscire dal parcheggio."
+                }
+            });
+        else
+            res.status(400).json({
+                error: {
+                    codice: 7,
+                    info: "QRcode non esistente."
+                }
+            });
+    }
+});
+
 
 //  #### da qui in poi è necessaria l'autenticazione via token ####
 apiRoutes.use(verifyToken);
@@ -1009,9 +1008,16 @@ apiRoutes.post('/getParcheggiFromCoordinate', function (req, res) {
                                         // Potrei anche estrarre i primi N da qua 
                                         // (solo se google li restituisce in oridne di distanza)
                                         for (var c = 0; c < bodyg.rows[0].elements.length; c++) {
-                                            parcheggi[c].distanzaFisica = bodyg.rows[0].elements[c].distance.text;
-                                            parcheggi[c].distanzaTemporale = bodyg.rows[0].elements[c].duration.text
-                                            parcheggi[c].distance = bodyg.rows[0].elements[c].distance.value;
+                                            if (bodyg.rows[0].elements[c].distance !== undefined && bodyg.rows[0].elements[c].duration !== undefined) {
+                                                parcheggi[c].distanzaFisica = bodyg.rows[0].elements[c].distance.text;
+                                                parcheggi[c].distanzaTemporale = bodyg.rows[0].elements[c].duration.text
+                                                parcheggi[c].distance = bodyg.rows[0].elements[c].distance.value;
+                                            }
+                                            else {
+                                                parcheggi[c].distanzaFisica = "error";
+                                                parcheggi[c].distanzaTemporale = "error";
+                                                parcheggi[c].distance = Number.MAX_SAFE_INTEGER;
+                                            }
                                         }
 
                                         var l = 0;
@@ -1153,10 +1159,9 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                             if (req.body.partenza == undefined || req.body.destinazione == undefined) {
                                 // Genero il codice da cui creare il QRCode
                                 var now = new Date();
-                                var datetime = new Date((now.getTime() + req.body.tempoExtra));
+                                var scadenza = new Date((now.getTime() + req.body.tempoExtra));
                                 var data = now.getMilliseconds() + req.user.id;
                                 var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
-                                var scadenza = datetime.toLocaleString();
 
                                 Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
                                     function (err, result) {
@@ -1173,7 +1178,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                                             res.json({
                                                 idPrenotazione: result.insertId,
                                                 QR_Code: codice,
-                                                scadenza: scadenza
+                                                scadenza: dateFormat(scadenza, "yyyy-mm-dd HH:MM:ss")
                                             });
 
                                             // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
@@ -1209,15 +1214,25 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                                 var dest = req.body.destinazione.lat + "," + req.body.destinazione.long;
                                 DistastanceCalculator.sendDistanceRequest(req.body.partenza, dest, function (error, response, bodyg) {
                                     bodyg = JSON.parse(bodyg);
+                                    var tempoArrivo = -1;
                                     if (!error && response.statusCode == 200 && bodyg.rows != undefined) {
-                                        var tempoArrivo = bodyg.rows[0].elements[0].duration.value * 1000; // google risponde in secondi
+                                        if (bodyg.rows[0].elements[0].duration !== undefined)
+                                            tempoArrivo = bodyg.rows[0].elements[0].duration.value * 1000; // google risponde in secondi
+                                        else {
+                                            res.status(400).json({
+                                                error: {
+                                                    codice: 198,
+                                                    info: "Parcheggio probabilmente irraggiungibile in auto dalla tua posizione."
+                                                }
+                                            });
+                                            return;
+                                        }
 
                                         // Genero il codice da cui creare il QRCode
                                         var now = new Date();
-                                        var datetime = new Date((now.getTime() + req.body.tempoExtra + tempoArrivo));
+                                        var scadenza = new Date((now.getTime() + req.body.tempoExtra + tempoArrivo));
                                         var data = now.getMilliseconds() + req.user.id;
                                         var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
-                                        var scadenza = datetime.toLocaleString();
 
                                         Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
                                             function (err, result) {
@@ -1234,7 +1249,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                                                     res.json({
                                                         idPrenotazione: result.insertId,
                                                         QR_Code: codice,
-                                                        scadenza: scadenza
+                                                        scadenza: dateFormat(scadenza, "yyyy-mm-dd HH:MM:ss")
                                                     });
 
                                                     // Setto il timer per la cancellazione automatica alla scadenza della prenotaizone
@@ -1443,8 +1458,8 @@ apiRoutes.post('/getPrenotazioniPagateUtente', function (req, res) {
                         idPrenotazione: rows[i].idPrenotazione,
                         idUtente: rows[i].idUtente,
                         idParcheggio: rows[i].idParcheggio,
-                        data: rows[i].dataPrenotazione,
-                        orePermanenza: rows[i].orePermanenza,
+                        data: dateFormat(rows[i].dataPrenotazione, "yyyy-mm-dd HH:MM:ss"),
+                        minutiPermanenza: rows[i].minutiPermanenza,
                         tipoParcheggio: rows[i].tipoParcheggio
                     };
 
@@ -1475,8 +1490,8 @@ apiRoutes.post('/getPrenotazioniPagateUtente', function (req, res) {
                             idPrenotazione: rows[i].idPrenotazione,
                             idUtente: rows[i].idUtente,
                             idParcheggio: rows[i].idParcheggio,
-                            data: rows[i].dataPrenotazione,
-                            orePermanenza: rows[i].orePermanenza,
+                            data: dateFormat(rows[i].dataPrenotazione, "yyyy-mm-dd HH:MM:ss"),
+                            minutiPermanenza: rows[i].minutiPermanenza,
                             tipoParcheggio: rows[i].tipoParcheggio
                         };
 
@@ -1502,6 +1517,61 @@ apiRoutes.post('/getPrenotazioniPagateUtente', function (req, res) {
 
 });
 
+apiRoutes.post('/getPrenotazioniPagateParcheggio', function (req, res) {
+    if (req.body.idParcheggio == undefined)
+        res.status(400).json({
+            error: {
+                codice: 73,
+                info: "Impossibile trovare le prenotazioni senza l'id del parcheggio."
+            }
+        });
+    else
+        if (req.user.livelloAmministrazione != undefined && req.user.livelloAmministrazione > 0) {
+            PrenotazionePagata.getPrenotazioniFromParcheggio(req.body.idParcheggio, function (err, rows) {
+                if (err)
+                    res.status(400).json({
+                        error: {
+                            codice: 53,
+                            info: "Riscontrati problemi con il database."
+                        }
+                    });
+                else {
+                    var prenotazioni = [];
+                    var j = 0;
+                    for (var i = 0; i < rows.length; i++) {
+                        var orep = Math.floor(rows[i].minutiPermanenza / 60).toString();
+                        if (rows[i].minutiPermanenza % 60 != 0)
+                            orep = orep + ", " + (rows[i].minutiPermanenza % 60) + " minuti."
+
+                        prenotazionePagata = {
+                            idPrenotazione: rows[i].idPrenotazione,
+                            idUtente: rows[i].idUtente,
+                            idParcheggio: rows[i].idParcheggio,
+                            data: dateFormat(rows[i].dataPrenotazione, "yyyy-mm-dd HH:MM:ss"),
+                            orePermanenza: orep,
+                            tipoParcheggio: rows[i].tipoParcheggio
+                        };
+
+                        prenotazioni[j] = prenotazionePagata;
+                        j++;
+                    }
+
+                    res.json({
+                        prenotazioniPagate: prenotazioni
+                    });
+                }
+            });
+        }
+        else {
+            res.status(400).json({
+                error: {
+                    codice: 500,
+                    info: "Privilegi amministratore insufficienti."
+                }
+            });
+        }
+});
+
 apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
     if (req.body.idUtente == undefined) {
         Prenotazione.getPrenotazioniFromUtente(req.user.id, function (err, rows) {
@@ -1523,10 +1593,9 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
                         idUtente: rows[i].id_utente,
                         idParcheggio: rows[i].id_parcheggio,
                         idPosto: rows[i].id_tipo_posto,
-                        data: (new Date(rows[i].data_scadenza).toLocaleString()),
+                        data: dateFormat(rows[i].data_scadenza, "yyyy-mm-dd HH:MM:ss"),
                         codice: rows[i].codice
                     };
-
                     prenotazioni[j] = prenotazioneInAtto;
                     j++;
                 }
@@ -1557,7 +1626,7 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
                             idUtente: rows[i].id_utente,
                             idParcheggio: rows[i].id_parcheggio,
                             idPosto: rows[i].id_tipo_posto,
-                            data: (new Date(rows[i].data_scadenza).toLocaleString()),
+                            data: dateFormat(rows[i].data_scadenza, "yyyy-mm-dd HH:MM:ss"),
                             codice: rows[i].codice
                         };
 
@@ -1617,6 +1686,7 @@ apiRoutes.post('/addParcheggio', function (req, res) {
                         }
                         else {
                             res.json({
+                                id: idPar,
                                 successful: {
                                     codice: 200,
                                     info: "Parcheggio aggiunto con successo."
@@ -1688,7 +1758,9 @@ apiRoutes.patch('/aggiornaParcheggio', function (req, res) {
                         var error = 0;
                         Storage.getAllPostiLiberi(function (err, data) {
                             var index = -1;
-                            var app = {};
+                            var app = {
+                                id_parcheggio: req.body.parcheggio.id
+                            };
 
                             if (err)
                                 console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi (in lettura).");
@@ -1752,6 +1824,66 @@ apiRoutes.patch('/aggiornaParcheggio', function (req, res) {
                             });
                         });
                     }
+                }
+            });
+        }
+        else
+            res.status(400).json({
+                error: {
+                    codice: 500,
+                    info: "Privilegi amministratore insufficienti."
+                }
+            });
+});
+
+apiRoutes.delete('/deleteParcheggio', function (req, res) {
+    if (req.body.id == undefined)
+        res.status(400).json({
+            error: {
+                codice: 7,
+                info: "Devi specificare l'id del parcheggio per eliminarlo."
+            }
+        });
+    else
+        if (req.user.livelloAmministrazione != undefined && req.user.livelloAmministrazione > 0) {
+            Parcheggio.delParcheggio(req.body.id, function (err, result) {
+                if (err) {
+                    res.status(400).json({
+                        error: {
+                            codice: 375,
+                            info: "Impossibile eliminare il parcheggio, (probabilmente sono presenti prenotazioni in corso in esso)."
+                        }
+                    });
+                }
+                else {
+                    res.json({
+                        successful: {
+                            codice: 200,
+                            info: "Parcheggio eliminato con successo."
+                        }
+                    });
+
+                    Storage.getAllPostiLiberi(function (err, data) {
+                        if (err)
+                            console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi per il parcheggio eliminato (in lettura).");
+                        else {
+                            var i;
+                            for (i = 0; i < data.length; i++)
+                                if (req.body.id == data[i].id_parcheggio)
+                                    break;
+
+                            for (var j = i; j < data.length - 1; j++)
+                                data[j] = data[j + 1];
+
+                            data[data.length] = null;
+                            data.length--;
+
+                            Storage.updatePostiLiberi(data, function (err) {
+                                if (err)
+                                    console.log("Attenzione!\nErrore nell' aggiornare il numero di posti liberi per il parcheggio eliminato (in scrittura).");
+                            });
+                        }
+                    });
                 }
             });
         }

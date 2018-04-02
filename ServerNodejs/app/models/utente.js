@@ -1,8 +1,9 @@
 var db = require("../mysql/DB_Connection");
+var dateFormat = require('dateformat');
 
 var utente = {
     addAutista: function (autista, callback) {
-        return db.query("INSERT INTO utenti (`username`, `password`, `email`, `nome`, `cognome`, `dataDiNascita`, `telefono`, `saldo`) VALUES (?,?,?,?,?,?,?,?);", [autista.username, autista.password, autista.email, autista.nome, autista.cognome, autista.dataDiNascita, autista.telefono, 0], callback);
+        return db.query("INSERT INTO utenti (`username`, `password`, `email`, `nome`, `cognome`, `dataDiNascita`, `telefono`, `saldo`) VALUES (?,?,?,?,?,?,?,?);", [autista.username, autista.password, autista.email, autista.nome, autista.cognome, dateFormat(autista.dataDiNascita, "yyyy-mm-dd"), autista.telefono, 0], callback);
     },
     getAutistaFromUsername: function (username, password, callback) {
         return db.query("SELECT * FROM autisti_view WHERE username=? AND password=?;", [username, password], callback);
@@ -17,7 +18,7 @@ var utente = {
         return db.query("DELETE FROM utenti WHERE idUtente=?;", [id], callback);
     },
     updateAutista: function (autista, callback) {
-        return db.query("UPDATE utenti SET `username`=?, `password`=?, `email`=?, `nome`=?, `cognome`=?, `dataDiNascita`=?, `telefono`=?, `saldo`=?, `abilitato`=?  WHERE idUtente=?;", [autista.username, autista.password, autista.email, autista.nome, autista.cognome, autista.dataDiNascita, autista.telefono, autista.saldo, autista.abilitato, autista.id], callback);
+        return db.query("UPDATE utenti SET `username`=?, `password`=?, `email`=?, `nome`=?, `cognome`=?, `dataDiNascita`=?, `telefono`=?, `saldo`=?, `abilitato`=?  WHERE idUtente=?;", [autista.username, autista.password, autista.email, autista.nome, autista.cognome, dateFormat(autista.dataDiNascita, "yyyy-mm-dd"), autista.telefono, autista.saldo, autista.abilitato, autista.id], callback);
     },
     setAbilitazioneAutista: function (idUtente, abilitazione, callback) {
         return db.query("UPDATE utenti SET `abilitato`=? WHERE idUtente=?;", [abilitazione, idUtente], callback);

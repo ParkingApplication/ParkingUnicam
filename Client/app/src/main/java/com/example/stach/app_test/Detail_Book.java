@@ -1,10 +1,12 @@
 package com.example.stach.app_test;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -56,7 +58,26 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
             buttonDeletePrenotazione.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    EliminaPrenotazione();
+                    new AlertDialog.Builder(getContext())
+                            .setTitle("Selezione parcheggio")
+                            .setMessage("Sicuro di voler cancellare questa prenotaizone ?")
+                            .setPositiveButton("Cancella",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            EliminaPrenotazione();
+                                        }
+                                    }).setNegativeButton("Annulla",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int i) {
+                                    dialog.cancel();
+                                }
+                            }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            dialog.cancel();
+                        }
+                    }).create().show();
                 }
             });
 

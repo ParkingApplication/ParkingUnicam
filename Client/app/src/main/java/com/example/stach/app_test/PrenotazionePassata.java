@@ -35,7 +35,7 @@ public class PrenotazionePassata {
         if (data == null)
             throw new Exception("Formato data prenotazione errato.");
 
-        this.permanenza = jobj.getInt("orePermanenza");
+        this.permanenza = jobj.getInt("minutiPermanenza");
     }
 
     public int getId() {

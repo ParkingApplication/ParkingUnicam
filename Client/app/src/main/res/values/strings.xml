@@ -96,4 +96,5 @@
         <item>15</item>
     </integer-array>
     <string name="title_activity_impostazioni_avanzate">ImpostazioniAvanzate</string>
+    <string name="uscita_park">Esci dal parcheggio</string>
 </resources>

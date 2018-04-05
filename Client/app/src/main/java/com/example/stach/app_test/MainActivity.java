@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
     private ProgressDialog caricamento = null;
     private boolean launchPrenotaizoni = false;
+    private boolean launchPrenPagate = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         // Recupero i dati delle mie prenotaizoni (per il timer delle scadenze)
         GetDatiPrenotazioni(false);
+        GetDatiPrenotazioniDaPagare();
     }
 
     // Funzione per l'aggiornamento automatico dei posti liberi
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         FragmentManager sfm = getSupportFragmentManager();
         FragmentTransaction fragmentTransaction = sfm.beginTransaction();
         int count = sfm.getBackStackEntryCount();
-        for(int i = 0; i < count; ++i)
+        for (int i = 0; i < count; ++i)
             sfm.popBackStack();
 
         if (id == R.id.nav_profile) {
@@ -146,7 +148,17 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
             startActivity(intent);
             this.finish();
         } else if (id == R.id.nav_escape) {
-            // Condivisione via socialmedia
+            if (Parametri.parcheggi == null) {
+                launchPrenPagate = true;
+                Connessione connPar = new Connessione(new JSONObject(), "POST");
+                connPar.addListener(ListenerGetParcheggi);
+                connPar.execute(Parametri.IP + "/getAllParcheggi");
+            } else {
+                setTitle("Uscita parcheggio");
+                FragmentPrenotazioniDaPagare fragment = new FragmentPrenotazioniDaPagare();
+                fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
+                fragmentTransaction.commit();
+            }
         }
 
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -356,6 +368,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                     fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
                     fragmentTransaction.commit();
                     launchPrenotaizoni = false;
+                } else if (launchPrenPagate) {
+                    setTitle("Uscita parcheggio");
+                    FragmentPrenotazioniDaPagare fragment = new FragmentPrenotazioniDaPagare();
+                    FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+                    fragmentTransaction.replace(R.id.fram, fragment, "Fragment Book");
+                    fragmentTransaction.commit();
+                    launchPrenPagate = false;
                 }
             }
         }
@@ -470,6 +489,61 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
                 FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
                 fragmentTransaction.replace(R.id.fram, fragment, "Fragment vecchie prenotazioni");
                 fragmentTransaction.commit();
+            }
+        }
+    };
+
+    public void showEscape(boolean visibile) {
+        NavigationView navigationView = findViewById(R.id.nav_view);
+        navigationView.getMenu().findItem(R.id.nav_escape).setVisible(visibile);
+    }
+
+    public void GetDatiPrenotazioniDaPagare() {
+        JSONObject postData = new JSONObject();
+
+        try {
+            postData.put("token", Parametri.Token);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return;
+        }
+
+        Connessione connPre = new Connessione(postData, "POST");
+        connPre.addListener(ListenerGetPrenotazioniPagate);
+        connPre.execute(Parametri.IP + "/getPrenotazioniDaPagare");
+    }
+
+    private ConnessioneListener ListenerGetPrenotazioniPagate = new ConnessioneListener() {
+        @Override
+        public void ResultResponse(String responseCode, String result) {
+            if (responseCode == null)
+                return;
+
+            if (responseCode.equals("400")) {
+                String message = Connessione.estraiErrore(result);
+                Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+                return;
+            }
+
+            if (responseCode.equals("200")) {
+                List<PrenotazioneDaPagare> prenotazioni = new ArrayList<>();
+
+                try {
+                    JSONArray prenotazioniDaPagare = (new JSONObject(result).getJSONArray("prenotazioniDaPagare"));
+
+                    for (int i = 0; i < prenotazioniDaPagare.length(); i++)
+                        prenotazioni.add(new PrenotazioneDaPagare(prenotazioniDaPagare.getJSONObject(i).toString()));
+
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    Toast.makeText(getApplicationContext(), "Errore di risposta del server.\nImpossibile reperire le prenotaizoni da pagare.", Toast.LENGTH_LONG).show();
+                    return;
+                }
+
+                if (prenotazioni.size() > 0) {
+                    Parametri.prenotazioniDaPagare = prenotazioni;
+                    showEscape(true);
+                }
             }
         }
     };

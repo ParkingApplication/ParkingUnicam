@@ -301,52 +301,56 @@ public class MapActivity extends FragmentActivity implements OnMyLocationButtonC
 
     public void ButtonSearchClick() {
         if (scelta != null) {
-            if (!mCurrLocationMarker.equals(scelta)) { // L'utente ha scelto un parcheggio
-                new AlertDialog.Builder(this)
-                        .setTitle("Selezione parcheggio")
-                        .setMessage(scelta.getTitle() + ".\n\nVuoi cercare posto in questo parcheggio ?")
-                        .setPositiveButton("Cerca posto",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // Ricerco il parcheggio selezionato dall' utente
-                                        for (Parcheggio p : Parametri.parcheggi)
-                                            if (p.getIndirizzo().compareTo(scelta.getTitle()) == 0)
-                                                TerminateAndResponseParkId(p.getId());
-                                    }
-                                }).setNegativeButton("No",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int i) {
-                                dialog.cancel();
-                            }
-                        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        dialog.cancel();
-                    }
-                }).create().show();
-            } else { // L'utente ha scelto la sua posizione attuale
-                new AlertDialog.Builder(this)
-                        .setTitle("Selezione parcheggio")
-                        .setMessage("Vuoi cercare i parcheggi più vicini alla tua posizione in automatico ?")
-                        .setPositiveButton("Cerca",
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        TerminateAndResponseMyCoordinate();
-                                    }
-                                }).setNegativeButton("No",
-                        new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int i) {
-                                dialog.cancel();
-                            }
-                        }).setOnCancelListener(new DialogInterface.OnCancelListener() {
-                    @Override
-                    public void onCancel(DialogInterface dialog) {
-                        dialog.cancel();
-                    }
-                }).create().show();
+            if (mCurrLocationMarker != null) {
+                if (!mCurrLocationMarker.equals(scelta)) { // L'utente ha scelto un parcheggio
+                    new AlertDialog.Builder(this)
+                            .setTitle("Selezione parcheggio")
+                            .setMessage(scelta.getTitle() + ".\n\nVuoi cercare posto in questo parcheggio ?")
+                            .setPositiveButton("Cerca posto",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            // Ricerco il parcheggio selezionato dall' utente
+                                            for (Parcheggio p : Parametri.parcheggi)
+                                                if (p.getIndirizzo().compareTo(scelta.getTitle()) == 0)
+                                                    TerminateAndResponseParkId(p.getId());
+                                        }
+                                    }).setNegativeButton("No",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int i) {
+                                    dialog.cancel();
+                                }
+                            }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            dialog.cancel();
+                        }
+                    }).create().show();
+                } else { // L'utente ha scelto la sua posizione attuale
+                    new AlertDialog.Builder(this)
+                            .setTitle("Selezione parcheggio")
+                            .setMessage("Vuoi cercare i parcheggi più vicini alla tua posizione in automatico ?")
+                            .setPositiveButton("Cerca",
+                                    new DialogInterface.OnClickListener() {
+                                        public void onClick(DialogInterface dialog, int which) {
+                                            TerminateAndResponseMyCoordinate();
+                                        }
+                                    }).setNegativeButton("No",
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int i) {
+                                    dialog.cancel();
+                                }
+                            }).setOnCancelListener(new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            dialog.cancel();
+                        }
+                    }).create().show();
+                }
             }
+            else
+                Toast.makeText(getApplicationContext(), "Devi prima attivare il GPS.", Toast.LENGTH_SHORT).show();
         } else
             Toast.makeText(getApplicationContext(), "Devi prima selezionare un parcheggio.", Toast.LENGTH_SHORT).show();
     }

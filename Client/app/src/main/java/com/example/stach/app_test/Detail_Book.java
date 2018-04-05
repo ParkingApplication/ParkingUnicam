@@ -1,5 +1,8 @@
 package com.example.stach.app_test;
 
+import android.app.ProgressDialog;
+import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothDevice;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -15,14 +18,21 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import com.google.android.gms.maps.model.LatLng;
-
 import org.json.JSONObject;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Date;
 
-public class Detail_Book extends FragmentWithOnBack implements ConnessioneListener {
+public class Detail_Book extends FragmentWithOnBack implements ConnessioneListener, BluetoothConnessioneListener {
+    private final int REQUEST_ENABLE_BT = 377;
+
+    private ProgressDialog pDialog = null;
     private Prenotazione prenotazione = null;
+    private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+    private BluetoothConnection btCon;
     private boolean needBack;
 
-    public  Detail_Book () {
+    public Detail_Book() {
 
     }
 
@@ -81,15 +91,22 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
                 }
             });
 
-            Button buttonNaviga = view.findViewById(R.id.btnNavBook);
+            Button buttonNaviga = view.findViewById(R.id.btnNaviga);
             buttonNaviga.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Naviga();
                 }
             });
-        }
-        else
+
+            Button btnSendCode = view.findViewById(R.id.btnQrCodeEnter);
+            btnSendCode.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    InviaCodiceViaBT();
+                }
+            });
+        } else
             Toast.makeText(getContext(), "Riscontrati errori, prenotazione non trovata.", Toast.LENGTH_LONG).show();
 
         return view;
@@ -120,19 +137,19 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
 
         LatLng destinazione = null;
 
-        for (Parcheggio p: Parametri.parcheggi)
+        for (Parcheggio p : Parametri.parcheggi)
             if (p.getId() == prenotazione.getIdParcheggio()) {
                 destinazione = p.getCoordinate();
                 break;
             }
 
-            if (destinazione != null) {
-                Uri gmmIntentUri = Uri.parse("google.navigation:q=" + destinazione.latitude + "," + destinazione.longitude + "&mode=d");
-                Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
-                mapIntent.setPackage("com.google.android.apps.maps");
-                startActivity(mapIntent);
-                getActivity().finish();
-            }
+        if (destinazione != null) {
+            Uri gmmIntentUri = Uri.parse("google.navigation:q=" + destinazione.latitude + "," + destinazione.longitude + "&mode=d");
+            Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+            mapIntent.setPackage("com.google.android.apps.maps");
+            startActivity(mapIntent);
+            getActivity().finish();
+        }
     }
 
     @Override
@@ -161,7 +178,7 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
         if (!needBack) {
             FragmentManager sfm = getActivity().getSupportFragmentManager();
             int count = sfm.getBackStackEntryCount();
-            for(int i = 0; i < count; ++i)
+            for (int i = 0; i < count; ++i)
                 sfm.popBackStack();
 
             getActivity().setTitle("Trova parcheggio");
@@ -170,8 +187,121 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
             fragmentTransaction.replace(R.id.fram, fragment, "Fragment Find Park");
             fragmentTransaction.commit();
             return true;
-        }
-        else
+        } else
             return false;
+    }
+
+    private void InviaCodiceViaBT() {
+        if (mBluetoothAdapter == null) {
+            Toast.makeText(getContext(), "Il suo dispositivo non supporta il Bluetooth.", Toast.LENGTH_LONG).show();
+        } else if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        } else {
+            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("B8:27:EB:BD:DE:69");
+            btCon = new BluetoothConnection(device);
+            btCon.addListener(this);
+            pDialog = ProgressDialog.show(getContext(), "Attendere", "Connessione Bluetooth in corso...", true);
+            btCon.openConnection();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT:
+                if (mBluetoothAdapter.isEnabled()) {
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("B8:27:EB:BD:DE:69");
+                    btCon = new BluetoothConnection(device);
+                    btCon.addListener(this);
+                    pDialog = ProgressDialog.show(getContext(), "Attendere", "Connessione Bluetooth in corso...", true);
+                    btCon.openConnection();
+                } else
+                    Toast.makeText(getContext(), "Deve accendere il Bluetooth per inviare il codice.", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    // Listener per la connessione bluetooth
+    @Override
+    public void ConnessioneStabilita(boolean sucess) {
+        if (!sucess) {
+            pDialog.dismiss();
+            showToastAsynch("Connessione fallita, riprovi ad inviare il codice.", Toast.LENGTH_SHORT);
+            return;
+        }
+
+        btCon.Send(BluetoothConnection.INGRESSO);
+        btCon.Send(prenotazione.getCodice());
+        String response;
+
+        try {
+            response = btCon.Receive();
+        } catch (IOException e) {
+            e.printStackTrace();
+            response = null;
+        }
+
+        if (response == null) {
+            pDialog.dismiss();
+            showToastAsynch("Invio codice riuscito.\nErrore durante la ricezione della risposta.", Toast.LENGTH_SHORT);
+            btCon.Close();
+            return;
+        }
+
+        btCon.Close();
+
+        String[] app = response.split("\\|");
+        response = app[1];
+
+        pDialog.dismiss();
+
+        PrenotazioneDaPagare pnuova = null;
+
+        if (app[0].compareTo(BluetoothConnection.SUCCESS) == 0) {
+            Parametri.prenotazioniInCorso.remove(prenotazione);
+
+            if (Parametri.prenotazioniDaPagare == null)
+                Parametri.prenotazioniDaPagare = new ArrayList<>();
+
+
+            try {
+                pnuova = new PrenotazioneDaPagare(Integer.parseInt(app[2]), new Date(),
+                        prenotazione.getIdParcheggio(), prenotazione.getIdTipo(), prenotazione.getCodice());
+
+            } catch (Exception e) {
+                showToastAsynch("Sei abilitato ad entrare.\nRiscontrati errori nell' elaborazione dei dati ricevuti, riavviare l'applicaizone per poter uscire dal parcheggio.", Toast.LENGTH_LONG);
+                goBackAsynch(false);
+                return;
+            }
+        }
+
+        Parametri.prenotazioniDaPagare.add(pnuova);
+        showToastAsynch(response, Toast.LENGTH_LONG);
+        goBackAsynch(true);
+    }
+
+    private void showToastAsynch(String msg, int durata) {
+        final String fmsg = msg;
+        final int fdurata = durata;
+
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                Toast.makeText(getContext(), fmsg, fdurata).show();
+            }
+        });
+    }
+
+    private void goBackAsynch(boolean escape) {
+        final boolean fescape = escape;
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                if (fescape)
+                    ((MainActivity) getActivity()).showEscape(true);
+                getActivity().onBackPressed();
+            }
+        });
     }
 }

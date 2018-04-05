@@ -97,4 +97,6 @@
     </integer-array>
     <string name="title_activity_impostazioni_avanzate">ImpostazioniAvanzate</string>
     <string name="uscita_park">Esci dal parcheggio</string>
+    <string name="textBtnUscitaParcheggio">Invia codice uscita</string>
+    <string name="textBtnEntra">Invia codice ingresso</string>
 </resources>

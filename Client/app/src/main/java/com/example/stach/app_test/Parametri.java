@@ -7,6 +7,7 @@ import java.util.List;
 public class Parametri {
     // Dati server e connessione
     static String IP = "http://2.226.207.189:5666";
+    static String UUIDPARKING = "00001101-0000-1000-8000-00805f9b34fb";
     static String Token = null;
     static File login_file;
     static File advance_setting_file;
@@ -35,6 +36,7 @@ public class Parametri {
     static List<Parcheggio> parcheggi_vicini = null;
     static List<Prenotazione> prenotazioniInCorso = null;
     static List<PrenotazionePassata> prenotazioniVecchie = null;
+    static List<PrenotazioneDaPagare> prenotazioniDaPagare = null;
 
     static public void resetAllParametri() {
         Token = null;
@@ -42,6 +44,7 @@ public class Parametri {
         parcheggi_vicini = null;
         prenotazioniInCorso = null;
         prenotazioniVecchie = null;
+        prenotazioniDaPagare = null;
         lastKnowPosition = null;
         id = null;
         username = null;

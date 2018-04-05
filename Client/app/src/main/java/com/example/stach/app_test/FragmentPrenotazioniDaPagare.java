@@ -10,38 +10,41 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class Old_Book extends FragmentWithOnBack {
-    // Parcheggi associati alle mie prenotazioni da pagare
+
+public class FragmentPrenotazioniDaPagare extends FragmentWithOnBack {
     private List<Parcheggio> parcheggi = new ArrayList<>();
 
-    public Old_Book() {
+    public FragmentPrenotazioniDaPagare() {
+
     }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_old__book, container, false);
-        View linearLayout = view.findViewById(R.id.linearInternalOldBook);
+        View view = inflater.inflate(R.layout.fragment_prenotazioni_da_pagare, container, false);
+        View linearLayout = view.findViewById(R.id.linearInternalPrenotazioniDaPagare);
 
-        if (Parametri.prenotazioniVecchie != null) {
-            if (Parametri.prenotazioniVecchie.size() > 0) {
-                TextView[] viewPrenotazioni = new TextView[Parametri.prenotazioniVecchie.size()];
+        if (Parametri.prenotazioniDaPagare != null)
+            if (Parametri.prenotazioniDaPagare.size() > 0) {
+                TextView[] viewPrenotazioni = new TextView[Parametri.prenotazioniDaPagare.size()];
 
                 // Recupero i parcheggi collegati alle mie prenotazioni
-                for (int i = 0; i < Parametri.prenotazioniVecchie.size(); i++) {
+                for (int i = 0; i < Parametri.prenotazioniDaPagare.size(); i++) {
                     for (int j = 0; j < Parametri.parcheggi.size(); j++) {
-                        if (Parametri.prenotazioniVecchie.get(i).getIdParcheggio() == Parametri.parcheggi.get(j).getId()) {
+                        if (Parametri.prenotazioniDaPagare.get(i).getIdParcheggio() == Parametri.parcheggi.get(j).getId()) {
                             parcheggi.add(Parametri.parcheggi.get(j));
                             break;
                         }
                     }
                 }
 
-                for (int i = 0; i < Parametri.prenotazioniVecchie.size(); i++) {
+                for (int i = 0; i < Parametri.prenotazioniDaPagare.size(); i++) {
                     viewPrenotazioni[i] = new TextView(view.getContext());
-                    viewPrenotazioni[i].setText(parcheggi.get(i).getIndirizzo() + "\nData: " + DateFormat.format("dd MMMM yyyy HH:mm", Parametri.prenotazioniVecchie.get(i).getData()).toString());
+                    viewPrenotazioni[i].setText(parcheggi.get(i).getIndirizzo() + "\nIngresso: " + DateFormat.format("dd/MM HH:mm", Parametri.prenotazioniDaPagare.get(i).getDataIngresso()).toString());
                     viewPrenotazioni[i].setId(i);
                     viewPrenotazioni[i].setBackgroundResource(R.drawable.roundedtextboxactive);
                     viewPrenotazioni[i].setPaddingRelative(8, 8, 8, 8);
@@ -65,20 +68,19 @@ public class Old_Book extends FragmentWithOnBack {
                         public void onClick(View view) {
                             int index = view.getId();
 
-                            if (index >= 0 && index < Parametri.prenotazioniVecchie.size()) {
+                            if (index >= 0 && index < Parametri.prenotazioniDaPagare.size()) {
                                 //passo le informazioni relative alla mia prenotazione
                                 Bundle bundle = new Bundle();
-                                bundle.putString("idPrenotazione", String.valueOf(Parametri.prenotazioniVecchie.get(index).getId()));
+                                bundle.putString("idPrenotazione", String.valueOf(Parametri.prenotazioniDaPagare.get(index).getId()));
                                 bundle.putString("NomeParcheggio", String.valueOf(parcheggi.get(index).getIndirizzo()));
                                 //eseguo la transazione
                                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
                                 //passo i valori
-                                DetailOldBook detail_old_book = new DetailOldBook();
-                                detail_old_book.setArguments(bundle);
+                                UscitaParcheggio uscita_parcheggio = new UscitaParcheggio();
+                                uscita_parcheggio.setArguments(bundle);
                                 //eseguo la transazione
-                                fragmentTransaction.replace(R.id.fram, detail_old_book);
-                                fragmentTransaction.addToBackStack("Prenotazioni pagate");
+                                fragmentTransaction.replace(R.id.fram, uscita_parcheggio);
                                 fragmentTransaction.commit();
                             }
                         }
@@ -86,7 +88,7 @@ public class Old_Book extends FragmentWithOnBack {
                 }
             } else {
                 TextView viewPrenotazioni = new TextView(view.getContext());
-                viewPrenotazioni.setText("Non hai nessuna prenotazione passata.");
+                viewPrenotazioni.setText("Non hai nessuna prenotazione da pagare.");
                 viewPrenotazioni.setId(0);
                 viewPrenotazioni.setBackgroundResource(R.drawable.roundedtextboxactive);
                 viewPrenotazioni.setPaddingRelative(8, 8, 8, 8);
@@ -104,7 +106,6 @@ public class Old_Book extends FragmentWithOnBack {
 
                 ((LinearLayout) linearLayout).addView(viewPrenotazioni);
             }
-        }
         return view;
     }
 

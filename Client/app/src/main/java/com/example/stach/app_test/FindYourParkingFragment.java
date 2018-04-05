@@ -38,6 +38,7 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
 
     // Serve a distinguere i contorlli di varie Activity
     private final int ACTION_LOCATION_SETTING = 100;
+    private final int MY_PERMISSIONS_REQUEST_LOCATION = 4;
     private final int ACTION_MAP = 50;
 
     public FindYourParkingFragment() {
@@ -81,9 +82,6 @@ public class FindYourParkingFragment extends Fragment implements GpsChangeListen
         gpsTracker.removeListener(this);
         gpsTracker.StopGPS();
     }
-
-    // Serve a distinguere i contorlli di vari permessi (in questo caso ne abbiamo solo uno per il gps)
-    public static final int MY_PERMISSIONS_REQUEST_LOCATION = 4;
 
     // Richiedo i permessi per accedere alla posizione
     private void checkLocationPermission() {

@@ -241,7 +241,7 @@ apiRoutes.post('/login', function (req, res) {
                 info: "Campi mancanti."
             }
         });
-    else
+    else {
         if (req.body.admin == undefined)
             Utente.getAutistaFromUsername(req.body.username, req.body.password, function (err, rows) {
                 if (err)
@@ -350,6 +350,7 @@ apiRoutes.post('/login', function (req, res) {
                         });
                     }
             });
+    }
 });
 
 apiRoutes.post('/getAllParcheggi', function (req, res) {
@@ -573,55 +574,114 @@ apiRoutes.post('/resetPassword', function (req, res) {
 
 // Route per il server nel parcheggio
 apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
-    if (req.body.QRCODE == undefined)
+    if (req.body.QRCODE == undefined) {
         res.status(400).json({
             error: {
                 codice: 7,
                 info: "Campi mancanti."
             }
         });
-    else {
-        if (req.body.QRCODE === "1111")
-            res.json({
-                successful: {
-                    codice: 200,
-                    info: "Sei abilitato ad entrare nel parcheggio."
+        return;
+    }
+
+    Prenotazione.getPrenotazioneFromCodice(req.body.QRCODE, function (err, rows) {
+        if (err) {
+            res.status(400).json({
+                error: {
+                    codice: 78,
+                    info: "Riscontrati problemi con il database."
                 }
             });
+            return;
+        }
+
+        if (rows.length > 0) {
+            PrenotazionePagata.addPrenotazioneDaPagare(rows[0].id_utente, rows[0].id_parcheggio,
+                rows[0].id_tipo_posto, req.body.QRCODE, function (err, result) {
+                    if (err)
+                        res.status(400).json({
+                            error: {
+                                codice: 78,
+                                info: "Riscontrati problemi con il database."
+                            }
+                        });
+                    else {
+                        res.json({
+                            id: result.insertId,
+                            successful: {
+                                codice: 250,
+                                info: "Sei abilitato ad entrare nel parcheggio."
+                            }
+                        });
+
+                        Prenotazione.delPrenotazione(rows[0].id_prenotazione, function (err, result) {
+                            if (err)
+                                console.log("ATTENZIONE!\nPrenotazione da pagare aggiunta ma impossibile cancellarla da quelle in atto.");
+                            else
+                                console.log("Un codice è stato utilizzato per entrare in un parcheggio.\nPrenotazione da pagare aggiunta.");
+                        });
+                    }
+                });
+        }
         else
             res.status(400).json({
                 error: {
-                    codice: 7,
-                    info: "QRcode non esistente."
+                    codice: 68,
+                    info: "Codice prenotazione errato."
                 }
             });
-    }
+    });
 });
 
 apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
-    if (req.body.QRCODE == undefined)
+    if (req.body.QRCODE == undefined) {
         res.status(400).json({
             error: {
                 codice: 7,
                 info: "Campi mancanti."
             }
         });
-    else {
-        if (req.body.QRCODE === "2222")
-            res.json({
-                successful: {
-                    codice: 200,
-                    info: "Sei abilitato ad uscire dal parcheggio."
-                }
-            });
-        else
+        return;
+    }
+
+    PrenotazionePagata.getPrenotazioneDaFinireFromCodice(req.body.QRCODE, function (err, rows) {
+        if (err)
             res.status(400).json({
                 error: {
-                    codice: 7,
-                    info: "QRcode non esistente."
+                    codice: 78,
+                    info: "Riscontrati problemi con il database."
                 }
             });
-    }
+        else {
+            if (rows.length > 0) {
+                var minutiP = ((new Date().getTime() - rows[0].dataPrenotazione) / 60000);
+                PrenotazionePagata.pagaPrenotazineDaFinire(rows[0].idPrenotazione, minutiP, function (err, result) {
+                    if (err)
+                        res.status(400).json({
+                            error: {
+                                codice: 78,
+                                info: "Riscontrati problemi con il database."
+                            }
+                        });
+                    else
+                        res.json({
+                            minuti: minutiP,
+                            successful: {
+                                codice: 250,
+                                info: "Sei abilitato ad uscire."
+                            }
+                        });
+                });
+            }
+            else
+                res.status(400).json({
+                    error: {
+                        codice: 68,
+                        info: "Codice prenotazione errato."
+                    }
+                });
+        }
+    });
 });
 
 
@@ -1002,6 +1062,17 @@ apiRoutes.post('/getParcheggiFromCoordinate', function (req, res) {
 
                             // Chiedo a google di clalcolarmi le distanze tra l'utente e tutti i parcheggi
                             DistastanceCalculator.sendDistanceRequest(coordinateRequest, destinazioni, function (error, response, bodyg) {
+                                if (bodyg === undefined) {
+                                    res.status(400).json({
+                                        error: {
+                                            codice: 7,
+                                            info: "Le API di GoogleMaps non rispondono."
+                                        }
+                                    });
+                                    console.log("Le API di GoogleMaps non rispondono.\n(KEY probabilmente scaduta)");
+                                    return;
+                                }
+
                                 bodyg = JSON.parse(bodyg);
                                 if (!error && response.statusCode == 200 && bodyg.rows != undefined) {
                                     if (bodyg.rows.length == 1) {
@@ -1213,7 +1284,19 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                             else {
                                 var dest = req.body.destinazione.lat + "," + req.body.destinazione.long;
                                 DistastanceCalculator.sendDistanceRequest(req.body.partenza, dest, function (error, response, bodyg) {
+                                    if (bodyg === undefined) {
+                                        res.status(400).json({
+                                            error: {
+                                                codice: 7,
+                                                info: "Le API di GoogleMaps non rispondono."
+                                            }
+                                        });
+                                        console.log("Le API di GoogleMaps non rispondono.\n(KEY probabilmente scaduta)");
+                                        return;
+                                    }
+
                                     bodyg = JSON.parse(bodyg);
+
                                     var tempoArrivo = -1;
                                     if (!error && response.statusCode == 200 && bodyg.rows != undefined) {
                                         if (bodyg.rows[0].elements[0].duration !== undefined)
@@ -1649,6 +1732,42 @@ apiRoutes.post('/getPrenotazioniInAttoUtente', function (req, res) {
             });
         }
     }
+});
+
+apiRoutes.post('/getPrenotazioniDaPagare', function (req, res) {
+    PrenotazionePagata.getPrenotazioniDaFinireFromUtente(req.user.id, function (err, rows) {
+        if (err)
+            res.status(400).json({
+                error: {
+                    codice: 53,
+                    info: "Riscontrati problemi con il database."
+                }
+            });
+        else {
+            var prenotazioni = [];
+            var j = 0;
+            for (var i = 0; i < rows.length; i++) {
+                var orep = Math.floor(rows[i].minutiPermanenza / 60).toString();
+                if (rows[i].minutiPermanenza % 60 != 0)
+                    orep = orep + ", " + (rows[i].minutiPermanenza % 60) + " minuti."
+
+                prenotazioneDaPagare = {
+                    idPrenotazione: rows[i].idPrenotazione,
+                    idParcheggio: rows[i].idParcheggio,
+                    dataIngresso: dateFormat(rows[i].dataPrenotazione, "yyyy-mm-dd HH:MM:ss"),
+                    tipoParcheggio: rows[i].tipoParcheggio,
+                    codice: rows[i].codice
+                };
+
+                prenotazioni[j] = prenotazioneDaPagare;
+                j++;
+            }
+
+            res.json({
+                prenotazioniDaPagare: prenotazioni
+            });
+        }
+    });
 });
 
 apiRoutes.post('/addParcheggio', function (req, res) {

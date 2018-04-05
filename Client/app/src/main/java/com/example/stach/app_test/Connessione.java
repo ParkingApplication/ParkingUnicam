@@ -13,6 +13,7 @@ public class Connessione extends AsyncTask<String, String, String> {
     private String requestType;
     private String responseInfo;
 
+
     List<ConnessioneListener> listeners;
 
     // This is a constructor that allows you to pass in the JSON body

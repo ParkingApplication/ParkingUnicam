@@ -26,7 +26,10 @@ var parcheggio = {
         db.query("UPDATE parcheggi SET `coordinataX`=?, `coordinataY`=?, `citta`=?, `cap`=?, `via`=?, `numero_civico`=?, `tariffaOrariaLavorativi`=?, `tariffaOrariaFestivi`=?, `provincia`=? WHERE `idParcheggio`=?;", [parcheggio.coordinate.x, parcheggio.coordinate.y, parcheggio.indirizzo.citta, parcheggio.indirizzo.cap, parcheggio.indirizzo.via, parcheggio.indirizzo.n_civico, parcheggio.tariffaOrariaLavorativi, parcheggio.tariffaOrariaFestivi, parcheggio.indirizzo.provincia, parcheggio.id], callback);
     },
     updatePostiParcheggio: function(idParcheggio, idTipo, posti, callback) {
-        return db.query("UPDATE posti_parcheggio SET `numero_posti`=?  WHERE `id_parcheggio`=? and `id_tipo`=?;", [posti, idParcheggio, idTipo], callback);
+        return db.query("UPDATE posti_parcheggio SET `numero_posti`=?  WHERE `id_parcheggio`=? AND `id_tipo`=?;", [posti, idParcheggio, idTipo], callback);
+    },
+    loginParcheggio: function (id, key, callback) {
+        return db.query("SELECT * FROM parcheggi WHERE `idParcheggio`=? and `key`=?;", [id, key], callback);
     }
 };
 

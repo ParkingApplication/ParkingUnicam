@@ -14,8 +14,8 @@ var prenotazione = {
     getPrenotazioneUtente: function (idUtente, idPrenotazione, callback) {
         return db.query("SELECT * FROM prenotazioni_in_atto WHERE id_utente=? AND id_prenotazione=?;", [idUtente, idPrenotazione], callback);
     },
-    getPrenotazioneFromCodice: function (codice, callback) {
-        return db.query("SELECT * FROM prenotazioni_in_atto WHERE codice=?;", [codice], callback);
+    getPrenotazioneFromCodice: function (id, codice, callback) {
+        return db.query("SELECT * FROM `prenotazioni_in_atto` WHERE id_parcheggio=? AND codice=?;", [id, codice], callback);
     },
     delPrenotazione: function (idPrentoazione, callback) {
         return db.query("DELETE FROM prenotazioni_in_atto WHERE id_prenotazione=?; ", [idPrentoazione], callback);

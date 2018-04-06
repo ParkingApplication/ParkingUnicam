@@ -74,15 +74,6 @@ public class BluetoothConnection extends Thread {
             }
         }
 
-        // Non ho idea del perché ma ha problemi ad inviare dati subito dopo aver stabilito la connessione
-        /*if (connected) {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }*/
-
         for (BluetoothConnessioneListener l : listeners)
             l.ConnessioneStabilita(connected);
     }

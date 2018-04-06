@@ -233,6 +233,8 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
             return;
         }
 
+        mBluetoothAdapter.cancelDiscovery();
+
         btCon.Send(BluetoothConnection.INGRESSO);
         btCon.Send(prenotazione.getCodice());
         String response;
@@ -276,9 +278,10 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
                 goBackAsynch(false);
                 return;
             }
+
+            Parametri.prenotazioniDaPagare.add(pnuova);
         }
 
-        Parametri.prenotazioniDaPagare.add(pnuova);
         showToastAsynch(response, Toast.LENGTH_LONG);
         goBackAsynch(true);
     }

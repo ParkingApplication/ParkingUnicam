@@ -1,6 +1,7 @@
 var http = require('http');
 var express = require('express');
-var router = require('./app/API/router');
+var routerUsers = require('./app/API/routerUsers');
+var routerPark = require('./app/API/routerParcheggio');
 var ConfigConnessione = require("./app/config/configConnessione");
 
 var app = express();
@@ -17,7 +18,8 @@ app.use(function allowCrossDomain(req, res, next) {
 });
 
 //  Imposto le API Routes nella path principale del server
-app.use('/', router);
+app.use('/parcheggio/', routerPark);
+app.use('/', routerUsers);
 
 var httpServer = http.createServer(app);
 

@@ -14,8 +14,6 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Date;
 
 public class UscitaParcheggio extends FragmentWithOnBack implements BluetoothConnessioneListener {
     private final int REQUEST_ENABLE_BT = 377;
@@ -107,6 +105,8 @@ public class UscitaParcheggio extends FragmentWithOnBack implements BluetoothCon
             return;
         }
 
+        mBluetoothAdapter.cancelDiscovery();
+
         btCon.Send(BluetoothConnection.USCITA);
         btCon.Send(prenotazione.getCodice());
         String response;
@@ -139,7 +139,7 @@ public class UscitaParcheggio extends FragmentWithOnBack implements BluetoothCon
             int min = Integer.parseInt(app[2]);
             String txt = (min / 60) + " ore";
 
-            if (min % 60 != 0)
+            if (min % 60 != 0 || (min / 60) == 0)
                 txt = txt + " e " + (min % 60) + " minuti";
 
             response = response + "\nHai passato " + txt + " nel parcheggio.";
@@ -168,8 +168,7 @@ public class UscitaParcheggio extends FragmentWithOnBack implements BluetoothCon
         final boolean fescape = escape;
         getActivity().runOnUiThread(new Runnable() {
             public void run() {
-                if (fescape)
-                    ((MainActivity) getActivity()).showEscape(true);
+                ((MainActivity) getActivity()).showEscape(fescape);
                 getActivity().onBackPressed();
             }
         });

@@ -11,9 +11,9 @@ public class AndroiClientBtThread implements Runnable {
 	RemoteDevice rdev = null;
 	connectionToNode connessione;
 
-	public AndroiClientBtThread(StreamConnection connessione, String url) {
+	public AndroiClientBtThread(StreamConnection connessione, String url, String token) {
 		this.con = connessione;
-		this.connessione = new connectionToNode(url);
+		this.connessione = new connectionToNode(url, token);
 
 		try {
 			this.rdev = RemoteDevice.getRemoteDevice(con);

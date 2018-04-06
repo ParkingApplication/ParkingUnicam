@@ -41,7 +41,7 @@ public class DetailOldBook extends Fragment {
                 String text = "Posto prenotato: " + TipoPosto.getNomeTipoPosto(prenotazione.getIdTipo())
                         + "\nOre permanenza: " + String.valueOf(prenotazione.getOrePermanenza() / 60);
 
-                if (prenotazione.getOrePermanenza() % 60 != 0)
+                if (prenotazione.getOrePermanenza() % 60 != 0  || (prenotazione.getOrePermanenza() / 60) == 0)
                     text = text + ", " + String.valueOf(prenotazione.getOrePermanenza() % 60) + " minuti";
 
                 dataPrenotazioneParcheggio.setText(DateFormat.format("dd MMMM yyyy", prenotazione.getData()).toString());

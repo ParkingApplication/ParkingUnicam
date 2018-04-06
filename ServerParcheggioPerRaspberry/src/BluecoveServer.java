@@ -5,9 +5,11 @@ public class BluecoveServer implements Runnable {
 	LocalDevice local = null;
 	StreamConnectionNotifier notifier;
 	String urlremote;
+	String token;
 
-	public BluecoveServer(String urlremote) throws Exception {
+	public BluecoveServer(String urlremote, String token) throws Exception {
 		this.urlremote = urlremote;
+		this.token = token;
 		local = LocalDevice.getLocalDevice();
 		local.setDiscoverable(DiscoveryAgent.GIAC);
 		
@@ -26,7 +28,7 @@ public class BluecoveServer implements Runnable {
 		while (true) {
 			try {
 				connection = notifier.acceptAndOpen();
-				new Thread(new AndroiClientBtThread(connection, urlremote)).start();
+				new Thread(new AndroiClientBtThread(connection, urlremote, token)).start();
 			} catch (Exception e) {
 				e.printStackTrace();
 				return;

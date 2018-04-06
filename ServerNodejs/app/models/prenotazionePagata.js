@@ -9,10 +9,10 @@ var prenotazioniPagate = {
         return db.query("SELECT * FROM prenotazioni_pagate WHERE idUtente=? AND minutiPermanenza>=0;", [idUtente], callback);
     },
     getPrenotazioniDaFinireFromUtente: function (idUtente, callback) {
-        return db.query("SELECT * FROM prenotazioni_pagate WHERE idUtente=? AND minutiPermanenza<0 ", [idUtente], callback);
+        return db.query("SELECT * FROM prenotazioni_pagate WHERE idUtente=? AND minutiPermanenza<0;", [idUtente], callback);
     },
-    getPrenotazioneDaFinireFromCodice: function (codice, callback) {
-        return db.query("SELECT * FROM prenotazioni_pagate WHERE codice=? AND minutiPermanenza<0;", [codice], callback);
+    getPrenotazioneDaFinireFromCodice: function (id, codice, callback) {
+        return db.query("SELECT * FROM prenotazioni_pagate WHERE `idParcheggio`=? AND `codice`=? AND minutiPermanenza<0;", [id, codice], callback);
     },
     getPrenotazioniFromParcheggio: function (idParcheggio, callback) {
         return db.query("SELECT * FROM prenotazioni_pagate WHERE idParcheggio=? AND minutiPermanenza>=0 ORDER BY dataPrenotazione DESC LIMIT 10;", [idParcheggio], callback);

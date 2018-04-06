@@ -158,7 +158,7 @@ apiRoutes.post('/signup', function (req, res) {
                 // Genero il codice di verifica
                 var milliseconds = new Date().getMilliseconds();
                 var data = milliseconds + result.insertId;
-                var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
+                var codice = crypto.createHash('md5').update(data.toString()).digest('hex') + result.insertId;
 
                 // Aggiungo il codice di verifica al database
                 VerificaEmail.addEmailCode(result.insertId, codice, function (err) {
@@ -570,118 +570,6 @@ apiRoutes.post('/resetPassword', function (req, res) {
                         }
                     })
         });
-});
-
-// Route per il server nel parcheggio
-apiRoutes.post('/parcheggio/entrataAutomobilista', function (req, res) {
-    if (req.body.QRCODE == undefined) {
-        res.status(400).json({
-            error: {
-                codice: 7,
-                info: "Campi mancanti."
-            }
-        });
-        return;
-    }
-
-    Prenotazione.getPrenotazioneFromCodice(req.body.QRCODE, function (err, rows) {
-        if (err) {
-            res.status(400).json({
-                error: {
-                    codice: 78,
-                    info: "Riscontrati problemi con il database."
-                }
-            });
-            return;
-        }
-
-        if (rows.length > 0) {
-            PrenotazionePagata.addPrenotazioneDaPagare(rows[0].id_utente, rows[0].id_parcheggio,
-                rows[0].id_tipo_posto, req.body.QRCODE, function (err, result) {
-                    if (err)
-                        res.status(400).json({
-                            error: {
-                                codice: 78,
-                                info: "Riscontrati problemi con il database."
-                            }
-                        });
-                    else {
-                        res.json({
-                            id: result.insertId,
-                            successful: {
-                                codice: 250,
-                                info: "Sei abilitato ad entrare nel parcheggio."
-                            }
-                        });
-
-                        Prenotazione.delPrenotazione(rows[0].id_prenotazione, function (err, result) {
-                            if (err)
-                                console.log("ATTENZIONE!\nPrenotazione da pagare aggiunta ma impossibile cancellarla da quelle in atto.");
-                            else
-                                console.log("Un codice è stato utilizzato per entrare in un parcheggio.\nPrenotazione da pagare aggiunta.");
-                        });
-                    }
-                });
-        }
-        else
-            res.status(400).json({
-                error: {
-                    codice: 68,
-                    info: "Codice prenotazione errato."
-                }
-            });
-    });
-});
-
-apiRoutes.post('/parcheggio/uscitaAutomobilista', function (req, res) {
-    if (req.body.QRCODE == undefined) {
-        res.status(400).json({
-            error: {
-                codice: 7,
-                info: "Campi mancanti."
-            }
-        });
-        return;
-    }
-
-    PrenotazionePagata.getPrenotazioneDaFinireFromCodice(req.body.QRCODE, function (err, rows) {
-        if (err)
-            res.status(400).json({
-                error: {
-                    codice: 78,
-                    info: "Riscontrati problemi con il database."
-                }
-            });
-        else {
-            if (rows.length > 0) {
-                var minutiP = ((new Date().getTime() - rows[0].dataPrenotazione) / 60000);
-                PrenotazionePagata.pagaPrenotazineDaFinire(rows[0].idPrenotazione, minutiP, function (err, result) {
-                    if (err)
-                        res.status(400).json({
-                            error: {
-                                codice: 78,
-                                info: "Riscontrati problemi con il database."
-                            }
-                        });
-                    else
-                        res.json({
-                            minuti: minutiP,
-                            successful: {
-                                codice: 250,
-                                info: "Sei abilitato ad uscire."
-                            }
-                        });
-                });
-            }
-            else
-                res.status(400).json({
-                    error: {
-                        codice: 68,
-                        info: "Codice prenotazione errato."
-                    }
-                });
-        }
-    });
 });
 
 
@@ -1232,7 +1120,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                                 var now = new Date();
                                 var scadenza = new Date((now.getTime() + req.body.tempoExtra));
                                 var data = now.getMilliseconds() + req.user.id;
-                                var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
+                                var codice = crypto.createHash('md5').update(data.toString()).digest('hex') + req.user.id;
 
                                 Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
                                     function (err, result) {
@@ -1315,7 +1203,7 @@ apiRoutes.post('/effettuaPrenotazione', function (req, res) {
                                         var now = new Date();
                                         var scadenza = new Date((now.getTime() + req.body.tempoExtra + tempoArrivo));
                                         var data = now.getMilliseconds() + req.user.id;
-                                        var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
+                                        var codice = crypto.createHash('md5').update(data.toString()).digest('hex') + req.user.id;
 
                                         Prenotazione.addPrenotazione(req.user.id, req.body.idParcheggio, req.body.tipoParcheggio, scadenza, codice,
                                             function (err, result) {
@@ -1498,7 +1386,7 @@ apiRoutes.patch('/resetQRCode', function (req, res) {
         else {
             var datetime = new Date();
             var data = datetime.getMilliseconds() + req.body.idPrenotazione;
-            var codice = crypto.createHash('md5').update(data.toString()).digest('hex');
+            var codice = crypto.createHash('md5').update(data.toString()).digest('hex') + req.body.idPrenotazione;
 
             Prenotazione.updateQRCODE(req.body.idPrenotazione, codice, function (err) {
                 if (err)

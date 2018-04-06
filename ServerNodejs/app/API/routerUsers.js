@@ -386,7 +386,8 @@ apiRoutes.post('/getAllParcheggi', function (req, res) {
                                     y: rows[i].coordinataY
                                 },
                                 tariffaOrariaLavorativi: rows[i].tariffaOrariaLavorativi,
-                                tariffaOrariaFestivi: rows[i].tariffaOrariaFestivi
+                                tariffaOrariaFestivi: rows[i].tariffaOrariaFestivi,
+                                macBT: ConfigConnessione.mac
                             };
 
                             for (var k = 0; k < posti.length; k++)
@@ -455,8 +456,10 @@ apiRoutes.post('/getAllBaseParcheggi', function (req, res) {
                                 x: rows[i].coordinataX,
                                 y: rows[i].coordinataY
                             },
+                            key: rows[i].key,
                             tariffaOrariaLavorativi: rows[i].tariffaOrariaLavorativi,
-                            tariffaOrariaFestivi: rows[i].tariffaOrariaFestivi
+                            tariffaOrariaFestivi: rows[i].tariffaOrariaFestivi,
+                            macBT: ConfigConnessione.mac
                         };
                     }
 
@@ -922,7 +925,8 @@ apiRoutes.post('/getParcheggiFromCoordinate', function (req, res) {
                                         y: rows[i].coordinataY
                                     },
                                     tariffaOrariaLavorativi: rows[i].tariffaOrariaLavorativi,
-                                    tariffaOrariaFestivi: rows[i].tariffaOrariaFestivi
+                                    tariffaOrariaFestivi: rows[i].tariffaOrariaFestivi,
+                                    macBT: ConfigConnessione.mac
                                 };
 
                                 for (var k = 0; k < posti.length; k++)

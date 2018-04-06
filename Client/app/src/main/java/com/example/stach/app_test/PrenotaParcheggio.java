@@ -126,6 +126,7 @@ public class PrenotaParcheggio extends FragmentWithOnBack {
 
         try {
             postData.put("idParcheggio", Parametri.parcheggi.get(index).getId());
+            postData.put("macBT", Parametri.parcheggi.get(index).getMacBT());
             postData.put("tipoParcheggio", tipo_parcheggio);
             postData.put("token", Parametri.Token);
             postData.put("tempoExtra", Parametri.TEMPO_EXTRA);
@@ -194,6 +195,7 @@ public class PrenotaParcheggio extends FragmentWithOnBack {
                 Bundle bundle = new Bundle();
                 bundle.putString("idPrenotazione", String.valueOf(pren.getId()));
                 bundle.putString("NomeParcheggio", String.valueOf(Parametri.parcheggi.get(index).getIndirizzo()));
+                bundle.putString("macBT", String.valueOf(Parametri.parcheggi.get(index).getMacBT()));
                 bundle.putBoolean("needBack", false);
                 getActivity().setTitle("Le tue prenotazioni");
                 //eseguo la transazione

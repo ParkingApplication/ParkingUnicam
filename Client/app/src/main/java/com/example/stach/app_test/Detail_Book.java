@@ -30,6 +30,7 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
     private Prenotazione prenotazione = null;
     private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private BluetoothConnection btCon;
+    private String macBT;
     private boolean needBack;
 
     public Detail_Book() {
@@ -45,6 +46,7 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
 
             needBack = bundle.getBoolean("needBack");
             String parcheggio = bundle.getString("NomeParcheggio");
+            macBT = bundle.getString("macBT");
             int id = Integer.parseInt(bundle.getString("idPrenotazione"));
 
             TextView nomeParcheggio = view.findViewById(R.id.nomeParcheggio);
@@ -198,7 +200,7 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         } else {
-            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("B8:27:EB:BD:DE:69");
+            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macBT);
             btCon = new BluetoothConnection(device);
             btCon.addListener(this);
             pDialog = ProgressDialog.show(getContext(), "Attendere", "Connessione Bluetooth in corso...", true);
@@ -211,7 +213,7 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
         switch (requestCode) {
             case REQUEST_ENABLE_BT:
                 if (mBluetoothAdapter.isEnabled()) {
-                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("B8:27:EB:BD:DE:69");
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macBT);
                     btCon = new BluetoothConnection(device);
                     btCon.addListener(this);
                     pDialog = ProgressDialog.show(getContext(), "Attendere", "Connessione Bluetooth in corso...", true);

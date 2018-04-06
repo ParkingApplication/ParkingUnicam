@@ -73,6 +73,7 @@ public class FragmentPrenotazioniDaPagare extends FragmentWithOnBack {
                                 Bundle bundle = new Bundle();
                                 bundle.putString("idPrenotazione", String.valueOf(Parametri.prenotazioniDaPagare.get(index).getId()));
                                 bundle.putString("NomeParcheggio", String.valueOf(parcheggi.get(index).getIndirizzo()));
+                                bundle.putString("macBT", String.valueOf(parcheggi.get(index).getMacBT()));
                                 //eseguo la transazione
                                 FragmentManager fragmentManager = getActivity().getSupportFragmentManager();
                                 FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();

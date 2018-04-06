@@ -688,6 +688,7 @@ indexApp.controller('gestisciParcheggiAdmin', function ($scope, $http, $localSto
                         x: $("#latitutineNuovo").val(),
                         y: $("#longitutineNuovo").val()
                     },
+                    key: CryptoJS.SHA1($("#keyNuovo").val()).toString(),
                     tariffaOrariaLavorativi: $("#tariffaOrariaLavorativiNuovo").val(),
                     tariffaOrariaFestivi: $("#tariffaOrariaFestiviNuovo").val(),
                     nPostiMacchina: $("#nPostiMacchinaNuovo").val(),
@@ -778,6 +779,7 @@ indexApp.controller('gestisciParcheggiAdmin', function ($scope, $http, $localSto
             $("#provincia" + index).removeAttr("disabled");
             $("#latitutine" + index).removeAttr("disabled");
             $("#longitutine" + index).removeAttr("disabled");
+            $("#key" + index).removeAttr("disabled");
             $("#tariffaOrariaFestivi" + index).removeAttr("disabled");
             $("#tariffaOrariaLavorativi" + index).removeAttr("disabled");
             $("#nPostiMacchina" + index).removeAttr("disabled");
@@ -799,6 +801,7 @@ indexApp.controller('gestisciParcheggiAdmin', function ($scope, $http, $localSto
             $("#provincia" + index).attr("disabled", "disabled");
             $("#latitutine" + index).attr("disabled", "disabled");
             $("#longitutine" + index).attr("disabled", "disabled");
+            $("#key" + index).attr("disabled", "disabled");
             $("#tariffaOrariaFestivi" + index).attr("disabled", "disabled");
             $("#tariffaOrariaLavorativi" + index).attr("disabled", "disabled");
             $("#nPostiMacchina" + index).attr("disabled", "disabled");
@@ -820,6 +823,7 @@ indexApp.controller('gestisciParcheggiAdmin', function ($scope, $http, $localSto
             $("#provincia" + index).val($scope.Parcheggi[index].indirizzo.provincia);
             $("#latitutine" + index).val($scope.Parcheggi[index].coordinate.x);
             $("#longitutine" + index).val($scope.Parcheggi[index].coordinate.y);
+            $("#key" + index).val("");
             $("#tariffaOrariaFestivi" + index).val($scope.Parcheggi[index].tariffaOrariaFestivi);
             $("#tariffaOrariaLavorativi" + index).val($scope.Parcheggi[index].tariffaOrariaLavorativi);
             $("#nPostiMacchina" + index).val($scope.Parcheggi[index].nPostiMacchina);
@@ -831,6 +835,11 @@ indexApp.controller('gestisciParcheggiAdmin', function ($scope, $http, $localSto
     };
 
     $scope.SalvaParcheggio = function (index) {
+        newKey = $scope.Parcheggi[index].key;
+
+        if ($("#key" + index).val() !== undefined && $("#key" + index).val().length > 0)
+            newKey = CryptoJS.SHA1($("#key" + index).val()).toString();
+
         var parametri = {
             token: curToken.value,
             parcheggio: {
@@ -842,6 +851,7 @@ indexApp.controller('gestisciParcheggiAdmin', function ($scope, $http, $localSto
                     via: $("#via" + index).val() || $scope.Parcheggi[index].indirizzo.via,
                     n_civico: $("#n_civico" + index).val() || $scope.Parcheggi[index].indirizzo.n_civico
                 },
+                key: newKey,
                 coordinate: {
                     x: $("#latitutine" + index).val() || $scope.Parcheggi[index].coordinate.x,
                     y: $("#longitutine" + index).val() || $scope.Parcheggi[index].coordinate.y

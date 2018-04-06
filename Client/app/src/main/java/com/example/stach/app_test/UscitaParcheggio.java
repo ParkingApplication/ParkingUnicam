@@ -22,6 +22,7 @@ public class UscitaParcheggio extends FragmentWithOnBack implements BluetoothCon
     private PrenotazioneDaPagare prenotazione = null;
     private BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
     private BluetoothConnection btCon;
+    private String macBT;
 
     public UscitaParcheggio() {
 
@@ -35,6 +36,7 @@ public class UscitaParcheggio extends FragmentWithOnBack implements BluetoothCon
             Bundle bundle = getArguments();
 
             String parcheggio = bundle.getString("NomeParcheggio");
+            macBT = bundle.getString("macBT");
             int id = Integer.parseInt(bundle.getString("idPrenotazione"));
 
             TextView nomeParcheggio = view.findViewById(R.id.nomeParcheggioExit);
@@ -88,11 +90,29 @@ public class UscitaParcheggio extends FragmentWithOnBack implements BluetoothCon
             Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         } else {
-            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("B8:27:EB:BD:DE:69");
+            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macBT);
             btCon = new BluetoothConnection(device);
             btCon.addListener(this);
             pDialog = ProgressDialog.show(getContext(), "Attendere", "Connessione Bluetooth in corso...", true);
             btCon.openConnection();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_ENABLE_BT:
+                if (mBluetoothAdapter.isEnabled()) {
+                    BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(macBT);
+                    btCon = new BluetoothConnection(device);
+                    btCon.addListener(this);
+                    pDialog = ProgressDialog.show(getContext(), "Attendere", "Connessione Bluetooth in corso...", true);
+                    btCon.openConnection();
+                } else
+                    Toast.makeText(getContext(), "Deve accendere il Bluetooth per inviare il codice.", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                super.onActivityResult(requestCode, resultCode, data);
         }
     }
 

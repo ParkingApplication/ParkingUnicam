@@ -16,23 +16,11 @@ public class Parcheggio {
     private double prezzoFestivi;
     private double prezzoLavorativi;
 
+    // Indirizzo mac bluetooth parcheggio (potrebbe essere utile cosidernarne più di uno per parcheggio)
+    private String macBT;
+
     // Info restituite da google map
     private String info;
-
-    // Costruttore parcheggio
-    public Parcheggio(int id, String indirizzo, LatLng coordinate, int[] postiLiberi, double prezzoFestivi, double prezzoLavorativi) {
-        this.postiLiberi = new int[TipoPosto.N_POSTI];
-
-        if (postiLiberi.length != TipoPosto.N_POSTI)
-            throw new Error("Parametri errati");
-
-        this.id = id;
-        this.indirizzo = indirizzo;
-        this.coordinate = coordinate;
-        this.prezzoFestivi = prezzoFestivi;
-        this.prezzoLavorativi = prezzoLavorativi;
-        this.info = "";
-    }
 
     // Costruttore parcheggio senza posti liberi da stringa formattata in JSon
     public Parcheggio(String JSonobj)throws Exception {
@@ -51,6 +39,7 @@ public class Parcheggio {
         this.prezzoLavorativi = jobj.getDouble("tariffaOrariaLavorativi");
         this.prezzoFestivi = jobj.getDouble("tariffaOrariaFestivi");
         this.coordinate = new LatLng(x, y);
+        this.macBT = jobj.getString("macBT");
 
         this.postiLiberi[TipoPosto.AUTO] = jobj.getInt("nPostiMacchina");
         this.postiLiberi[TipoPosto.AUTOBUS] = jobj.getInt("nPostiAutobus");
@@ -107,5 +96,9 @@ public class Parcheggio {
 
     public void setInfo(String info) {
         this.info = info;
+    }
+
+    public String getMacBT () {
+        return this.macBT;
     }
 }

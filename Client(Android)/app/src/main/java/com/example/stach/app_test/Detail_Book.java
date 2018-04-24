@@ -264,7 +264,10 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
 
         PrenotazioneDaPagare pnuova = null;
 
-        if (app[0].compareTo(BluetoothConnection.SUCCESS) == 0) {
+        if (app[0].compareTo(BluetoothConnection.ERROR) == 0) {
+            showToastAsynch(response, Toast.LENGTH_LONG);
+            goBackAsynch(false);
+        } else if (app[0].compareTo(BluetoothConnection.SUCCESS) == 0) {
             Parametri.prenotazioniInCorso.remove(prenotazione);
 
             if (Parametri.prenotazioniDaPagare == null)
@@ -282,10 +285,12 @@ public class Detail_Book extends FragmentWithOnBack implements ConnessioneListen
             }
 
             Parametri.prenotazioniDaPagare.add(pnuova);
+            showToastAsynch(response, Toast.LENGTH_LONG);
+            goBackAsynch(true);
+        } else {
+            showToastAsynch("Errore di risposta del ServerParcheggio.\nRisposta non riconosciuta.", Toast.LENGTH_LONG);
+            goBackAsynch(false);
         }
-
-        showToastAsynch(response, Toast.LENGTH_LONG);
-        goBackAsynch(true);
     }
 
     private void showToastAsynch(String msg, int durata) {
